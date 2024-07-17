@@ -9,13 +9,22 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.8.2",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@headlessui/react": "^2.1.2",
+    "@heroicons/react": "^2.1.5",
+    "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
+    "framer-motion": "^11.3.6",
     "mongodb": "^6.7.0",
     "mongoose": "^8.4.1",
     "next": "14.2.4",
     "next-auth": "^4.24.7",
     "react": "^18",
-    "react-dom": "^18"
+    "react-chartjs-2": "^5.2.0",
+    "react-dom": "^18",
+    "react-router-dom": "^6.25.0"
   },
   "devDependencies": {
     "eslint": "^8",

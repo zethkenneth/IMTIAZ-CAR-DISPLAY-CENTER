@@ -58,7 +58,7 @@ const Inventory = () => {
     <>
       <InventoryNavBar />
       <main>
-        <div className="flex flex-wrap p-5">
+        <div className="flex flex-wrap p-5 gap-5">
           {products.map((product, i) => (
             <ProductCard key={i} {...product} />
           ))}

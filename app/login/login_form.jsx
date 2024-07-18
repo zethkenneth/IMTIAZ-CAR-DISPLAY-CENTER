@@ -18,7 +18,7 @@ const LoginForm = () => {
       type: "text",
       placeholder: "Enter email",
       value: email,
-      onChange: setEmail,
+      setValue: setEmail,
     },
     {
       icon: <LockClosedIcon className="h-6 w-6" />,
@@ -27,14 +27,14 @@ const LoginForm = () => {
       type: "password",
       placeholder: "Enter password",
       value: password,
-      onChange: setPassword,
+      setValue: setPassword,
     },
   ];
 
   function handleSignIn(stopLoading) {
     setTimeout(() => {
       stopLoading();
-      router.push("/dashboard");
+      router.push("/dashboard/");
     }, [500]);
   }
 

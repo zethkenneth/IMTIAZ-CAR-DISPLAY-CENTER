@@ -13,7 +13,7 @@ const ButtonComponent = ({
   const toggleLoading = () => setLoading(!loading);
 
   const handleClick = () => {
-    if (loadingLabel !== null) {
+    if (loadingLabel === null) {
       onClick();
       return;
     }

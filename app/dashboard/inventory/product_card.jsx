@@ -1,33 +1,44 @@
+import { Avatar, Box, Center, Flex, Heading, Text } from "@chakra-ui/react";
+import ButtonComponent from "@components/button";
 import React from "react";
 
 const ProductCard = ({ image, name, price }) => {
+  function handleAddToCard(stopLoading) {
+    setTimeout(() => stopLoading(), 500);
+  }
+
   return (
-    <div
-      style={{ width: "14rem" }}
-      className="max-w-sm w-full sm:w-1/3 h-90 flex flex-col shadow-lg rounded-lg overflow-hidden m-4"
+    <Flex
+      w="15rem"
+      flexDirection="column"
+      justifyContent="space-between"
+      alignItems="center"
+      boxShadow="md"
+      overflow="hidden"
     >
-      <div
-        className="flex-shrink-0 p-2 h-36 bg-contain repeat-none bg-center"
-        style={{
-          backgroundImage: `url(${image})`,
-          backgroundRepeat: "no-repeat",
-          mixBlendMode: "multiply",
-        }}
-      ></div>
-      <div className="flex-1 w-full p-4 pt-2 flex flex-col justify-between leading-normal">
-        <div className="mb-2">
-          <h2 className="text-gray-900 font-bold text-md mb-2">{name}</h2>
-        </div>
-        <div className="mb-2">
-          <p className="text-gray-900 text-sm">
-            Price: <strong>${price.toFixed(2)}</strong>
-          </p>
-        </div>
-        <button className="w-full bg-blue-500 mt-2 text-white font-medium py-1 px-2 rounded-lg hover:bg-blue-600">
-          Add to Cart
-        </button>
-      </div>
-    </div>
+      <Box w="100%" h="100%" bg="gray.100" p={5}>
+        <Flex justifyContent="center" w="100%" h="auto">
+          <Avatar src={image} name={name} size="2xl" />
+        </Flex>
+      </Box>
+      <Flex
+        gap={5}
+        w="100%"
+        h="7rem"
+        flexDir="column"
+        textAlign="center"
+        justifyContent="space-between"
+        p={5}
+      >
+        <Flex flexDir="column" alignItems="start">
+          <Heading size="sm">{name}</Heading>
+          <Text>
+            <strong>{price.toFixed(2)}</strong>
+          </Text>
+        </Flex>
+        <ButtonComponent label="Add to Card" onClick={handleAddToCard} />
+      </Flex>
+    </Flex>
   );
 };
 

@@ -18,11 +18,7 @@
     "@heroicons/react": "^2.1.5",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
-<<<<<<< HEAD
-    "framer-motion": "^11.3.6",
-=======
     "dotenv": "^16.4.5",
->>>>>>> 8f8b1c491f45b643be6a08fae9506bb881c3f766
     "mongodb": "^6.7.0",
     "mongoose": "^8.4.1",
     "next": "14.2.4",
@@ -30,14 +26,11 @@
     "pg": "^8.12.0",
     "pg-hstore": "^2.3.4",
     "react": "^18",
-<<<<<<< HEAD
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18",
-    "react-router-dom": "^6.25.0"
-=======
-    "react-dom": "^18",
-    "sequelize": "^6.37.3"
->>>>>>> 8f8b1c491f45b643be6a08fae9506bb881c3f766
+    "react-router-dom": "^6.25.1",
+    "sequelize": "^6.37.3",
+    "zustand": "^4.5.4"
   },
   "devDependencies": {
     "eslint": "^8",

@@ -10,6 +10,7 @@ import { BellIcon } from "@heroicons/react/24/outline";
 import Guide from "./guide/page";
 import About from "./about/page";
 import Services from "./services/page";
+import Products from "./products/page";
 
 function page() {
   const [isSidebarOpen, setSidebarOpen] = useState(true); // Start with sidebar open
@@ -62,6 +63,7 @@ function page() {
               <Route path="/dashboard/services" element={<Services />} />
               <Route path="/dashboard/guide" element={<Guide />} />
               <Route path="/dashboard/inventory" element={<Inventory />} />
+              <Route path="/dashboard/products" element={<Products />} />
             </Routes>
           </main>
         </div>

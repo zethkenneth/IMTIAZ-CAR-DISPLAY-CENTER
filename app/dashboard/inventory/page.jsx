@@ -2,68 +2,86 @@
 
 import InventoryNavBar from "./inventory_nav_bar";
 import ProductCard from "./product_card";
+import { carJsonData } from "./data";
+import ModalComponent from "@components/ModalComponent";
+import { Flex, useDisclosure, Wrap } from "@chakra-ui/react";
+import useStateStructureGenerator from "@utils/StateStructureGenerator";
+import StateStructureInputsComponents from "@utils/StateStructureInputsComponents";
+import ButtonComponent from "@components/button";
+import { useState } from "react";
 
 const Inventory = () => {
-  const products = [
-    {
-      image:
-        "https://www.thewheelexchange.com/cdn/shop/files/17584_d0891bbb-c3af-411a-9e14-5d4605404e57_2048x.jpg?v=1709694411",
-      name: "Ford Wheel",
-      description: "chief",
-      stocks: "25 pcs",
-      price: 250,
-      vat: 50,
-      category: "rim",
-    },
-    {
-      image:
-        "https://www.cjponyparts.com/media/catalog/product/cache/41573c7cc04735120df5cb9016ff5ad7/m/1/m1007ks2295sb_1.1281_1.jpg",
-      name: "Ford Performance Wheel 22",
-      description: "chief",
-      stocks: "25 pcs",
-      price: 250,
-      vat: 50,
-      category: "rim",
-    },
-    {
-      image:
-        "https://img.lazcdn.com/g/p/adf369dbd13c624b4179fc20d288ad40.jpg_2200x2200q80.jpg_.webp",
-      name: "Pochi",
-      description: "chief",
-      stocks: "25 pcs",
-      price: 250,
-      vat: 50,
-    },
-    {
-      image:
-        "https://img.lazcdn.com/g/p/adf369dbd13c624b4179fc20d288ad40.jpg_2200x2200q80.jpg_.webp",
-      name: "Pochi",
-      description: "chief",
-      stocks: "25 pcs",
-      price: 250,
-      vat: 50,
-    },
-    {
-      image:
-        "https://img.lazcdn.com/g/p/adf369dbd13c624b4179fc20d288ad40.jpg_2200x2200q80.jpg_.webp",
-      name: "Pochi",
-      description: "chief",
-      stocks: "25 pcs",
-      price: 250,
-      vat: 50,
-    },
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [title, setTitle] = useState("New");
+
+  const labels = [
+    "i.Name",
+    "i.Description",
+    "i.Year",
+    "i.Model",
+    "i.Type",
+    "i.Price",
+    "i.Quantity",
   ];
+  const formState = useStateStructureGenerator(labels);
+  const stateStructureInputsComponent = new StateStructureInputsComponents(
+    labels,
+    formState,
+    "16rem",
+    null
+  );
+
+  function handleAddProduct() {}
+
+  function handleCancel() {
+    onClose();
+  }
+
+  function handleEdit() {
+    onOpen();
+    setTitle("Update");
+  }
 
   return (
     <>
-      <InventoryNavBar />
+      <InventoryNavBar openModal={onOpen} />
       <main>
         <div className="flex flex-wrap p-5">
-          {products.map((product, i) => (
-            <ProductCard key={i} {...product} />
+          {carJsonData.map((product, i) => (
+            <ProductCard
+              key={i}
+              {...product}
+              isInventoryDisplay={true}
+              edit={handleEdit}
+            />
           ))}
         </div>
       </main>
+      <ModalComponent
+        title="New Product"
+        withCloseButton={true}
+        isOpen={isOpen}
+        onClose={onClose}
+        size="2xl"
+        footer={
+          <Flex gap={5}>
+            <ButtonComponent w="6rem" label="Save" onClick={handleAddProduct} />
+            <ButtonComponent
+              w="6rem"
+              label="Cancel"
+              variant="secondary"
+              onClick={handleCancel}
+            />
+          </Flex>
+        }
+      >
+        <Wrap spacingX={10} spacingY={7} justifyItems="center">
+          {
+            /** Patient Personal Information */
+            stateStructureInputsComponent.render("0.6")
+          }
+        </Wrap>
+      </ModalComponent>
     </>
   );
 };

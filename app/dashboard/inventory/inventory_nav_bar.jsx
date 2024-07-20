@@ -1,7 +1,31 @@
-const InventoryNavBar = () => {
+"use client";
+
+import { useState } from "react";
+import { Box, Button, ButtonGroup, Flex, Heading } from "@chakra-ui/react";
+import ButtonComponent from "@components/button";
+import { PlusIcon } from "@heroicons/react/24/outline";
+
+const InventoryNavBar = ({ openModal }) => {
+  const [activeButton, setActiveButton] = useState("Brand New");
+
+  const handleClick = (button) => {
+    setActiveButton(button);
+  };
+
+  function handleOpenAddProduct() {
+    openModal();
+  }
+
   return (
-    <div className="flex justify-between items-center bg-gray-100 border-b border-gray-300">
-      <h1 className="text-2xl">Inventory</h1>
+    <Flex
+      justifyContent="space-between"
+      alignItems="center"
+      pl={2}
+      pr={5}
+      borderBottom="1px solid gray"
+      bg="gray.100"
+    >
+      <Heading size="md">Inventory Management</Heading>
       <div className="flex justify-between items-center bg-gray-100 p-2">
         {/* Search Bar */}
         <div className="flex-1 flex items-center px-4 bg-orange">
@@ -11,28 +35,36 @@ const InventoryNavBar = () => {
             className="w-full h-10 px-4 border rounded-3xl shadow-sm"
           />
         </div>
-        {/* All Button */}
-        <button className="mx-2 px-4 py-2 bg-orange-500 text-white rounded-3xl hover:bg-orange-600">
-          All
-        </button>
 
         {/* Category Buttons */}
-        <div className="flex space-x-2">
-          <button className="px-4 py-2 bg-gray-500 text-white rounded-3xl hover:bg-orange-600">
-            New Car
-          </button>
-          <button className="px-4 py-2 bg-gray-500 text-white rounded-3xl hover:bg-orange-600">
-            Second Hand
-          </button>
-          <button className="px-4 py-2 bg-gray-500 text-white rounded-3xl hover:bg-orange-600">
-            Parts
-          </button>
-          <button className="px-4 py-2 bg-gray-500 text-white rounded-3xl hover:bg-orange-600">
-            Low Stock
-          </button>
-        </div>
+
+        <ButtonGroup spacing="2">
+          {["Brand New", "Second Hand", "Parts", "Low Stock"].map(
+            (label, index) => (
+              <Button
+                key={index}
+                px="4"
+                py="2"
+                bg={activeButton === label ? "orange" : "gray.500"}
+                color="white"
+                rounded="3xl"
+                _hover={{ bg: "orange.600" }}
+                onClick={() => handleClick(label)}
+              >
+                {label}
+              </Button>
+            )
+          )}
+        </ButtonGroup>
       </div>
-    </div>
+      <Box w="10rem">
+        <ButtonComponent
+          icon={<PlusIcon />}
+          label="New Product"
+          onClick={handleOpenAddProduct}
+        />
+      </Box>
+    </Flex>
   );
 };
 

@@ -2,11 +2,13 @@ import { Button, Text } from "@chakra-ui/react";
 import { useState } from "react";
 
 const ButtonComponent = ({
+  w = null,
   label,
-  loadingLabel,
+  loadingLabel = null,
   icon,
   onClick,
   variant = "primary",
+  style = {},
 }) => {
   const [loading, setLoading] = useState(false);
 
@@ -23,13 +25,15 @@ const ButtonComponent = ({
 
   return (
     <Button
-      w="100%"
+      w={w === null ? "100%" : w}
+      size="sm"
       bg={variant === "primary" ? "orange" : "gray.100"}
       isLoading={loadingLabel !== null ? loading : false}
       _hover={{ bg: variant === "primary" ? "orange.400" : "gray" }}
       leftIcon={icon}
       loadingText={loadingLabel}
       onClick={handleClick}
+      style={style}
     >
       <Text>{label}</Text>
     </Button>

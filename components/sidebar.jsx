@@ -4,7 +4,7 @@ import { Link } from "react-router-dom"; // Assuming you're using react-router f
 import {
   ArchiveBoxIcon,
   ChartPieIcon,
-  DevicePhoneMobileIcon,
+  ShoppingCartIcon,
   InformationCircleIcon,
   WrenchScrewdriverIcon,
   ArrowLeftEndOnRectangleIcon,
@@ -25,6 +25,11 @@ const Sidebar = ({ isMini }) => {
       icon: <WrenchScrewdriverIcon className="h-5 w-5" />,
       label: "Services",
       to: "/services",
+    },
+    {
+      icon: <ShoppingCartIcon className="h-5 w-5" />,
+      label: "Products",
+      to: "/products",
     },
     {
       icon: <ArchiveBoxIcon className="h-5 w-5" />,

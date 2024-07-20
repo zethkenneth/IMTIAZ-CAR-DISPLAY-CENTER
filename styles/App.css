@@ -1,0 +1,334 @@
+.App {
+  text-align: center;
+}
+
+.rotatecircle {
+  animation: rotateupanddown 2s ease-in-out;
+  animation-timing-function: linear;
+  animation-iteration-count: 2;
+  color: #84a189;
+  font-weight: bold;
+}
+.notfound {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(50%, 50%);
+}
+
+.searchBox {
+  animation: rotateupanddowns 2s ease-in-out;
+  animation-timing-function: linear;
+  animation-iteration-count: 2;
+  position: absolute;
+  left: 0%;
+  top: 0%;
+}
+
+@media screen and (max-width: 768px) {
+  .notfound {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes rotateupanddowns {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotateupanddown {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .authbox {
+    border: none;
+    box-shadow: unset;
+  }
+}
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+.chatbox:focus {
+  -webkit-box-shadow: 0px 2px 19px 3px rgba(198, 247, 201, 1);
+  -moz-box-shadow: 0px 2px 19px 3px rgba(198, 247, 201, 1);
+  box-shadow: 0px 2px 19px 3px rgba(198, 247, 201, 1);
+}
+
+.removeFile {
+  transition: all ease-out 0.5s;
+  align-items: center;
+  justify-content: center;
+  padding-left: 10px;
+}
+.removeFile:hover {
+  background-color: #d1d8e6;
+  text-align: center;
+  color: rgb(197, 98, 98);
+}
+.attacheditems {
+  transition: all ease-in-out 0.2s;
+}
+.attacheditems:hover {
+  -webkit-box-shadow: 0px 2px 19px 3px rgba(182, 209, 214, 1);
+  -moz-box-shadow: 0px 2px 19px 3px rgba(182, 209, 214, 1);
+  box-shadow: 0px 2px 19px 3px rgba(182, 209, 214, 1);
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cardBox {
+  transition: all ease 0.2s;
+}
+
+.cardBox:hover .cardIcon {
+  animation: swing 0.3s;
+}
+
+.cardBox:hover {
+  -webkit-box-shadow: 1px 4px 16px -3px rgba(179, 172, 179, 1);
+  -moz-box-shadow: 1px 4px 16px -3px rgba(179, 172, 179, 1);
+  box-shadow: 1px 4px 16px -3px rgba(179, 172, 179, 1);
+}
+
+.navigation:hover p {
+  transition: all ease-in-out 0.08s;
+  font-size: larger;
+}
+
+#btnMenuProfile {
+  padding: 8px;
+  background-color: #dfece8;
+  border-radius: 360px;
+  transition: all ease-in 0.2s;
+  margin-top: -3px;
+  color: #489178;
+}
+
+.btnMenuProfile:hover #btnMenuProfile {
+  background-color: #a5f5dd;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(20deg);
+  }
+  10% {
+    transform: rotate(45deg);
+  }
+  20% {
+    transform: rotate(90deg);
+  }
+  30% {
+    transform: rotate(180deg);
+  }
+  40% {
+    transform: rotate(260deg);
+  }
+  50% {
+    transform: rotate(360deg);
+  }
+  60% {
+    transform: rotate(380deg);
+  }
+  70% {
+    transform: rotate(360deg);
+  }
+  80% {
+    transform: rotate(260deg);
+  }
+  90% {
+    transform: rotate(90deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.navigation:hover p {
+  transition: all ease-in-out 0.08s;
+  font-size: larger;
+}
+
+#btnMenuProfile {
+  padding: 8px;
+  background-color: #dfece8;
+  border-radius: 360px;
+  transition: all ease-in 0.2s;
+  margin-top: -3px;
+  color: #489178;
+}
+
+.btnMenuProfile:hover #btnMenuProfile {
+  background-color: #a5f5dd;
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(20deg);
+  }
+  10% {
+    transform: rotate(45deg);
+  }
+  20% {
+    transform: rotate(90deg);
+  }
+  30% {
+    transform: rotate(180deg);
+  }
+  40% {
+    transform: rotate(260deg);
+  }
+  50% {
+    transform: rotate(360deg);
+  }
+  60% {
+    transform: rotate(380deg);
+  }
+  70% {
+    transform: rotate(360deg);
+  }
+  80% {
+    transform: rotate(260deg);
+  }
+  90% {
+    transform: rotate(90deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes swing {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  10% {
+    transform: rotate(10deg);
+  }
+
+  30% {
+    transform: rotate(0deg);
+  }
+
+  40% {
+    transform: rotate(-10deg);
+  }
+
+  50% {
+    transform: rotate(0deg);
+  }
+
+  60% {
+    transform: rotate(5deg);
+  }
+
+  70% {
+    transform: rotate(0deg);
+  }
+
+  80% {
+    transform: rotate(-5deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
+}
+.searchDoctor {
+  transition: all ease 1s;
+}
+.searchDoctor::placeholder {
+  font-style: italic;
+}
+.searchDoctor:focus {
+  -webkit-box-shadow: 0px 3px 5px 1px rgba(173, 170, 173, 1);
+  -moz-box-shadow: 0px 3px 5px 1px rgba(173, 170, 173, 1);
+  box-shadow: 0px 3px 5px 1px rgba(173, 170, 173, 1);
+}
+.bdhover {
+  transition: all ease-in 0.1s;
+  border-left: 4px solid#FFFFFFFF;
+}
+.table-data {
+  transition: all ease 0.1s;
+  border-left: 4px solid #ffffffff;
+  border: 1px solid #ffffffff;
+  cursor: pointer;
+}
+.table-data:hover .bdhover {
+  border-left: 4px solid #82b38d;
+}
+
+.doctorname {
+  transition: all ease-in-out 0.4s;
+}
+.table-data:hover .doctorname {
+  text-decoration: underline;
+}
+
+.table-data:hover {
+  /* border-left:4px solid  #82B38D; */
+
+  -webkit-box-shadow: -1px 3px 8px 0px rgba(217, 214, 217, 1);
+  -moz-box-shadow: -1px 3px 8px 0px rgba(217, 214, 217, 1);
+  box-shadow: -1px 3px 8px 0px rgba(217, 214, 217, 1);
+  background-color: #ebf3ed;
+}
+
+@media screen and (max-width: 768px) {
+  .table-overflow {
+    max-width: 768px;
+    overflow-x: scroll;
+  }
+}
+
+.patient__Name:hover {
+  text-decoration: underline;
+}
+
+.textArea::placeholder {
+  font-style: italic;
+}

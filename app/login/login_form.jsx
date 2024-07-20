@@ -34,7 +34,7 @@ const LoginForm = () => {
   function handleSignIn(stopLoading) {
     setTimeout(() => {
       stopLoading();
-      router.push("/dashboard");
+      router.push("/dashboard/");
     }, [500]);
   }
 

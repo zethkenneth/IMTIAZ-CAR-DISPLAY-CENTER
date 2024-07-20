@@ -1,0 +1,3 @@
+docker exec -it postgres_container psql -U user -d db_imtiaz
+
+docker-compose up -d

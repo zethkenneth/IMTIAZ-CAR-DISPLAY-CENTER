@@ -5,8 +5,7 @@ import { Box, Button, ButtonGroup, Flex, Heading } from "@chakra-ui/react";
 import ButtonComponent from "@components/button";
 import { PlusIcon } from "@heroicons/react/24/outline";
 
-const InventoryNavBar = ({ openModal }) => {
-  const [activeButton, setActiveButton] = useState("Brand New");
+const InventoryNavBar = ({ search, setSearch, activeButton, setActiveButton, openModal }) => {
 
   const handleClick = (button) => {
     setActiveButton(button);
@@ -33,13 +32,15 @@ const InventoryNavBar = ({ openModal }) => {
             type="text"
             placeholder="Search..."
             className="w-full h-10 px-4 border rounded-3xl shadow-sm"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
           />
         </div>
 
         {/* Category Buttons */}
 
         <ButtonGroup spacing="2">
-          {["Brand New", "Second Hand", "Parts", "Low Stock"].map(
+          {["Brand New", "Second Hand", "Auto Part", "Low Stock"].map(
             (label, index) => (
               <Button
                 key={index}

@@ -14,7 +14,7 @@ function Rootlayout({ children }) {
           <SessionProvider>
             <ChakraProvider>{children}</ChakraProvider>
           </SessionProvider>
-          <Chatbot />
+          {/* <Chatbot /> */}
         </main>
       </body>
     </html>

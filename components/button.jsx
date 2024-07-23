@@ -14,9 +14,9 @@ const ButtonComponent = ({
 
   const toggleLoading = () => setLoading(!loading);
 
-  const handleClick = () => {
+  const handleClick = (e) => {
     if (loadingLabel === null) {
-      onClick();
+      onClick(e);
       return;
     }
     toggleLoading();

@@ -2,17 +2,21 @@
 
 import InventoryNavBar from "./inventory_nav_bar";
 import ProductCard from "./product_card";
-import { carJsonData } from "./data";
 import ModalComponent from "@components/ModalComponent";
-import { Flex, useDisclosure, Wrap } from "@chakra-ui/react";
+import { Box, Flex, useDisclosure, Wrap } from "@chakra-ui/react";
 import useStateStructureGenerator from "@utils/StateStructureGenerator";
 import StateStructureInputsComponents from "@utils/StateStructureInputsComponents";
+import DraggableProfilePictureUpload from "@components/DraggableProfilePictureUpload";
 import ButtonComponent from "@components/button";
+import { productJsonData } from "./data";
 import { useState } from "react";
 
 const Inventory = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [title, setTitle] = useState("New");
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [activeButton, setActiveButton] = useState("Brand New");
+  const [search, setSearch] = useState(null)
 
   const labels = [
     "i.Name",
@@ -42,12 +46,31 @@ const Inventory = () => {
     setTitle("Update");
   }
 
+  const stockThreshold = 10;
+  
+  const filterProducts = (data, filterCriteria, stockThreshold) => {
+    return data.filter((value) => {
+      if (filterCriteria === "low stock") {
+        return value.quantity < stockThreshold;
+      } else if (filterCriteria === "brand new" || filterCriteria === "second hand") {
+        return value.category === "car" && value.type === filterCriteria;
+      } else if (filterCriteria === "auto part") {
+        return value.category === "auto part";
+      }
+      return false;
+    });
+  };
+
+  const filteredData = filterProducts(productJsonData, activeButton.toLocaleLowerCase(), stockThreshold);
+
   return (
     <>
-      <InventoryNavBar openModal={onOpen} />
+      <InventoryNavBar search={search} setSearch={setSearch} activeButton={activeButton} setActiveButton={setActiveButton} openModal={onOpen} />
       <main>
         <div className="flex flex-wrap p-5">
-          {carJsonData.map((product, i) => (
+          { filteredData 
+            .filter((value) => search !== null? value.name.toLocaleLowerCase().includes(search.toLocaleLowerCase()): value)
+            .map((product, i) => (
             <ProductCard
               key={i}
               {...product}
@@ -81,6 +104,12 @@ const Inventory = () => {
             stateStructureInputsComponent.render("0.6")
           }
         </Wrap>
+        <Box mt={5}>
+            <DraggableProfilePictureUpload
+                profilePicture={profilePicture}
+                setProfilePicture={setProfilePicture}
+            />
+        </Box>
       </ModalComponent>
     </>
   );

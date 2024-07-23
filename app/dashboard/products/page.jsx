@@ -1,8 +1,8 @@
 "use client";
 
 import ProductCard from "../inventory/product_card";
-import { carJsonData } from "../inventory/data";
-import { Box, Flex, Heading, useDisclosure, Wrap } from "@chakra-ui/react";
+import { productJsonData } from "../inventory/data";
+import { Box, Flex, Heading } from "@chakra-ui/react";
 
 const Products = () => {
   function handleAddToCard() {}
@@ -21,7 +21,7 @@ const Products = () => {
       </Flex>
       <main>
         <div className="flex flex-wrap p-5">
-          {carJsonData.map((product, i) => (
+          {productJsonData.map((product, i) => (
             <ProductCard key={i} {...product} isInventoryDisplay={false} />
           ))}
         </div>

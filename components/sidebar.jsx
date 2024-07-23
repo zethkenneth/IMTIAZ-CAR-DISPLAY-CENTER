@@ -71,7 +71,7 @@ const Sidebar = ({ isMini }) => {
       <div className={`mt-4 flex flex-col justify-between gap-20`}>
         <Link href="/" className="flex gap-2 flex-start ml-5">
           <Image
-            src="assets/images/logo.svg"
+            src="/assets/images/logo.svg"
             alt="LOGO!"
             width={30}
             height={30}

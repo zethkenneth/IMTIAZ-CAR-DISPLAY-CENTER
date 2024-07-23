@@ -42,7 +42,6 @@ const ModalComponent = ({
           <ModalCloseButton _hover={{ bg: "transparent" }} />
         ) : null}
         <ModalBody>{children}</ModalBody>
-
         <ModalFooter>{footer}</ModalFooter>
       </ModalContent>
     </Modal>

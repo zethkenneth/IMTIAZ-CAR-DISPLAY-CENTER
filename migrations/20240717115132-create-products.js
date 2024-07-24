@@ -14,6 +14,9 @@ module.exports = {
       Description: {
         type: Sequelize.TEXT,
       },
+      Model: {
+        type: Sequelize.TEXT,
+      },
       Brand: {
         type: Sequelize.STRING(100),
       },
@@ -28,6 +31,9 @@ module.exports = {
       },
       ReorderLevel: {
         type: Sequelize.INTEGER,
+      },
+      imageUrl: {
+        type: Sequelize.ARRAY(Sequelize.STRING),
       },
     });
   },

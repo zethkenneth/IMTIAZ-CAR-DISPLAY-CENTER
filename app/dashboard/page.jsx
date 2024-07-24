@@ -7,10 +7,10 @@ import HomeDashboard from "./Home/page";
 import Inventory from "./inventory/page";
 import { MoonIcon, ShoppingCartIcon } from "@heroicons/react/24/outline";
 import { BellIcon } from "@heroicons/react/24/outline";
-import Guide from "./guide/page";
-import About from "./about/page";
 import Services from "./services/page";
 import Products from "./products/page";
+import Guide from "./guide/page";
+import About from "./about/page";
 
 function page() {
   const [isSidebarOpen, setSidebarOpen] = useState(true); // Start with sidebar open

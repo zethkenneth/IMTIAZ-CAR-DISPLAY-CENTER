@@ -1,0 +1,9 @@
+{
+  "development": {
+    "username": "user",
+    "password": "user_password",
+    "database": "db_imtiaz",
+    "host": "127.0.0.1",
+    "dialect": "postgres"
+  }
+}

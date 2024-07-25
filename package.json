@@ -2,6 +2,7 @@
   "name": "imtiaz",
   "version": "0.1.0",
   "private": true,
+  "type": "commonjs",
   "scripts": {
     "db_migration": "npx sequelize-cli db:migrate",
     "db_seed": "npx sequelize-cli db:seed:all",
@@ -23,6 +24,7 @@
     "mongoose": "^8.4.1",
     "next": "14.2.4",
     "next-auth": "^4.24.7",
+    "path": "^0.12.7",
     "pg": "^8.12.0",
     "pg-hstore": "^2.3.4",
     "react": "^18",

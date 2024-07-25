@@ -2,7 +2,7 @@ import { useState } from "react";
 const { Box, Button, Flex } = require("@chakra-ui/react");
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 
-const ProductImage = ({imageUrl, isCarousel = false }) => {
+const ProductImage = ({imageUrl, isCarousel = false, h='10rem' }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
 
     const handlePrev = () => {
@@ -95,16 +95,16 @@ const ProductImage = ({imageUrl, isCarousel = false }) => {
     return (
         <Box position="relative" overflow="hidden" h="10rem">
             <Box
-            flexShrink="0"
-            p="2"
-            h="10rem"
-            bgSize="contain"
-            bgRepeat="no-repeat"
-            bgPos="center"
-            style={{
-                backgroundImage: `url(${imageUrl[0]})`,
-                mixBlendMode: "multiply",
-            }}
+                flexShrink="0"
+                p="2"
+                h={h}
+                bgSize="contain"
+                bgRepeat="no-repeat"
+                bgPos="center"
+                style={{
+                    backgroundImage: `url(${imageUrl[0]})`,
+                    mixBlendMode: "multiply",
+                }}
             ></Box>
         </Box>
     );

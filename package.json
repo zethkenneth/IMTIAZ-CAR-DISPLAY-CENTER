@@ -2,7 +2,6 @@
   "name": "imtiaz",
   "version": "0.1.0",
   "private": true,
-  "type": "commonjs",
   "scripts": {
     "db_migration": "npx sequelize-cli db:migrate",
     "db_seed": "npx sequelize-cli db:seed:all",

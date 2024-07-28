@@ -12,6 +12,7 @@ import About from "./about/page";
 import Services from "./services/page";
 import Products from "./products/page";
 import MenuCartButton from "@components/MenuCartButton";
+import Transaction from "./transaction/page";
 
 function page() {
   const [isSidebarOpen, setSidebarOpen] = useState(true); // Start with sidebar open
@@ -63,6 +64,7 @@ function page() {
               <Route path="/dashboard/guide" element={<Guide />} />
               <Route path="/dashboard/inventory" element={<Inventory />} />
               <Route path="/dashboard/products" element={<Products />} />
+              <Route path="/dashboard/transaction" element={<Transaction />} />
             </Routes>
           </main>
         </div>

@@ -1,52 +1,149 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { Box, Flex, Heading, Text, useDisclosure } from "@chakra-ui/react";
+import ModalComponent from "@components/ModalComponent";
+import ProductImage from "@components/ProductImage";
+import ButtonComponent from "@components/button";
+import { productJsonData } from "@app/dashboard/inventory/data";
 
 function page() {
-  return (
-    <section className="w-full flex-center flex-col">
-      <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-        <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-          {/* <img class="mx-auto h-10 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company" /> */}
-          <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-            Enter The Payment Code
-          </h2>
-        </div>
+  const itemList = [productJsonData[0], productJsonData[1], productJsonData[2]];
 
-        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form class="space-y-6" action="#" method="POST">
-            <div>
-              <label
-                for="password"
-                class="block text-sm font-medium leading-6 text-gray-900"
-              >
-                Payment Code
-              </label>
-              <div class="mt-2">
-                <input
-                  id="text"
-                  name="text"
-                  type="text"
-                  autocomplete="current-password"
-                  required
-                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
+  const Item = (props) => {
+    const { isOpen, onOpen, onClose } = useDisclosure();
 
-            <div>
-              <Link href="https://sandbox.mymaya.me/SbxInv?amt=100">
-                <button
-                  type="submit"
-                  class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+    const formatPrice = (price) => {
+      return new Intl.NumberFormat("en-PH", {
+        style: "currency",
+        currency: "PHP",
+      }).format(price);
+    };
+
+    function handleViewOrder() {
+      onOpen();
+    }
+
+    function handleProceedOrder() {}
+
+    const CartItemDesign = (propsData) => {
+      return (
+        <Flex
+          alignItems="center"
+          borderBottom="1px solid rgba(0,0,0,0.2)"
+          p={2}
+          gap={2}
+          cursor="pointer"
+          onClick={propsData.onClick}
+        >
+          <Box w={propsData.w} h={propsData.h}>
+            <ProductImage imageUrl={props.imageUrl} h={propsData.h} />
+          </Box>
+          <Box>
+            <Heading size={propsData.size ? "md" : "xs"}>{props.name}</Heading>
+            <Text
+              mt={2}
+              fontSize={propsData.size ? propsData.size : 12}
+            >{`${props.model} ${props.year}`}</Text>
+            <Text
+              mt={2}
+              fontSize={propsData.size ? propsData.size : 12}
+              fontWeight={600}
+            >
+              {formatPrice(props.price)}
+            </Text>
+          </Box>
+        </Flex>
+      );
+    };
+
+    return (
+      <>
+        <CartItemDesign onClick={handleViewOrder} w="6rem" h="4rem" />
+        <ModalComponent
+          size="2xl"
+          isOpen={isOpen}
+          onClose={onClose}
+          withCloseButton={true}
+        >
+          <Flex justifyContent="space-between" gap={5} mt={2}>
+            <Box>
+              <Heading size="sm">My Cart</Heading>
+              <CartItemDesign w="15rem" h="12rem" size={15} />
+            </Box>
+            <Box w="15rem" bg="gray.100" p={5} rounded={5}>
+              <Box>
+                <Heading size="sm">Order Details</Heading>
+                <Flex
+                  fontSize={12}
+                  mt={5}
+                  fontWeight={600}
+                  justifyContent="space-between"
                 >
-                  Pay
-                </button>
-              </Link>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
+                  <Text>Sub Total</Text>
+                  <Text>{formatPrice(props.price)}</Text>
+                </Flex>
+                <Flex
+                  fontSize={12}
+                  mt={3}
+                  fontWeight={600}
+                  justifyContent="space-between"
+                >
+                  <Text>Discount</Text>
+                  <Text>{formatPrice(props.price)}</Text>
+                </Flex>
+                <Flex
+                  fontSize={12}
+                  mt={3}
+                  fontWeight={600}
+                  justifyContent="space-between"
+                >
+                  <Text>Tax</Text>
+                  <Text>{formatPrice(props.price)}</Text>
+                </Flex>
+                <Flex
+                  fontSize={14}
+                  mt={5}
+                  fontWeight={600}
+                  justifyContent="space-between"
+                >
+                  <Text>Total</Text>
+                  <Text>{formatPrice(props.price)}</Text>
+                </Flex>
+              </Box>
+              <Box mt={5}>
+                <ButtonComponent
+                  label="Proceed Order"
+                  onClick={handleProceedOrder}
+                />
+              </Box>
+            </Box>
+          </Flex>
+        </ModalComponent>
+      </>
+    );
+  };
+
+  return (
+    <Flex w="100%" h="inherit">
+      <Box w="inherit" p={5}>
+        <Heading size="lg">Your Order Details</Heading>
+        <Box mt={10}>
+          <Heading size="sm">Order Code: 1241323</Heading>
+          <Box mt={5}>
+            <Box>
+              {itemList.map((value, i) => (
+                <Item key={i} {...value} />
+              ))}
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+      <Box w="inherit" p={5}>
+        Payment Details
+      </Box>
+    </Flex>
   );
 }
 

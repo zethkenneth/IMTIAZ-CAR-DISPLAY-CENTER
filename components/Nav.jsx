@@ -4,6 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import useIsDesktop from "@utils/useIsDesktop";
+import PaymentModal from "./paymentmodal";
+import { Button } from "@chakra-ui/react";
 
 function Nav() {
   const isDesktop = useIsDesktop();
@@ -22,14 +24,17 @@ function Nav() {
     const [isOpen, setIsOpen] = useState(false);
 
     const ButtonSubmit = () => (
-      <button
-        type="button"
+      <Button
+        w="6rem"
+        rounded={25}
+        bg="black"
+        color="white"
+        size="sm"
+        _hover={{ bg: "black" }}
         onClick={() => (isDesktop ? setIsOpen(!isOpen) : null)}
-        key="login"
-        className="black_btn"
       >
         Log In
-      </button>
+      </Button>
     );
 
     // if (isDesktop) {
@@ -47,7 +52,7 @@ function Nav() {
   };
 
   return (
-    <nav className="flex-between w-full m-0 pt-5 pl-10 pr-10">
+    <nav className="flex-between w-full m-0 pt-5 pl-10 pr-10 pb-2">
       <Link href="/" className="flex gap-2 flex-center">
         <Image
           src="assets/images/logo.svg"
@@ -80,9 +85,10 @@ function Nav() {
           </div>
         ) : (
           <div className="flex gap-3 md:gap-5">
-            <Link href="/payment" className="black_btn">
+            {/* <Link href="/payment" className="black_btn">
               Payment
-            </Link>
+            </Link> */}
+            <PaymentModal variant="secondary" />
             <LoginContainer />
           </div>
         )}

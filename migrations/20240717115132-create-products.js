@@ -3,33 +3,42 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable("Products", {
-      ProductID: {
+      productID: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
       },
-      ProductName: {
+      productName: {
         type: Sequelize.STRING(255),
       },
-      Description: {
+      description: {
         type: Sequelize.TEXT,
       },
-      Model: {
+      description2: {
         type: Sequelize.TEXT,
       },
-      Brand: {
+      model: {
+        type: Sequelize.TEXT,
+      },
+      year: {
+        type: Sequelize.TEXT,
+      },
+      brand: {
         type: Sequelize.STRING(100),
       },
-      Price: {
+      type: {
+        type: Sequelize.TEXT,
+      },
+      category: {
+        type: Sequelize.TEXT,
+      },
+      price: {
         type: Sequelize.DECIMAL(10, 2),
       },
-      Cost: {
-        type: Sequelize.DECIMAL(10, 2),
-      },
-      QuantityOnHand: {
+      quantityOnHand: {
         type: Sequelize.INTEGER,
       },
-      ReorderLevel: {
+      reorderLevel: {
         type: Sequelize.INTEGER,
       },
       imageUrl: {

@@ -32,7 +32,7 @@ export async function POST(req) {
     } = await req.json();
 
     await db.query(
-      `INSERT INTO "Orders" ("PaymentCode", "CustomerID", "OrderDate", "TotalAmount", "UserID") VALUES( '${paymentCode}',${customerId}, now(),  ${totalAmount}, ${userId} )`,
+      `INSERT INTO "Orders" ("paymentCode", "customerID", "orderDate", "totalAmount", "userID") VALUES( '${paymentCode}',${customerId}, now(),  ${totalAmount}, ${userId} )`,
       {
         type: QueryTypes.INSERT,
       }

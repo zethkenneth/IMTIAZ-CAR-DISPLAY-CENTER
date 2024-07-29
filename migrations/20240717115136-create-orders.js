@@ -3,35 +3,35 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable("Orders", {
-      OrderID: {
+      orderID: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
       },
-      PaymentCode: {
+      paymentCode: {
         type: Sequelize.STRING(20),
         allowNull: false,
         unique: true,
       },
-      CustomerID: {
+      customerID: {
         type: Sequelize.INTEGER,
         references: {
           model: "Customers",
-          key: "CustomerID",
+          key: "customerID",
         },
       },
-      OrderDate: {
+      orderDate: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.fn("NOW"),
       },
-      TotalAmount: {
+      totalAmount: {
         type: Sequelize.DECIMAL(10, 2),
       },
-      UserID: {
+      userID: {
         type: Sequelize.INTEGER,
         references: {
           model: "Users",
-          key: "UserID",
+          key: "userID",
         },
       },
     });

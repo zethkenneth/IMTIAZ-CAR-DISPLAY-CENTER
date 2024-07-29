@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import  Customers  from "../../../../models"
 import db from "../../../../utils/sequelize.js"
 import { QueryTypes } from "sequelize"
 
@@ -29,10 +28,10 @@ export async function POST(req) {
    const { firstname, lastname, email, phone } = await req.json();
 
    await db.query(
-     `INSERT INTO "Customers" ("FirstName", "LastName", "Email", "Phone") VALUES ('${firstname}','${lastname}','${email}','${phone}')`,
+     `INSERT INTO "Customers" ("firstName", "lastName", "email", "phone") VALUES ('${firstname}','${lastname}','${email}','${phone}')`,
      {
        type: QueryTypes.INSERT,
-     }  
+     }
    );
 
     return NextResponse.json({

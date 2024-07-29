@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
 import db from "../../../../utils/sequelize.js";
 import { QueryTypes } from "sequelize";
+import Products from "../../../../models/products.js";
 
 export async function GET() {
   try {
-    const Products = await db.query(`SELECT * FROM "Products"`, {
-      type: QueryTypes.SELECT,
-    });
+    const P = await Products.findAll();
 
     return NextResponse.json({
       status: 200,
-      data: Products,
+      data: P,
     });
   } catch (error) {
     console.log("Error: ", error);
@@ -27,23 +26,44 @@ export async function POST(req) {
     const {
       productname,
       description,
+      description2,
+      model,
+      year,
       brand,
+      type,
+      category,
       price,
-      cost,
       quantityonhand,
       reorderlevel,
+      imageUrl
     } = await req.json();
 
-    await db.query(
-      `INSERT INTO "Products" ("ProductName", "Description", "Brand", "Price", "Cost", "QuantityOnHand", "ReorderLevel") VALUES ('${productname}', '${description}', '${brand}',  '${price}', '${cost}', '${quantityonhand}', '${reorderlevel}')`,
-      {
-        type: QueryTypes.INSERT,
-      }
-    );
+    const result = await Products.create({
+      productName: productname,
+      description: description,
+      description2: description2,
+      model: model,
+      year: year,
+      brand: brand,
+      type: type,
+      category: category,
+      price: price,
+      quantityOnHand: quantityonhand,
+      reorderLevel: reorderlevel,
+      imageUrl: imageUrl,
+    })
+      .then(() => {
+        console.log("Product created successfully");
+      })
+      .catch((err) => {
+        console.error("Error creating product:", err);
+      });
+      
 
     return NextResponse.json({
       status: 200,
       message: "Product has been insert successfully",
+      data: result
     });
   } catch (error) {
     console.log("Error: ", error);

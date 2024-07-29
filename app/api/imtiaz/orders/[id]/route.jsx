@@ -7,7 +7,7 @@ export async function GET( req, { params } ) {
     const { id } = params;
 
     const Orders = await db.query(
-      `SELECT * FROM "Orders" WHERE "OrderID" = ${id}`,
+      `SELECT * FROM "Orders" WHERE "orderID" = ${id}`,
       {
         type: QueryTypes.SELECT,
       }

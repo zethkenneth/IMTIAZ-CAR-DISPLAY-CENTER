@@ -3,27 +3,27 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable("OrderDetails", {
-      OrderID: {
+      orderID: {
         type: Sequelize.INTEGER,
         references: {
           model: "Orders",
-          key: "OrderID",
+          key: "orderID",
         },
       },
-      ProductID: {
+      productID: {
         type: Sequelize.INTEGER,
         references: {
           model: "Products",
-          key: "ProductID",
+          key: "productID",
         },
       },
-      Quantity: {
+      quantity: {
         type: Sequelize.INTEGER,
       },
-      UnitPrice: {
+      unitPrice: {
         type: Sequelize.DECIMAL(10, 2),
       },
-      TotalPrice: {
+      totalPrice: {
         type: Sequelize.DECIMAL(10, 2),
       },
 

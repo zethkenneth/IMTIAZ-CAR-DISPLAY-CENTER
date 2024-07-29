@@ -27,7 +27,7 @@ export async function POST(req) {
     const { username, password } = await req.json();
 
     await db.query(
-      `INSERT INTO "Users" ("Username", "Password") VALUES ('${username}', '${password}')`,
+      `INSERT INTO "Users" ("username", "password") VALUES ('${username}', '${password}')`,
       {
         type: QueryTypes.INSERT,
       }

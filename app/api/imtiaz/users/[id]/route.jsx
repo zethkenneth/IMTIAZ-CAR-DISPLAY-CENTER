@@ -7,7 +7,7 @@ export async function GET( req, { params } ) {
     const { id } = params;
 
     const Users = await db.query(
-      `SELECT * FROM "Users" WHERE "UserID" = ${id}`,
+      `SELECT * FROM "Users" WHERE "userID" = ${id}`,
       {
         type: QueryTypes.SELECT,
       }
@@ -22,31 +22,6 @@ export async function GET( req, { params } ) {
     return NextResponse.json({
       status: 500,
       error: "Failed to fetch Users",
-      details: error,
-    });
-  }
-}
-
-export async function POST(req) {
-  try {
-    const { firstname, lastname, email, phone } = await req.json();
-
-    await db.query(
-      `INSERT INTO "Users" ("FirstName", "LastName", "Email", "Phone") VALUES ('${firstname}','${lastname}','${email}','${phone}')`,
-      {
-        type: QueryTypes.INSERT,
-      }
-    );
-
-    return NextResponse.json({
-      status: 200,
-      message: "User has been insert successfully",
-    });
-  } catch (error) {
-    console.log("Error: ", error);
-    return NextResponse.json({
-      status: 500,
-      error: "Failed to Create User",
       details: error,
     });
   }

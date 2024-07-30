@@ -9,6 +9,7 @@ const ButtonComponent = ({
   onClick,
   variant = "primary",
   style = {},
+  withGradientColor = false
 }) => {
   const [loading, setLoading] = useState(false);
 
@@ -22,6 +23,29 @@ const ButtonComponent = ({
     toggleLoading();
     onClick(() => toggleLoading());
   };
+
+  if(withGradientColor){
+    return (
+      <Button
+        w={w === null ? "100%" : w}
+        size="sm"
+        bgGradient={variant === "primary" ? "linear(to-r, orange.400, orange.500, orange.600)" : "gray.100"}
+        bg={variant !== "primary" ? "gray.100" : undefined} // Fallback bg color
+        isLoading={loadingLabel !== null ? loading : false}
+        _hover={{
+          bgGradient: variant === "primary" ? "linear(to-r, orange.500, orange.600, orange.700)" : "gray.200",
+          bg: variant !== "primary" ? "gray.200" : undefined // Fallback bg color
+        }}
+        leftIcon={icon}
+        loadingText={loadingLabel}
+        onClick={handleClick}
+        style={style}
+        color="white"
+      >
+        <Text>{label}</Text>
+      </Button>
+    );
+  }
 
   return (
     <Button

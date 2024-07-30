@@ -24,13 +24,13 @@ const ServicesLandingPage = () => {
       alignItems="center"
       p={2}
     >
-      <Heading color="gray">Our Products</Heading>
-      <Text>We sell brand new cars, second hand and auto parts.</Text>
+      <Heading className="orange_gradient text-center">Our Services</Heading>
+      <Text>Discover a vast selection of new and pre-owned vehicles, as well as a comprehensive range of auto parts to cater to all your automotive needs.</Text>
       <Box w="inherit" mt={10}>
         <Wrap h="inherit" spacing={10} justifyContent="center" pt={5} pb={5}>
           {services_data.slice(0, 5).map((value, index) => {
             return (
-              <WrapItem key={index}>
+              <WrapItem key={index} color="black.alpha100" className="group">
                 <Box bg="white" h="14rem" boxShadow="lg" p={5} rounded={10}>
                   <Flex
                     flexDir="column"
@@ -39,8 +39,16 @@ const ServicesLandingPage = () => {
                     gap={5}
                     overflow="hidden"
                   >
-                    <Heading size="md">{value.title}</Heading>
-                    <Text>{value.description}</Text>
+                    <Flex justifyContent='space-between' alignItems='center'>
+                      <Heading
+                        size="md"
+                        textAlign="center"
+                        className="transition-all duration-300 ease-in-out group-hover:bg-gradient-to-r group-hover:from-orange-400 group-hover:via-orange-500 group-hover:to-orange-600 group-hover:bg-clip-text group-hover:text-transparent">{value.title}</Heading>
+                      <span className="transition-colors duration-300 ease-in-out group-hover:text-orange-600">
+                        {value.icon}
+                      </span>
+                    </Flex>
+                    <Text fontSize={15}>{value.description}</Text>
                   </Flex>
                 </Box>
               </WrapItem>

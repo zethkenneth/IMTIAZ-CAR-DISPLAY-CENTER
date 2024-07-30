@@ -22,7 +22,7 @@ const PaymentModal = () => {
   const [code, setCode] = useState();
 
   const data = {
-    icon: <HashtagIcon className="h-6 w-6" />,
+    icon: <HashtagIcon className="h-5 w-5" />,
     name: "Payment code",
     label: "Payment code",
     type: "numeric",
@@ -47,10 +47,10 @@ const PaymentModal = () => {
         Payment
       </Button>
       <ModalComponent isOpen={isOpen} onClose={onClose} withCloseButton={true}>
-        <Flex w="100%" justifyContent="center" textAlign="center">
+        <Flex w="100%" justifyContent="center">
           <Box>
-            <Heading size="md">Payment Code</Heading>
-            <Text mt={2} mb={10}>
+            <Heading size="lg">Payment Code</Heading>
+            <Text color='gray' fontSize={15} mt={2} mb={10}>
               A payment code is needed, this payment code is link to your order.
             </Text>
             <InputComponent key={data.name} {...data} />
@@ -58,6 +58,7 @@ const PaymentModal = () => {
               <ButtonComponent
                 label="Proceed"
                 loadingLabel="Checking order"
+                withGradientColor={true}
                 onClick={() => router.push("/payment")}
               />
             </Box>

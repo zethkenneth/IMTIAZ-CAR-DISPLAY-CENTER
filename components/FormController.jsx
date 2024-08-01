@@ -56,6 +56,7 @@ const FormController = ({
   children = null,
   isRequired,
   mt = 0,
+  rounded = null
 }) => {
   const [show, setShow] = useState(false);
 
@@ -99,6 +100,7 @@ const FormController = ({
             boxShadow="sm"
             autoComplete="new-password"
             focusBorderColor={"rgba(0, 128, 128,0.5)"}
+            rounded={rounded !== null ? rounded : null}
             onChange={(e) => onChange(e)}
           />
         </InputGroup>
@@ -119,6 +121,7 @@ FormController.propTypes = {
   children: PropTypes.object,
   isRequired: PropTypes.bool,
   mt: PropTypes.number,
+  rounded: PropTypes.any,
 };
 
 export default FormController;

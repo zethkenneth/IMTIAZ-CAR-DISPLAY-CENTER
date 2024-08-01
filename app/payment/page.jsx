@@ -1,136 +1,107 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { Box, Flex, Heading, Text, useDisclosure } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, IconButton, Text, useDisclosure } from "@chakra-ui/react";
+import { productJsonData } from "@app/dashboard/inventory/data";
+import { IoArrowBack, IoCartOutline } from "react-icons/io5";
 import ModalComponent from "@components/ModalComponent";
 import ProductImage from "@components/ProductImage";
 import ButtonComponent from "@components/button";
-import { productJsonData } from "@app/dashboard/inventory/data";
+import { useRouter } from "next/navigation";
+import { FaOpencart } from "react-icons/fa";
+import Image from "next/image";
 
-function page() {
-  const itemList = [productJsonData[0], productJsonData[1], productJsonData[2]];
 
-  const Item = (props) => {
-    const { isOpen, onOpen, onClose } = useDisclosure();
+const Item = (props) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
-    const formatPrice = (price) => {
-      return new Intl.NumberFormat("en-PH", {
-        style: "currency",
-        currency: "PHP",
-      }).format(price);
-    };
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("en-PH", {
+      style: "currency",
+      currency: "PHP",
+    }).format(price);
+  };
 
-    function handleViewOrder() {
-      onOpen();
-    }
+  function handleViewOrder() {
+    onOpen();
+  }
 
-    function handleProceedOrder() {}
+  function handleProceedOrder() {}
 
-    const CartItemDesign = (propsData) => {
-      return (
-        <Flex
-          alignItems="center"
-          borderBottom="1px solid rgba(0,0,0,0.2)"
-          p={2}
-          gap={2}
-          cursor="pointer"
-          onClick={propsData.onClick}
-        >
-          <Box w={propsData.w} h={propsData.h}>
-            <ProductImage imageUrl={props.imageUrl} h={propsData.h} />
-          </Box>
-          <Box>
-            <Heading size={propsData.size ? "md" : "xs"}>{props.name}</Heading>
+  return (
+    <Flex
+        alignItems="center"
+        borderBottom="1px solid rgba(0,0,0,0.1)"
+        p={2}
+        pt={5}
+        pb={5}
+        gap={2}
+        cursor="pointer"
+        onClick={props.onClick}
+      >
+        <Box w="30%" h="15vh">
+          <ProductImage imageUrl={props.imageUrl} h="15vh" />
+        </Box>
+        <Box w="70%">
+          <Heading size="md">{props.name}</Heading>
+          <Text
+            mt={2}
+            fontSize={props.size ? props.size : 14}
+          >{`${props.model} ${props.year}`}</Text>
+          <Text
+            mt={2}
+            fontSize={props.size ? props.size : 14}
+            fontWeight={400}
+          >
+            {props.description2.overview}
+          </Text>
+          <Flex justifyContent='space-between'>
             <Text
               mt={2}
-              fontSize={propsData.size ? propsData.size : 12}
-            >{`${props.model} ${props.year}`}</Text>
-            <Text
-              mt={2}
-              fontSize={propsData.size ? propsData.size : 12}
+              fontSize={props.size ? props.size : 17}
               fontWeight={600}
             >
               {formatPrice(props.price)}
             </Text>
-          </Box>
-        </Flex>
-      );
-    };
-
-    return (
-      <>
-        <CartItemDesign onClick={handleViewOrder} w="6rem" h="4rem" />
-        <ModalComponent
-          size="2xl"
-          isOpen={isOpen}
-          onClose={onClose}
-          withCloseButton={true}
-        >
-          <Flex justifyContent="space-between" gap={5} mt={2}>
-            <Box>
-              <Heading size="sm">My Cart</Heading>
-              <CartItemDesign w="15rem" h="12rem" size={15} />
-            </Box>
-            <Box w="15rem" bg="gray.100" p={5} rounded={5}>
-              <Box>
-                <Heading size="sm">Order Details</Heading>
-                <Flex
-                  fontSize={12}
-                  mt={5}
-                  fontWeight={600}
-                  justifyContent="space-between"
-                >
-                  <Text>Sub Total</Text>
-                  <Text>{formatPrice(props.price)}</Text>
-                </Flex>
-                <Flex
-                  fontSize={12}
-                  mt={3}
-                  fontWeight={600}
-                  justifyContent="space-between"
-                >
-                  <Text>Discount</Text>
-                  <Text>{formatPrice(props.price)}</Text>
-                </Flex>
-                <Flex
-                  fontSize={12}
-                  mt={3}
-                  fontWeight={600}
-                  justifyContent="space-between"
-                >
-                  <Text>Tax</Text>
-                  <Text>{formatPrice(props.price)}</Text>
-                </Flex>
-                <Flex
-                  fontSize={14}
-                  mt={5}
-                  fontWeight={600}
-                  justifyContent="space-between"
-                >
-                  <Text>Total</Text>
-                  <Text>{formatPrice(props.price)}</Text>
-                </Flex>
-              </Box>
-              <Box mt={5}>
-                <ButtonComponent
-                  label="Proceed Order"
-                  onClick={handleProceedOrder}
-                />
-              </Box>
-            </Box>
+            <Flex gap={2} alignItems='center'>
+              <ButtonComponent label="+" />
+              <Text fontSize={18}>10</Text>
+              <ButtonComponent label="-" />
+            </Flex>
           </Flex>
-        </ModalComponent>
-      </>
-    );
+        </Box>
+      </Flex>
+  );
+};
+
+const Payment = () => {
+  const router = useRouter();
+  const itemList = [productJsonData[0], productJsonData[1], productJsonData[2]];
+
+  const formatPriceData = (price) => {
+    return new Intl.NumberFormat("en-PH", {
+      style: "currency",
+      currency: "PHP",
+    }).format(price);
   };
 
   return (
-    <Flex w="100%" h="inherit">
-      <Box w="inherit" p={5}>
-        <Heading size="lg">Your Order Details</Heading>
+    <Flex w="100%" h="100vh" bg="#f3f4f6" gap={10}>
+      <Box flex={4} w="inherit" p={5} bg="white">
+        <Flex gap={5} alignItems='center'>
+          <IconButton 
+            bg='transparent'
+            icon={<IoArrowBack size={25} color='gray' />}
+            _hover={{bg: "transparent"}}
+            onClick={() => router.back()}
+          />
+          <Heading size="sm">Order Checkout</Heading>
+        </Flex>
         <Box mt={10}>
-          <Heading size="sm">Order Code: 1241323</Heading>
+          <Flex gap={2} color='orange'>
+            <FaOpencart className="w-10 h-10" />
+            <Heading size="lg">Your Cart</Heading>
+          </Flex>
           <Box mt={5}>
             <Box>
               {itemList.map((value, i) => (
@@ -140,11 +111,50 @@ function page() {
           </Box>
         </Box>
       </Box>
-      <Box w="inherit" p={5}>
-        Payment Details
-      </Box>
+      <Flex flex={2} justifyContent='center' alignItems='center' w="inherit">
+        <Box w="80%" h="51vh" bg="white" p={5} rounded={10} boxShadow='md'>
+          <Flex mb={10} gap={3} alignItems='center'>
+              <Image
+                src="assets/images/logo.svg"
+                alt="LOGO!"
+                width={40}
+                height={40}
+                className="object-contain"
+              />
+              <Heading size="md">IMTIAZ</Heading>
+          </Flex>
+          <Text mb={5} fontSize={12} p={2} bg='#e7e3e3' rounded={5}>
+              You can proceed your order to checkout here, yet anything changes you plan todo will you need to sign in first.
+              Online payment is the only supported payment process.
+          </Text>
+          <Heading size='sm'>Order Summary</Heading>
+          <Box mt={10}>
+            <Flex justifyContent='space-between' mb={3} alignItems='center'>
+              <Text fontSize={17}><strong>Order Code:</strong></Text>
+              <Text fontSize={17}>1241323</Text>
+            </Flex>
+            <Flex justifyContent='space-between'>
+              <Text fontSize={16}><strong>Vat</strong></Text>
+              <Text fontSize={16}>{formatPriceData(12345)}</Text>
+            </Flex>
+            <Flex justifyContent='space-between'>
+              <Text fontSize={16}><strong>Sub Total</strong></Text>
+              <Text fontSize={16}>{formatPriceData(2051002)}</Text>
+            </Flex>
+            <Flex justifyContent='space-between' mt={5}>
+              <Text fontSize={17} fontWeight={600} color="orange"><strong>Total</strong></Text>
+              <Text fontSize={17}><strong>{formatPriceData(2051002)}</strong></Text>
+            </Flex>
+            <Box mt={8}>
+              <ButtonComponent 
+                label="Checkout"
+              />
+            </Box>
+          </Box>
+        </Box>
+      </Flex>
     </Flex>
   );
 }
 
-export default page;
+export default Payment;

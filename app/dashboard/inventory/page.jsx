@@ -26,6 +26,15 @@ const Inventory = () => {
     "i.Type",
     "i.Price",
     "i.Quantity",
+    "i.Overview",
+    "i.Engine Options",
+    "i.Transmissions",
+    "i.Fuel Efficiency",
+    "i.Interior",
+    "i.Safety",
+    "i.Comfort",
+    "i.Design",
+    "i.Performance",
   ];
   const formState = useStateStructureGenerator(labels);
   const stateStructureInputsComponent = new StateStructureInputsComponents(
@@ -85,7 +94,7 @@ const Inventory = () => {
         withCloseButton={true}
         isOpen={isOpen}
         onClose={onClose}
-        size="2xl"
+        size="4xl"
         footer={
           <Flex gap={5}>
             <ButtonComponent w="6rem" label="Save" onClick={handleAddProduct} />
@@ -101,7 +110,7 @@ const Inventory = () => {
         <Wrap spacingX={10} spacingY={7} justifyItems="center">
           {
             /** Patient Personal Information */
-            stateStructureInputsComponent.render("0.6")
+            stateStructureInputsComponent.render("0.15")
           }
         </Wrap>
         <Box mt={5}>

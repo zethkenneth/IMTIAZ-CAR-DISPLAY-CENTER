@@ -22,11 +22,6 @@ const Sidebar = ({ isMini }) => {
       to: "/",
     },
     {
-      icon: <WrenchScrewdriverIcon className="h-5 w-5" />,
-      label: "Services",
-      to: "/services",
-    },
-    {
       icon: <ShoppingCartIcon className="h-5 w-5" />,
       label: "Products",
       to: "/products",
@@ -45,11 +40,6 @@ const Sidebar = ({ isMini }) => {
       icon: <DocumentMagnifyingGlassIcon className="h-5 w-5" />,
       label: "Guide",
       to: "/guide",
-    },
-    {
-      icon: <InformationCircleIcon className="h-5 w-5" />,
-      label: "About",
-      to: "/about",
     },
   ];
 

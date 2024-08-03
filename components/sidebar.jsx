@@ -5,13 +5,13 @@ import {
   ArchiveBoxIcon,
   ChartPieIcon,
   ShoppingCartIcon,
-  InformationCircleIcon,
-  WrenchScrewdriverIcon,
-  ArrowLeftEndOnRectangleIcon,
   DocumentMagnifyingGlassIcon,
 } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { Button, Icon } from "@chakra-ui/react";
+import { FaSignOutAlt } from "react-icons/fa";
+import SignOut from "./signout";
 
 const Sidebar = ({ isMini }) => {
   const router = useRouter();
@@ -85,13 +85,7 @@ const Sidebar = ({ isMini }) => {
       <div
         className={`absolute bottom-0 left-0 w-full p-5 flex justify-center`}
       >
-        <button
-          onClick={() => router.push("/")}
-          className="w-full bg-red-700 flex items-center justify-center p-2 rounded-full text-white hover:bg-gray-600"
-        >
-          {!isMini && "Signout"}
-          <ArrowLeftEndOnRectangleIcon className="h-7 w-7 ml-2" />
-        </button>
+        <SignOut isMini={isMini} />
       </div>
     </div>
   );

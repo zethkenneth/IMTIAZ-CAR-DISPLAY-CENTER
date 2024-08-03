@@ -13,6 +13,7 @@ import Services from "./services/page";
 import Products from "./products/page";
 import MenuCartButton from "@components/MenuCartButton";
 import Transaction from "./transaction/page";
+import Notification from "@components/notifications";
 
 function page() {
   const [isSidebarOpen, setSidebarOpen] = useState(true); // Start with sidebar open
@@ -45,9 +46,7 @@ function page() {
               ☰
             </button>
             <div>
-              <button className="mx-2 p-2 rounded-full text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-                <BellIcon className="h-6 w-6" />
-              </button>
+              <Notification />
               <MenuCartButton />
               <button className="mx-2 p-2 rounded-full text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
                 <MoonIcon className="h-6 w-6" />

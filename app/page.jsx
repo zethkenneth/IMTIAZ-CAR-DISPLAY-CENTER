@@ -5,6 +5,7 @@ import { Box } from "@chakra-ui/react";
 import ProductLandingPage from "./landingpage/productlandingpage";
 import ServicesLandingPage from "./landingpage/services";
 import AboutUsLandingPage from "./landingpage/aboutuslandingpage";
+import GuideLandingPage from "./landingpage/guidelandingpage";
 
 function Home() {
   return (
@@ -33,6 +34,7 @@ function Home() {
 
         <ProductLandingPage />
         <ServicesLandingPage />
+        <GuideLandingPage />
         <AboutUsLandingPage />
       </Box>
     </div>

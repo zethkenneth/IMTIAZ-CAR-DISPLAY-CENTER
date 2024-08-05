@@ -3,7 +3,7 @@ import { UserCircleIcon, LockClosedIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
 import InputComponent from "@components/input";
 import ButtonComponent from "@components/button";
-import { Box, Heading } from "@chakra-ui/react";
+import { Box, Heading, Text } from "@chakra-ui/react";
 
 const LoginForm = () => {
   const router = useRouter();
@@ -51,8 +51,8 @@ const LoginForm = () => {
               <InputComponent key={dataSet.key} {...dataSet} />
             ))
           }
-          <div>
-            <div className="flex justify-end mb-5">
+          <Box>
+            {/* <div className="flex justify-end mb-5">
               <p
                 type="submit"
                 className="text-gray-500 cursor-pointer"
@@ -60,22 +60,23 @@ const LoginForm = () => {
               >
                 Forgot password
               </p>
-            </div>
+            </div> */}
             <ButtonComponent
               label="Sign in"
               loadingLabel="Processing"
               onClick={handleSignIn}
             />
-            <div className="flex justify-end mt-5">
-              <p
+            <Box className="flex justify-end mt-5">
+              <Text
                 type="submit"
                 className="text-gray-500 cursor-pointer flex gap-2"
                 onClick={() => router.push("/")}
               >
-                Return to <p style={{ color: "teal", fontWeight: 600 }}>Home</p>
-              </p>
-            </div>
-          </div>
+                Return to{" "}
+                <Text style={{ color: "teal", fontWeight: 600 }}>Home</Text>
+              </Text>
+            </Box>
+          </Box>
         </form>
       </div>
     </div>

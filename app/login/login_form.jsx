@@ -39,11 +39,11 @@ const LoginForm = () => {
   }
 
   return (
-    <div className="flex min-h-screen flex-col justify-center items-center px-6 py-12 lg:px-8">
+    <Box className="flex min-h-screen flex-col justify-center items-center px-6 py-12 lg:px-8">
       <Box w="18rem">
         <Heading size="lg">Sign in to your account</Heading>
       </Box>
-      <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+      <Box className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form className="space-y-6" action="/dashboard" method="POST">
           {
             /** authentication fields */
@@ -78,8 +78,8 @@ const LoginForm = () => {
             </Box>
           </Box>
         </form>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 

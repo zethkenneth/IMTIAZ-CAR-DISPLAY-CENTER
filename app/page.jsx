@@ -1,5 +1,4 @@
 import "@styles/globals.css";
-import Feed from "@components/feed";
 import Nav from "@components/Nav";
 import { Box } from "@chakra-ui/react";
 import ProductLandingPage from "./landingpage/productlandingpage";
@@ -9,9 +8,10 @@ import GuideLandingPage from "./landingpage/guidelandingpage";
 
 function Home() {
   return (
-    <div class="overflow-hidden h-screen">
+    <div className="overflow-hidden h-screen">
       <Nav />
       <Box height="inherit" overflow="scroll">
+        ``
         <section className="w-full h-screen flex items-center justify-center flex-col">
           <h1 className="head_text text-center">
             BUY and DRIVE
@@ -20,7 +20,7 @@ function Home() {
               AI-powered Guide
             </span>
           </h1>
-          <div class="mt-10">
+          <div className="mt-10">
             <p className="desc text-center">
               Discover the ultimate driving experience with our
               <span className="highlight">AI-powered guide</span>. Seamlessly
@@ -31,7 +31,6 @@ function Home() {
             </p>
           </div>
         </section>
-
         <ProductLandingPage />
         <ServicesLandingPage />
         <GuideLandingPage />

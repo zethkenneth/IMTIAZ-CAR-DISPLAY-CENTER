@@ -13,6 +13,10 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
+      paymentStatus: {
+        type: Sequelize.STRING(10),
+        defaultValue: "Pending"
+      },
       customerID: {
         type: Sequelize.INTEGER,
         references: {

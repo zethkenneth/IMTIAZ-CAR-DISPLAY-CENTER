@@ -44,7 +44,7 @@ const Guide = () => {
             guide.summary.toLowerCase().includes(search.toLowerCase())
         );
 
-  const generateTabList = (data) => {
+  const GenerateTabList = (data) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const tabKeys = Object.keys(data);
 
@@ -163,7 +163,7 @@ const Guide = () => {
         <Box w="100%" h="50vh">
           {selectedGuide === null
             ? null
-            : generateTabList(selectedGuide?.information)}
+            : GenerateTabList(selectedGuide?.information)}
         </Box>
       </ModalComponent>
     </Box>

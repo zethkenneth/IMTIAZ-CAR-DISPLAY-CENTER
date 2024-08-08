@@ -15,7 +15,7 @@ import MenuCartButton from "@components/MenuCartButton";
 import Transaction from "./transaction/page";
 import Notification from "@components/notifications";
 
-function page() {
+function Page() {
   const [isSidebarOpen, setSidebarOpen] = useState(true); // Start with sidebar open
   const [isSidebarMini, setSidebarMini] = useState(false); // Change to true for mini view
 
@@ -72,4 +72,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;

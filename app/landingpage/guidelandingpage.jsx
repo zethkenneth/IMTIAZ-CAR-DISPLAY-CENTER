@@ -36,7 +36,7 @@ const GuideLandingPage = () => {
       .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize the first letter of each word
   };
 
-  const generateTabList = (data) => {
+  const GenerateTabList = (data) => {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const tabKeys = Object.keys(data);
 
@@ -156,7 +156,7 @@ const GuideLandingPage = () => {
         <Box w="100%" h="50vh">
           {selectedGuide === null
             ? null
-            : generateTabList(selectedGuide?.information)}
+            : GenerateTabList(selectedGuide?.information)}
         </Box>
       </ModalComponent>
     </>

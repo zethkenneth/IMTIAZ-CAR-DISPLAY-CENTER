@@ -15,7 +15,7 @@ module.exports = {
       },
       paymentStatus: {
         type: Sequelize.STRING(10),
-        defaultValue: "Pending"
+        defaultValue: "Pending",
       },
       customerID: {
         type: Sequelize.INTEGER,

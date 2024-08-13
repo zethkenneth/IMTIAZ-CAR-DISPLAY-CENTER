@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import db from "../../../../../../utils/sequelize";
 import { QueryTypes } from "sequelize";
 
-export async function GET( req, { params } ) {
+export async function GET(req, { params }) {
   try {
     const { id } = params;
 

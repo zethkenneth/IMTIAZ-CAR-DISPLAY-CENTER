@@ -12,7 +12,6 @@ import {
 } from "@chakra-ui/react";
 import { productJsonData } from "@app/dashboard/inventory/data";
 import { IoArrowBack, IoCartOutline } from "react-icons/io5";
-import ModalComponent from "@components/ModalComponent";
 import ProductImage from "@components/ProductImage";
 import ButtonComponent from "@components/button";
 import { useRouter } from "next/navigation";

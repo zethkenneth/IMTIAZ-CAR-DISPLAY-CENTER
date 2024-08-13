@@ -1,6 +1,7 @@
 import { Box, Flex, Textarea } from "@chakra-ui/react";
 import FormController from "@components/FormController";
 import SelectionComponent from "@components/SelectionComponent";
+import TextAreaCustom from "@components/TextAreaCustom";
 
 /**
  * State Structure Inputs Component
@@ -72,7 +73,11 @@ class StateStructureInputsComponents {
             }
 
             if (this.labels[i].split(".")[0] === "a") {
-              return <Textarea key={i} {...this.formState[componentLabel]} />;
+              return (
+                <Box key={i} w={this.width}>
+                  <TextAreaCustom {...this.formState[componentLabel]} />
+                </Box>
+              );
             }
 
             return (

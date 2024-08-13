@@ -72,7 +72,7 @@ const LoginForm = () => {
                 className="text-gray-500 cursor-pointer flex gap-2"
                 onClick={() => router.push("/")}
               >
-                Return to{" "}
+                Return to
                 <Text style={{ color: "teal", fontWeight: 600 }}>Home</Text>
               </Text>
             </Box>

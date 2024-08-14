@@ -2,9 +2,21 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
+    function generateRandomOrderCode() {
+      const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      let code = "";
+      for (let i = 0; i < 8; i++) {
+        code += characters.charAt(
+          Math.floor(Math.random() * characters.length)
+        );
+      }
+      return code;
+    }
+
     await queryInterface.bulkInsert("Orders", [
       {
         orderID: 1,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA231",
         paymentStatus: "Pending",
         customerID: 1,
@@ -14,6 +26,7 @@ module.exports = {
       },
       {
         orderID: 2,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA232",
         paymentStatus: "Completed",
         customerID: 1,
@@ -23,6 +36,7 @@ module.exports = {
       },
       {
         orderID: 3,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA233",
         paymentStatus: "Cancelled",
         customerID: 1,
@@ -32,6 +46,7 @@ module.exports = {
       },
       {
         orderID: 4,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA234",
         paymentStatus: "Pending",
         customerID: 1,
@@ -41,6 +56,7 @@ module.exports = {
       },
       {
         orderID: 5,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA235",
         paymentStatus: "Completed",
         customerID: 1,
@@ -50,6 +66,7 @@ module.exports = {
       },
       {
         orderID: 6,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA236",
         paymentStatus: "Pending",
         customerID: 1,
@@ -59,6 +76,7 @@ module.exports = {
       },
       {
         orderID: 7,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA237",
         paymentStatus: "Cancelled",
         customerID: 1,
@@ -68,6 +86,7 @@ module.exports = {
       },
       {
         orderID: 8,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA238",
         paymentStatus: "Completed",
         customerID: 1,
@@ -77,6 +96,7 @@ module.exports = {
       },
       {
         orderID: 9,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA239",
         paymentStatus: "Pending",
         customerID: 1,
@@ -86,6 +106,7 @@ module.exports = {
       },
       {
         orderID: 10,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA240",
         paymentStatus: "Completed",
         customerID: 1,
@@ -95,6 +116,7 @@ module.exports = {
       },
       {
         orderID: 11,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA241",
         paymentStatus: "Pending",
         customerID: 1,
@@ -104,6 +126,7 @@ module.exports = {
       },
       {
         orderID: 12,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA242",
         paymentStatus: "Completed",
         customerID: 1,
@@ -113,6 +136,7 @@ module.exports = {
       },
       {
         orderID: 13,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA243",
         paymentStatus: "Completed",
         customerID: 1,
@@ -122,6 +146,7 @@ module.exports = {
       },
       {
         orderID: 14,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA244",
         paymentStatus: "Pending",
         customerID: 1,
@@ -131,6 +156,7 @@ module.exports = {
       },
       {
         orderID: 15,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA245",
         paymentStatus: "Completed",
         customerID: 1,
@@ -140,6 +166,7 @@ module.exports = {
       },
       {
         orderID: 16,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA246",
         paymentStatus: "Pending",
         customerID: 1,
@@ -149,6 +176,7 @@ module.exports = {
       },
       {
         orderID: 17,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA247",
         paymentStatus: "Completed",
         customerID: 1,
@@ -158,6 +186,7 @@ module.exports = {
       },
       {
         orderID: 18,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA248",
         paymentStatus: "Completed",
         customerID: 1,
@@ -167,6 +196,7 @@ module.exports = {
       },
       {
         orderID: 19,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA249",
         paymentStatus: "Pending",
         customerID: 1,
@@ -176,6 +206,7 @@ module.exports = {
       },
       {
         orderID: 20,
+        orderCode: generateRandomOrderCode(),
         paymentCode: "GSFA250",
         paymentStatus: "Completed",
         customerID: 1,

@@ -8,6 +8,11 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
       },
+      orderCode: {
+        type: Sequelize.STRING(20),
+        allowNull: false,
+        unique: true,
+      },
       paymentCode: {
         type: Sequelize.STRING(20),
         allowNull: false,

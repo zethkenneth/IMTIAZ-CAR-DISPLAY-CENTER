@@ -20,26 +20,13 @@ ChartJS.register(
   Legend
 );
 
-const BarChart = () => {
+const BarChart = ({ labels, values }) => {
   const data = {
-    labels: [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ],
+    labels: labels,
     datasets: [
       {
         label: "Sales",
-        data: [12, 19, 3, 5, 2, 3, 7, 21, 17, 5, 13, 18],
+        data: values,
         backgroundColor: "rgba(255, 159, 64, 0.2)", // Light orange with transparency
         borderColor: "rgba(255, 159, 64, 1)", // Solid orange
         borderWidth: 1,

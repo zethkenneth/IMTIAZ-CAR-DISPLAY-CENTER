@@ -128,6 +128,7 @@ const Inventory = () => {
             .map((product, i) => (
               <ProductCard
                 key={i}
+                name={product.productName}
                 {...product}
                 isInventoryDisplay={true}
                 edit={handleEdit}

@@ -1,11 +1,33 @@
 "use client";
 
 import ProductCard from "../inventory/product_card";
-import { productJsonData } from "../inventory/data";
 import { Box, Flex, Heading } from "@chakra-ui/react";
+import useInventorHooks from "@hooks/inventoryhooks";
+import { useEffect } from "react";
+import axios from "axios";
 
 const Products = () => {
+  const { products, getInventory } = useInventorHooks();
+
   function handleAddToCard() {}
+
+  useEffect(() => {
+    const cancelToken = axios.CancelToken.source();
+
+    if (products.length === 0) {
+      getInventory(cancelToken.token, (status, feedback) => {
+        switch (status) {
+          case 200:
+            console.log(feedback);
+            break;
+          default:
+            console.log(feedback);
+        }
+      });
+    }
+
+    return () => cancelToken.cancel();
+  }, []);
 
   return (
     <>
@@ -21,8 +43,14 @@ const Products = () => {
       </Flex>
       <main>
         <div className="flex flex-wrap p-5">
-          {productJsonData.map((product, i) => (
-            <ProductCard key={i} {...product} isInventoryDisplay={false} />
+          {products.map((product, i) => (
+            <ProductCard
+              key={i}
+              name={product.productName}
+              {...product}
+              description2={JSON.parse(product.description2)}
+              isInventoryDisplay={false}
+            />
           ))}
         </div>
       </main>

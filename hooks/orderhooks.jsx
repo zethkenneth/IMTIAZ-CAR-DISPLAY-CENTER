@@ -2,11 +2,13 @@ import { validateStatusOk, handleFailedStatus } from "@utils/validation";
 import { create } from "zustand";
 import axios from "axios";
 
+const baseURL = "/api/imtiaz";
+
 const useOrderHooks = create((set) => ({
   orders: [],
-  getInventory: (token, callBack) => {
+  getOrders: (token, callBack) => {
     axios
-      .get("/orders", token)
+      .get(`${baseURL}/orders`, token)
       .then((res) => validateStatusOk(res))
       .then((res) => {
         const { data, message } = res;

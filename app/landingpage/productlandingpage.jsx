@@ -6,15 +6,37 @@ import "../../styles/hide_scroll_bar.css";
 import ProductImage from "@components/ProductImage";
 import ButtonComponent from "@components/button";
 import { useRouter } from "next/navigation";
+import useInventorHooks from "@hooks/inventoryhooks";
+import { useEffect } from "react";
+import axios from "axios";
 
 const ProductLandingPage = () => {
   const router = useRouter();
+  const { products, getInventory } = useInventorHooks();
+
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-PH", {
       style: "currency",
       currency: "PHP",
     }).format(price);
   };
+
+  useEffect(() => {
+    const cancelToken = axios.CancelToken.source();
+
+    if (products.length === 0) {
+      getInventory(cancelToken.token, (status, feedback) => {
+        switch (status) {
+          case 200:
+            break;
+          default:
+            console.log(feedback);
+        }
+      });
+    }
+
+    return () => cancelToken.cancel();
+  }, []);
 
   return (
     <Flex
@@ -37,7 +59,8 @@ const ProductLandingPage = () => {
           pt={5}
           pb={5}
         >
-          {productJsonData.slice(0, 5).map((value, index) => {
+          {products.slice(0, 5).map((value, index) => {
+            const description2 = JSON.parse(value.description2);
             return (
               <Box
                 key={index}
@@ -61,7 +84,7 @@ const ProductLandingPage = () => {
                       {value.name}
                     </Heading>
                     <Text>{`${value.year} ${value.model}`}</Text>
-                    <Text mt={5}>{value.description2.engine_options}</Text>
+                    <Text mt={5}>{description2.engine_options}</Text>
                   </Box>
                   <Flex justifyContent="space-between" alignItems="center">
                     <Text fontSize={18}>

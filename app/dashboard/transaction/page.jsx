@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ChakraProvider,
   Box,
@@ -12,23 +12,62 @@ import {
   Td,
   Text,
   Button,
+  Flex,
+  useDisclosure,
+  Heading,
 } from "@chakra-ui/react";
-import orderData from "@data/transaction_data";
+import ModalComponent from "@components/ModalComponent";
+import useOrderHooks from "@hooks/orderhooks";
+import axios from "axios";
 
 const Transaction = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { orders, getOrders } = useOrderHooks();
+  const [order, setOrder] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   // Calculate the indices for the current page
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = orderData.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = orders.slice(indexOfFirstItem, indexOfLastItem);
 
   // Calculate total pages
-  const totalPages = Math.ceil(orderData.length / itemsPerPage);
+  const totalPages = Math.ceil(orders.length / itemsPerPage);
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("en-PH", {
+      style: "currency",
+      currency: "PHP",
+    }).format(price);
+  };
+
+  function handleSelectOrder(order) {
+    setOrder(order);
+    onOpen();
+  }
+
+  useEffect(() => {
+    const cancelToken = axios.CancelToken.source();
+
+    if (orders.length === 0) {
+      console.log(order);
+      getOrders(cancelToken.token, (status, feedback) => {
+        switch (status) {
+          case 200:
+            console.log(feedback);
+            break;
+          default:
+            console.log(feedback);
+        }
+      });
+    }
+
+    return () => cancelToken.cancel();
+  }, []);
 
   return (
-    <ChakraProvider>
+    <>
       <Box w="inherit" h="80vh" bg="white" rounded={15} boxShadow="md" p={4}>
         <Text fontSize="2xl" mb={4}>
           Order Transactions
@@ -37,53 +76,139 @@ const Transaction = () => {
           <Thead>
             <Tr>
               <Th>Order ID</Th>
-              <Th>Product Type</Th>
-              <Th>Product Name</Th>
-              <Th>Customer</Th>
+              <Th>Payment Code</Th>
+              <Th>Payment Status</Th>
+              <Th>Customer ID</Th>
               <Th>Order Date</Th>
               <Th>Status</Th>
-              <Th>Amount</Th>
+              <Th>Total Amount</Th>
             </Tr>
           </Thead>
           <Tbody>
             {currentItems.map((order) => (
-              <Tr key={order.orderId}>
-                <Td>{order.orderId}</Td>
-                <Td>{order.productType}</Td>
-                <Td>{order.productName}</Td>
+              <Tr
+                key={order.orderID}
+                _hover={{ cursor: "pointer" }}
+                onClick={() => handleSelectOrder(order)}
+              >
+                <Td>{order.orderID}</Td>
+                <Td>{order.paymentCode}</Td>
+                <Td>{order.paymentStatus}</Td>
                 <Td>{order.customer}</Td>
                 <Td>{order.orderDate}</Td>
                 <Td>{order.status}</Td>
-                <Td>{order.amount}</Td>
+                <Td>{formatPrice(parseFloat(order.totalAmount).toFixed(2))}</Td>
               </Tr>
             ))}
           </Tbody>
         </Table>
-        <Box display="flex" justifyContent="end" gap={10} mt={4}>
+        <Flex justifyContent="end" alignItems="center" gap={10} mt={4}>
           <Button
-            size="md"
+            size="sm"
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             isDisabled={currentPage === 1}
             colorScheme="orange"
           >
-            Previous
+            <Text fontSize={13}>Previous</Text>
           </Button>
-          <Text fontSize={18} fontWeight={600}>
+          <Text fontSize={14} fontWeight={600}>
             Page {currentPage} of {totalPages}
           </Text>
           <Button
-            size="md"
+            size="sm"
             onClick={() =>
               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
             }
             isDisabled={currentPage === totalPages}
             colorScheme="orange"
           >
-            Next
+            <Text fontSize={13}>Next</Text>
           </Button>
-        </Box>
+        </Flex>
       </Box>
-    </ChakraProvider>
+      <ModalComponent
+        title={"Order Details"}
+        isOpen={isOpen}
+        onClose={onClose}
+        withCloseButton={true}
+        size="4xl"
+      >
+        <Flex gap={5}>
+          <Flex gap={2} alignItems="center">
+            <Text fontSize={13}>ORDER ID</Text>
+            <Heading size="sm">
+              <strong>{order?.paymentCode ?? "NONE"}</strong>{" "}
+            </Heading>
+          </Flex>
+          <Flex gap={2}>
+            <Text fontSize={13}>Payment Code</Text>
+            <Text fontSize={13}>
+              <strong>{order?.paymentCode ?? "NONE"}</strong>
+            </Text>
+          </Flex>
+          <Flex gap={2}>
+            <Text fontSize={13}>Payment Status</Text>
+            <Text fontSize={13}>
+              <strong>{order?.paymentStatus ?? "NONE"}</strong>
+            </Text>
+          </Flex>
+          <Flex gap={2}>
+            <Text fontSize={13}>Customer</Text>
+            <Text fontSize={13}>
+              <strong>{order?.customer ?? "NONE"}</strong>
+            </Text>
+          </Flex>
+        </Flex>
+        <Flex gap={5} mt={3}>
+          <Flex gap={2}>
+            <Text fontSize={13}>Order Date</Text>
+            <Text fontSize={13}>
+              <strong>{order?.orderDate ?? "NONE"}</strong>
+            </Text>
+          </Flex>
+          <Flex gap={2}>
+            <Text fontSize={13}>Status</Text>
+            <Text fontSize={13}>
+              <strong>{order?.status ?? "NONE"}</strong>
+            </Text>
+          </Flex>
+          <Flex gap={2}>
+            <Text fontSize={13}>Total Amount</Text>
+            <Text fontSize={13}>
+              <strong>{order?.totalAmount ?? "NONE"}</strong>
+            </Text>
+          </Flex>
+        </Flex>
+        <Table variant="striped" colorScheme="orange">
+          <Thead>
+            <Tr>
+              <Th>Product ID</Th>
+              <Th>Product Name</Th>
+              <Th>Model</Th>
+              <Th>Brand</Th>
+              <Th>Price</Th>
+              <Th>Quantity</Th>
+              <Th>Total Price</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {order?.orderDetails?.map((orderProduct) => (
+              <Tr key={orderProduct.productID} _hover={{ cursor: "pointer" }}>
+                <Td>{orderProduct.productID}</Td>
+                <Td>{orderProduct.productName}</Td>
+                <Td>{orderProduct.model}</Td>
+                <Td>{orderProduct.brand}</Td>
+                <Td>{orderProduct.price}</Td>
+                <Td>{orderProduct.quantity}</Td>
+                <Td>
+                  {formatPrice(parseFloat(orderProduct.totalPrice).toFixed(2))}
+                </Td>
+              </Tr>
+            )) ?? null}
+          </Tbody>
+        </Table>
+      </ModalComponent>
+    </>
   );
 };
 

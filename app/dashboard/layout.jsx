@@ -14,6 +14,7 @@ import Products from "./products/page";
 import MenuCartButton from "@components/MenuCartButton";
 import Transaction from "./transaction/page";
 import Notification from "@components/notifications";
+import { Flex, IconButton } from "@chakra-ui/react";
 
 function Page() {
   const [isSidebarOpen, setSidebarOpen] = useState(true); // Start with sidebar open
@@ -45,13 +46,19 @@ function Page() {
             >
               ☰
             </button>
-            <div>
+            <Flex>
               <Notification />
               <MenuCartButton />
-              <button className="mx-2 p-2 rounded-full text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-                <MoonIcon className="h-6 w-6" />
-              </button>
-            </div>
+
+              <IconButton
+                border="none"
+                icon={<MoonIcon className="h-6 w-6" />}
+                variant="outline"
+                rounded={25}
+                _hover={{ bg: "transparent" }}
+                _onClick={() => onOpen()}
+              />
+            </Flex>
           </div>
 
           {/* Main content */}

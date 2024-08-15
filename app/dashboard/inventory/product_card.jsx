@@ -5,6 +5,7 @@ import {
   Heading,
   Text,
   useDisclosure,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
 import ButtonComponent from "@components/button";
@@ -12,6 +13,7 @@ import DeletePrompt from "@components/DeletePrompt";
 import ModalComponent from "@components/ModalComponent";
 import ProductImage from "@components/ProductImage";
 import { ShoppingCartIcon } from "@heroicons/react/24/solid";
+import useCartHook from "@hooks/carthooks";
 import React, { useState } from "react";
 
 const ProductCard = ({
@@ -26,12 +28,12 @@ const ProductCard = ({
   model,
   quantity,
   edit,
+  product,
 }) => {
+  const { addToCart } = useCartHook();
   function handleEdit() {
     edit();
   }
-
-  function handleAddToCart() {}
 
   const DeletePromptButton = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -107,9 +109,20 @@ const ProductCard = ({
   };
 
   const ViewProduct = ({ children }) => {
+    const toast = useToast();
     const { isOpen, onOpen, onClose } = useDisclosure();
 
-    function handleAddToCard() {}
+    function handleAddToCard() {
+      addToCart(product);
+      toast({
+        title: "Product added.",
+        description: `${product.name} has been added to your cart.`,
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+        position: "top-right",
+      });
+    }
 
     return (
       <>
@@ -193,7 +206,7 @@ const ProductCard = ({
                     minimize fuel costs.
                   </Text>
                   <Text>
-                    <strong>Interior:</strong>{" "}
+                    <strong>Interior:</strong>
                     {`The Civic's interior is spacious for a compact car, with high-quality materials and a user-friendly layout. Features often include a touchscreen infotainment system with Apple CarPlay and Android Auto, available leather upholstery, and a comfortable seating arrangement.`}
                   </Text>
                   <Text>
@@ -204,11 +217,11 @@ const ProductCard = ({
                     collision mitigation braking.
                   </Text>
                   <Text>
-                    <strong>Comfort:</strong>{" "}
+                    <strong>Comfort:</strong>
                     {`The Civic offers a comfortable ride with supportive seats and a well-tuned suspension system. Available features might include dual-zone climate control, heated front seats, and a power-adjustable driver's seat.`}
                   </Text>
                   <Text>
-                    <strong>Design:</strong>{" "}
+                    <strong>Design:</strong>
                     {`The exterior design of the Civic is modern and sporty, with clean lines, a bold front grille, and available alloy wheels. The design is both functional and aesthetically pleasing, contributing to the Civic's overall appeal.`}
                   </Text>
                 </VStack>
@@ -280,7 +293,6 @@ const ProductCard = ({
             px="2"
             rounded="lg"
             _hover={{ bg: "orange" }}
-            onClick={handleAddToCart}
           >
             Add to Cart
           </Button>

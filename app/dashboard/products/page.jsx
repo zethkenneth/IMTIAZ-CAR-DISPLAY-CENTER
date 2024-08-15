@@ -48,6 +48,7 @@ const Products = () => {
               key={i}
               name={product.productName}
               {...product}
+              product={product}
               description2={JSON.parse(product.description2)}
               isInventoryDisplay={false}
             />

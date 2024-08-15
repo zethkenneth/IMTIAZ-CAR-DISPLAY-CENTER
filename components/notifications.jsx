@@ -111,12 +111,11 @@ const Notification = () => {
     >
       <PopoverTrigger>
         <Button
-          mx={2}
           mb={4}
           rounded="full"
           colorScheme="gray"
           variant="ghost"
-          _hover={{ bg: "gray.200" }}
+          _hover={{ bg: "transparent" }}
           _focus={{
             boxShadow: "outline",
             ring: 2,

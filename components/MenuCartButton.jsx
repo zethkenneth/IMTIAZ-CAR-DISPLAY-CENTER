@@ -8,7 +8,6 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { ShoppingCartIcon } from "@heroicons/react/24/outline";
-import { productJsonData } from "@app/dashboard/inventory/data";
 import formatprice from "@utils/formatprice";
 import ProductImage from "./ProductImage";
 import ModalComponent from "./ModalComponent";

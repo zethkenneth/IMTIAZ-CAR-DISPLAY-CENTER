@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"; // Use a secure secret key
+const JWT_SECRET = process.env.JWT_SECRET || "Imtiaz2024"; // Use a secure secret key
 
 // Function to hash password
 export async function hashPassword(password) {

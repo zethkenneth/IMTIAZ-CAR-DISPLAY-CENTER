@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Button,
@@ -13,16 +13,28 @@ import {
   ModalBody,
   ModalCloseButton,
   useDisclosure,
+  Flex,
 } from "@chakra-ui/react";
 import { FaSignOutAlt } from "react-icons/fa";
+import useUserHooks from "@hooks/userhooks";
+import AnimatedButton from "./AnimatedButton";
 
 const SignOut = ({ isMini }) => {
   const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { signOut } = useUserHooks();
+  const [feedback, setFeedback] = useState(null);
 
   const handleSignOut = () => {
-    router.push("/");
-    onClose();
+    signOut((status, message) => {
+      if (!(status >= 200 && status < 300)) {
+        return setFeedback(message);
+      }
+
+      router.push("/");
+
+      onClose();
+    });
   };
 
   return (
@@ -49,12 +61,19 @@ const SignOut = ({ isMini }) => {
           <ModalCloseButton />
           <ModalBody>Are you sure you want to sign out?</ModalBody>
           <ModalFooter>
-            <Button colorScheme="gray" mr={3} onClick={onClose}>
-              Cancel
-            </Button>
-            <Button colorScheme="red" onClick={handleSignOut}>
-              Proceed
-            </Button>
+            <Flex gap={5}>
+              <AnimatedButton
+                label="Cancel"
+                variant="secondary"
+                onClick={() => onClose()}
+              />
+              <AnimatedButton
+                label="Proceed"
+                loadingLabel="Signing out"
+                _hover={{ bg: "darkorange" }}
+                onClick={handleSignOut}
+              />
+            </Flex>
           </ModalFooter>
         </ModalContent>
       </Modal>

@@ -35,7 +35,7 @@ export async function POST(req) {
       price,
       quantityonhand,
       reorderlevel,
-      imageUrl
+      imageUrl,
     } = await req.json();
 
     const result = await Products.create({
@@ -58,12 +58,11 @@ export async function POST(req) {
       .catch((err) => {
         console.error("Error creating product:", err);
       });
-      
 
     return NextResponse.json({
       status: 200,
       message: "Product has been insert successfully",
-      data: result
+      data: result,
     });
   } catch (error) {
     console.log("Error: ", error);

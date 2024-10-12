@@ -4,11 +4,15 @@ import { useRouter } from "next/navigation";
 import InputComponent from "@components/input";
 import ButtonComponent from "@components/button";
 import { Box, Heading, Text } from "@chakra-ui/react";
+import useUserHooks from "@hooks/userhooks";
 
 const LoginForm = () => {
   const router = useRouter();
-  const [email, setEmail] = useState(null);
-  const [password, setPassword] = useState(null);
+  const { signIn } = useUserHooks();
+
+  const [email, setEmail] = useState("admin");
+  const [password, setPassword] = useState("admin123");
+  const [feedback, setFeedback] = useState(null);
 
   const inputDataSet = [
     {
@@ -32,10 +36,21 @@ const LoginForm = () => {
   ];
 
   function handleSignIn(stopLoading) {
-    setTimeout(() => {
+    setTimeout(() => stopLoading(), 1000);
+
+    let form = new FormData();
+    form.append("username", email);
+    form.append("password", password);
+
+    signIn(form, (status, feedback) => {
+      if (!(status >= 200 && status < 300)) {
+        stopLoading();
+        return setFeedback(feedback);
+      }
+
       stopLoading();
-      router.push("/dashboard/");
-    }, [500]);
+      router.push("/dashboard");
+    });
   }
 
   return (
@@ -47,8 +62,10 @@ const LoginForm = () => {
         <form className="space-y-6" action="/dashboard" method="POST">
           {
             /** authentication fields */
-            inputDataSet.map((dataSet) => (
-              <InputComponent key={dataSet.key} {...dataSet} />
+            inputDataSet.map((dataSet, index) => (
+              <Box key={index}>
+                <InputComponent key={index} {...dataSet} />
+              </Box>
             ))
           }
           <Box>
@@ -73,7 +90,7 @@ const LoginForm = () => {
                 onClick={() => router.push("/")}
               >
                 Return to
-                <Text style={{ color: "teal", fontWeight: 600 }}>Home</Text>
+                <span style={{ color: "teal", fontWeight: 600 }}>Home</span>
               </Text>
             </Box>
           </Box>

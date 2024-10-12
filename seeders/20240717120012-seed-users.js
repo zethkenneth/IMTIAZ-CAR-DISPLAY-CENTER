@@ -1,15 +1,21 @@
-"use strict";
+const bcrypt = require("bcrypt");
+("use strict");
+
+// Function to hash password
+async function hashPassword(password) {
+  const salt = await bcrypt.genSalt(10);
+  return await bcrypt.hash(password, salt);
+}
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
+    const hashedPassword = await hashPassword("admin123");
     await queryInterface.bulkInsert("Users", [
       {
-        username: "bob123",
-        password: "bob123",
-      },
-      {
-        username: "ana1999",
-        password: "anabeauty"
+        username: "admin",
+        password: hashedPassword,
+        firstname: "Luffy",
+        lastname: "Monkey",
       },
     ]);
   },

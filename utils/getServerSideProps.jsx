@@ -1,4 +1,4 @@
-import { verifyToken } from "@app/api/imtiaz/auth";
+import { verifyToken } from "@app/api/imtiaz/login/auth";
 
 export async function getServerSideProps(context) {
   const { req } = context;

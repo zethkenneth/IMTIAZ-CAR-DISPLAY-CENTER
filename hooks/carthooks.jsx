@@ -23,21 +23,20 @@ const useCartHook = create((set, get) => ({
   },
   addToCart: (product) => {
     if (get().cart.total_amount === 0) {
-      set((state) => ({
+      return set((state) => ({
         cart: {
           ...state.cart,
           total_amount: parseFloat(product.price),
           products: [{ ...product, quantity: 1 }],
         },
       }));
-      return;
     }
 
-    if (
-      get().cart.products.filter(
-        (value) => value.productID === product.productID
-      ).length > 0
-    ) {
+    const productExist = get().cart.products.filter(
+      (value) => value.productID === product.productID
+    );
+
+    if (productExist.length > 0) {
       set((state) => ({
         cart: state.cart.products.map((productInCart) => {
           const productExist = productInCart.productID === product.productID;
@@ -59,7 +58,7 @@ const useCartHook = create((set, get) => ({
         }),
       }));
 
-      set((state) => ({
+      return set((state) => ({
         cart: {
           ...state.cart,
           total_amount:
@@ -68,15 +67,16 @@ const useCartHook = create((set, get) => ({
       }));
     }
 
+    const newProducts = get().cart.products;
+    console.log(newProducts);
     /**
      * If cart is not empty and new product is added
      */
     set((state) => ({
       cart: {
-        ...state.cart,
         total_amount:
           parseFloat(state.cart.total_amount) + parseFloat(product.price),
-        products: [{ ...product, quantity: 1 }],
+        products: [...state.cart.products, { ...product, quantity: 1 }],
       },
     }));
   },

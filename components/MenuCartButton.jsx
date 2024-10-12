@@ -13,6 +13,7 @@ import ProductImage from "./ProductImage";
 import ModalComponent from "./ModalComponent";
 import ButtonComponent from "./button";
 import useCartHook from "@hooks/carthooks";
+import formatPrice from "@utils/formatprice";
 
 const MenuCartButton = () => {
   const { cart } = useCartHook();
@@ -168,7 +169,7 @@ const MenuCartButton = () => {
             <Flex gap={3}>
               <Text>Total Amount</Text>
               <Text>
-                <strong>{cart?.total_amount ?? 0}</strong>
+                <strong>{formatPrice(cart?.total_amount ?? 0)}</strong>
               </Text>
             </Flex>
           </Flex>

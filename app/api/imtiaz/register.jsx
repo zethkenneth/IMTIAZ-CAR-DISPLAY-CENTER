@@ -1,4 +1,4 @@
-import { hashPassword } from "./auth";
+import { hashPassword } from "./login/auth";
 
 // Mock database
 const users = [];

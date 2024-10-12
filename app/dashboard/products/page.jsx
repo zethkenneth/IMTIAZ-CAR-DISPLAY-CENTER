@@ -9,19 +9,13 @@ import axios from "axios";
 const Products = () => {
   const { products, getInventory } = useInventorHooks();
 
-  function handleAddToCard() {}
-
   useEffect(() => {
     const cancelToken = axios.CancelToken.source();
 
     if (products.length === 0) {
       getInventory(cancelToken.token, (status, feedback) => {
-        switch (status) {
-          case 200:
-            console.log(feedback);
-            break;
-          default:
-            console.log(feedback);
+        if (!(status >= 200 && status < 300)) {
+          console.log(feedback);
         }
       });
     }

@@ -17,6 +17,14 @@ module.exports = {
         type: Sequelize.STRING(255),
         allowNull: false,
       },
+      firstname: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+      },
+      lastname: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+      },
     });
   },
 

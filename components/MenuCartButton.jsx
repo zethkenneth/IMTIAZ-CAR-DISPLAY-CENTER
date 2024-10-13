@@ -14,10 +14,22 @@ import ModalComponent from "./ModalComponent";
 import ButtonComponent from "./button";
 import useCartHook from "@hooks/carthooks";
 import formatPrice from "@utils/formatprice";
+import AnimatedButton from "./AnimatedButton";
 
 const MenuCartButton = () => {
-  const { cart } = useCartHook();
+  const { cart, placeOrder } = useCartHook();
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  function handlePlaceOrder(stopLoading) {
+    placeOrder((status, feedback) => {
+      if (!(status >= 200 && status < 300)) {
+        stopLoading();
+        return console.log(feedback);
+      }
+
+      return stopLoading();
+    });
+  }
 
   const Item = (props) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -61,7 +73,7 @@ const MenuCartButton = () => {
 
     return (
       <>
-        <CartItemDesign onClick={handleViewOrder} w="6rem" h="4rem" />
+        <CartItemDesign onClick={handleViewOrder} w="10rem" h="6rem" />
         <ModalComponent
           size="2xl"
           isOpen={isOpen}
@@ -157,25 +169,38 @@ const MenuCartButton = () => {
         isOpen={isOpen}
         onClose={onClose}
         withCloseButton={true}
+        size="4xl"
+        footer={
+          <AnimatedButton
+            label="Place Order"
+            loadingLabel="Processing"
+            onClick={handlePlaceOrder}
+          />
+        }
       >
         <Box>
-          <Flex gap={5}>
+          <Text>
+            {
+              "After placing an order the details of order will be display give this to the customer the payment code. Thank you."
+            }
+          </Text>
+          {cart.products.map((value, i) => (
+            <Item key={i} {...value} />
+          ))}
+          <Flex gap={5} mt={5} justifyContent="space-between">
             <Flex gap={3}>
-              <Text>Total Product</Text>
+              <Text>Quantity : </Text>
               <Text>
-                <strong>{cart?.products?.length ?? 0}</strong>
+                <strong>{cart?.quantity ?? 0}</strong>
               </Text>
             </Flex>
             <Flex gap={3}>
-              <Text>Total Amount</Text>
+              <Text>Total Amount : </Text>
               <Text>
                 <strong>{formatPrice(cart?.total_amount ?? 0)}</strong>
               </Text>
             </Flex>
           </Flex>
-          {cart.products.map((value, i) => (
-            <Item key={i} {...value} />
-          ))}
         </Box>
       </ModalComponent>
     </Box>

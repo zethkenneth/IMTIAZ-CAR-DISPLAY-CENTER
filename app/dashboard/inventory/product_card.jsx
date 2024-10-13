@@ -155,7 +155,7 @@ const ProductCard = ({
                 label="Add To Cart"
                 icon={<ShoppingCartIcon className="w-5 h-5" />}
                 onClick={handleAddToCard}
-                style={{ color: "white" }}
+                style={{ color: "black" }}
               />
             </Box>
           }
@@ -287,7 +287,7 @@ const ProductCard = ({
             w="full"
             bg="orange"
             mt="2"
-            color="white"
+            color="black"
             fontWeight="medium"
             py="1"
             px="2"

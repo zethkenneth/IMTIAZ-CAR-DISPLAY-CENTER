@@ -10,12 +10,12 @@ module.exports = {
       },
       orderCode: {
         type: Sequelize.STRING(20),
-        allowNull: false,
+        allowNull: true,
         unique: true,
       },
       paymentCode: {
         type: Sequelize.STRING(20),
-        allowNull: false,
+        allowNull: true,
         unique: true,
       },
       paymentStatus: {

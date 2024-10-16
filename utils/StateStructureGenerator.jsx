@@ -20,11 +20,42 @@ const useStateStructureGenerator = (labels) => {
        */
       function optionState() {
         if (label.split(".")[0] === "s") {
-          const extractOptions = label.split("&")[1];
+          const extractOptions = label.includes("#")
+            ? label.split("&")[1].split("#")[0]
+            : label.split("&")[1];
+
+          let initialObj = {
+            placeholder: `Select ${extractComponentLabel}`,
+            isRequired: label.includes("#required"),
+          };
+
+          if (extractOptions.includes("library")) {
+            const options = extractOptions.split("-");
+
+            let datas = [];
+            switch (options[1]) {
+              case "departments":
+                datas = departmentSummary;
+                break;
+              case "hospitals":
+                datas = hospitalListSummaryDetails;
+                break;
+              case "positions":
+                datas = positionsSummary;
+                break;
+              case "specializations":
+                datas = specializationSummaryList;
+            }
+
+            return {
+              ...initialObj,
+              datas: datas,
+            };
+          }
 
           return {
+            ...initialObj,
             datas: JSON.parse(extractOptions),
-            placeholder: `Select ${extractComponentLabel}`,
           };
         }
 
@@ -36,6 +67,7 @@ const useStateStructureGenerator = (labels) => {
             : "text",
           placeholder: `Enter ${extractComponentLabel}`,
           errorMessage: null,
+          isRequired: label.includes("&") && label.includes("i."),
           setErrorMessage: (error) =>
             handleErrorChange(extractComponentLabel, error),
         };
@@ -76,6 +108,37 @@ const useStateStructureGenerator = (labels) => {
       ...prevState,
       [label]: { ...prevState[label], errorMessage: error },
     }));
+  };
+
+  /**
+   * Validate input values
+   *
+   * @param {string} value - The value of the form field
+   * @param {string} label - The label of the form field
+   * @returns {string|null} - The error message if validation fails, or null if it passes
+   */
+  const validateInput = (value, label) => {
+    if (!value && formState[label].isRequired) {
+      return `${label} is required`;
+    }
+
+    // Add more custom validation logic here if needed
+    // Example: Check if email is valid
+    if (label.toLowerCase().includes("email") && value) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(value)) {
+        return "Please enter a valid email address";
+      }
+    }
+
+    // Example: Password validation
+    if (label.toLowerCase().includes("password") && value) {
+      if (value.length < 6) {
+        return "Password must be at least 6 characters long";
+      }
+    }
+
+    return null;
   };
 
   return formState;

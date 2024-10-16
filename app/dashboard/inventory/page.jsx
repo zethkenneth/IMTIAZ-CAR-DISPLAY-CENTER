@@ -3,7 +3,16 @@
 import InventoryNavBar from "./inventory_nav_bar";
 import ProductCard from "./product_card";
 import ModalComponent from "@components/ModalComponent";
-import { Box, Flex, Image, Text, useDisclosure, Wrap } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  IconButton,
+  Image,
+  Text,
+  useDisclosure,
+  Wrap,
+  WrapItem,
+} from "@chakra-ui/react";
 import useStateStructureGenerator from "@utils/StateStructureGenerator";
 import StateStructureInputsComponents from "@utils/StateStructureInputsComponents";
 import ButtonComponent from "@components/button";
@@ -11,6 +20,14 @@ import { productJsonData } from "./data";
 import { useEffect, useState } from "react";
 import FileUpload from "@components/Fileupload";
 import useInventorHooks from "@hooks/inventoryhooks";
+import AnimatedButton from "@components/AnimatedButton";
+import { CloseIcon } from "@chakra-ui/icons";
+import {
+  FaFileExcel,
+  FaFilePdf,
+  FaFileWord,
+  FaFilePowerpoint,
+} from "react-icons/fa";
 
 const Inventory = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -29,7 +46,7 @@ const Inventory = () => {
     "i.Type",
     "i.Price",
     "i.Quantity",
-    "i.Overview",
+    "a.Overview",
     "a.Engine Options",
     "a.Transmissions",
     "a.Fuel Efficiency",
@@ -39,12 +56,24 @@ const Inventory = () => {
     "a.Design",
     "a.Performance",
   ];
+  const indexToRender = ["0.3", "4.6"];
+  const indexToRender2 = [
+    "7.7",
+    "8.8",
+    "9.9",
+    "10.10",
+    "11.11",
+    "12.12",
+    "13.13",
+    "14.14",
+  ];
+
   const formState = useStateStructureGenerator(labels);
   const stateStructureInputsComponent = new StateStructureInputsComponents(
     labels,
     formState,
-    "16rem",
-    null
+    "100%",
+    { gap: 5, mt: 5 }
   );
 
   function handleAddProduct() {}
@@ -82,7 +111,11 @@ const Inventory = () => {
     stockThreshold
   );
 
-  const handleRemoveImage = (indexToRemove) => {
+  const handleFileChange = (event) => {
+    setFiles(Array.from(event.target.files));
+  };
+
+  const handleRemoveFile = (indexToRemove) => {
     setFiles((prevFiles) =>
       prevFiles.filter((_, index) => index !== indexToRemove)
     );
@@ -141,9 +174,24 @@ const Inventory = () => {
         withCloseButton={true}
         isOpen={isOpen}
         onClose={onClose}
-        size="4xl"
+        size="5xl"
         footer={
           <Flex gap={5}>
+            <>
+              <input
+                id="fileInput"
+                type="file"
+                multiple
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
+              <AnimatedButton
+                label="Upload Attachment"
+                variant="secondary"
+                rounded={7}
+                onClick={() => document.getElementById("fileInput").click()}
+              />
+            </>
             <ButtonComponent w="6rem" label="Save" onClick={handleAddProduct} />
             <ButtonComponent
               w="6rem"
@@ -154,49 +202,141 @@ const Inventory = () => {
           </Flex>
         }
       >
-        <Wrap spacingX={10} spacingY={7} justifyItems="center">
-          {
-            /** Patient Personal Information */
-            stateStructureInputsComponent.render("0.15")
-          }
-        </Wrap>
-        {files.length === 0 ? null : (
-          <Flex mt={10} gap={3}>
-            {files.map((file, index) => (
-              <Box
-                key={index}
-                mb={4}
-                rounded={10}
-                overflow="hidden"
-                position="relative"
-              >
-                <Image
-                  src={URL.createObjectURL(file)}
-                  alt={file.name}
-                  maxH="100px"
-                />
-                <Text
-                  position="absolute"
-                  top="1px"
-                  right="2px"
-                  color="white"
-                  px={2}
-                  py={1}
-                  borderRadius="md"
-                  cursor="pointer"
-                  onClick={() => handleRemoveImage(index)}
-                >
-                  X
-                </Text>
-              </Box>
-            ))}
-          </Flex>
-        )}
-        {files.length === 0 && (
-          <Box mt={5}>
-            <FileUpload onFilesSelected={setFiles} />
+        <Box h="500" overflow="scroll">
+          <Text>
+            {
+              "Please provide the required details. This information will be useful later when managing your product listings and inventory."
+            }
+          </Text>
+          <Box pl={5} pr={5}>
+            {
+              /** Patient Personal Information */
+              stateStructureInputsComponent.renderCollection(indexToRender)
+            }
+            {
+              /** Patient Personal Information */
+              stateStructureInputsComponent.renderCollection(indexToRender2)
+            }
           </Box>
-        )}
+          {/* {files.length === 0 ? null : (
+            <Flex mt={10} gap={3}>
+              {files.map((file, index) => (
+                <Box
+                  key={index}
+                  mb={4}
+                  rounded={10}
+                  overflow="hidden"
+                  position="relative"
+                >
+                  <Image
+                    src={URL.createObjectURL(file)}
+                    alt={file.name}
+                    maxH="100px"
+                  />
+                  <Text
+                    position="absolute"
+                    top="1px"
+                    right="2px"
+                    color="white"
+                    px={2}
+                    py={1}
+                    borderRadius="md"
+                    cursor="pointer"
+                    onClick={() => handleRemoveImage(index)}
+                  >
+                    X
+                  </Text>
+                </Box>
+              ))}
+            </Flex>
+          )} */}
+          {/* {files.length === 0 && (
+            <Box mt={5}>
+              <FileUpload onFilesSelected={setFiles} />
+            </Box>
+          )} */}
+          <Wrap mt={5}>
+            {files.map((file, index) => {
+              if (
+                !file.name.includes("jpeg") &&
+                !file.name.includes("png") &&
+                !file.name.includes("jpg")
+              ) {
+                return (
+                  <WrapItem
+                    key={index}
+                    p={2}
+                    position="relative"
+                    overflow="hidden"
+                  >
+                    <Box
+                      p={2}
+                      w="100px"
+                      h="100px"
+                      bg="blackAlpha.400"
+                      rounded={5}
+                      overflow="hidden"
+                    >
+                      {file.name.includes("pdf") ? (
+                        <FaFilePdf size={20} />
+                      ) : file.name.includes("xlsx") ||
+                        file.name.includes("xls") ? (
+                        <FaFileExcel size={20} />
+                      ) : file.name.includes("pptx") ? (
+                        <FaFilePowerpoint size={20} />
+                      ) : (
+                        <FaFileWord size={20} />
+                      )}
+                      <Text mt={2} fontSize={12}>
+                        {file.name}
+                      </Text>
+                    </Box>
+                    <IconButton
+                      icon={<CloseIcon />}
+                      fontSize={12}
+                      colorScheme="transparent"
+                      color="white"
+                      position="absolute"
+                      top="2px"
+                      right="2px"
+                      onClick={() => handleRemoveFile(index)}
+                    />
+                  </WrapItem>
+                );
+              }
+
+              return (
+                <WrapItem
+                  key={index}
+                  p={2}
+                  position="relative"
+                  overflow="hidden"
+                >
+                  <Image
+                    src={URL.createObjectURL(file)}
+                    alt={`preview-${index}`}
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      objectFit: "cover",
+                    }}
+                    rounded={5}
+                  />
+                  <IconButton
+                    icon={<CloseIcon />}
+                    fontSize={12}
+                    colorScheme="transparent"
+                    color="white"
+                    position="absolute"
+                    top="2px"
+                    right="2px"
+                    onClick={() => handleRemoveFile(index)}
+                  />
+                </WrapItem>
+              );
+            })}
+          </Wrap>
+        </Box>
       </ModalComponent>
     </>
   );

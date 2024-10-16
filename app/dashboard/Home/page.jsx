@@ -1,3 +1,5 @@
+"use client";
+
 import BarChart from "./barcart";
 import { ChevronDoubleDownIcon } from "@heroicons/react/24/solid";
 import {

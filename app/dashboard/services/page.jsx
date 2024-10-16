@@ -1,3 +1,5 @@
+"use client";
+
 const Services = () => {
   return (
     <section className="p-6 bg-white rounded-lg shadow-md">

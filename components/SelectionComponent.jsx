@@ -59,7 +59,7 @@ SelectionComponent.propTypes = {
   datas: PropTypes.array,
   value: PropTypes.string,
   setValue: PropTypes.func,
-  isRequired: PropTypes.boolean,
+  isRequired: PropTypes.bool,
 };
 
 export default SelectionComponent;

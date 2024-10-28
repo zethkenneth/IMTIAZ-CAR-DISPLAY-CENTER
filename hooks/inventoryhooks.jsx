@@ -33,8 +33,8 @@ const useInventorHooks = create((set) => ({
       .post(`${baseURL}/products`, form)
       .then((res) => validateStatusOk(res))
       .then((res) => {
-        const { data, message } = res;
-        set(() => ({ products: data }));
+        const { newProduct, message } = res;
+        set((state) => ({ products: [...state.products, newProduct] }));
         callBack(200, message);
       })
       .catch((err) => callBack(...handleFailedStatus(err)));

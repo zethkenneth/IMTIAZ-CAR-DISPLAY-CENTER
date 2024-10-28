@@ -31,7 +31,7 @@ import {
 
 const Inventory = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { products, getInventory } = useInventorHooks();
+  const { products, getInventory, storeProduct } = useInventorHooks();
   const [title, setTitle] = useState("New");
   const [profilePicture, setProfilePicture] = useState(null);
   const [activeButton, setActiveButton] = useState("Brand New");
@@ -76,7 +76,21 @@ const Inventory = () => {
     { gap: 5, mt: 5 }
   );
 
-  function handleAddProduct() {}
+  function handleAddProduct() {
+    let form = stateStructureInputsComponent.retrieveFormDataFromFormState();
+
+    files.forEach((file) => {
+      form.append("attachments[]", file);
+    });
+
+    storeProduct(form, (status, feedback) => {
+      if (!(status >= 200 && status < 300)) {
+        return console.log(feedback);
+      }
+
+      return console.log(feedback);
+    });
+  }
 
   function handleCancel() {
     onClose();
@@ -106,7 +120,7 @@ const Inventory = () => {
   };
 
   const filteredData = filterProducts(
-    products,
+    products ?? [],
     activeButton.toLocaleLowerCase(),
     stockThreshold
   );
@@ -218,43 +232,6 @@ const Inventory = () => {
               stateStructureInputsComponent.renderCollection(indexToRender2)
             }
           </Box>
-          {/* {files.length === 0 ? null : (
-            <Flex mt={10} gap={3}>
-              {files.map((file, index) => (
-                <Box
-                  key={index}
-                  mb={4}
-                  rounded={10}
-                  overflow="hidden"
-                  position="relative"
-                >
-                  <Image
-                    src={URL.createObjectURL(file)}
-                    alt={file.name}
-                    maxH="100px"
-                  />
-                  <Text
-                    position="absolute"
-                    top="1px"
-                    right="2px"
-                    color="white"
-                    px={2}
-                    py={1}
-                    borderRadius="md"
-                    cursor="pointer"
-                    onClick={() => handleRemoveImage(index)}
-                  >
-                    X
-                  </Text>
-                </Box>
-              ))}
-            </Flex>
-          )} */}
-          {/* {files.length === 0 && (
-            <Box mt={5}>
-              <FileUpload onFilesSelected={setFiles} />
-            </Box>
-          )} */}
           <Wrap mt={5}>
             {files.map((file, index) => {
               if (

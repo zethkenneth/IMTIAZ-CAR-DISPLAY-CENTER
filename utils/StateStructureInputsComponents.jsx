@@ -190,7 +190,7 @@ class StateStructureInputsComponents {
    * @returns {formData}: form data for data gathered from user
    */
   retrieveFormDataFromFormState() {
-    const formData = new FormData();
+    let formData = new FormData();
 
     Object.keys(this.formState).forEach((key, index) => {
       const formKey = key.toLowerCase().replace(/\s+/g, "_");

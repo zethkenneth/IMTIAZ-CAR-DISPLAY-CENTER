@@ -20,9 +20,9 @@ export async function POST(req) {
       method: "post",
       url: "https://api.paymongo.com/v1/links",
       headers: {
-      accept: "application/json",
-      authorization: "Basic c2tfdGVzdF9LVmVWSkVTV0dkYmM1NXdHckx4NXdNVHc6",
-      "content-type": "application/json",
+        accept: "application/json",
+        authorization: "Basic c2tfdGVzdF9qdGNMOFFoanVHcGZ4RXJGZlNGR2RpVEo6",
+        "content-type": "application/json",
       },
       data: data,
     };
@@ -62,9 +62,9 @@ export async function GET(req) {
     url: `https://api.paymongo.com/v1/links?reference_number=${query}`,
     headers: {
       accept: "application/json",
-      authorization: "Basic c2tfdGVzdF9LVmVWSkVTV0dkYmM1NXdHckx4NXdNVHc6",
+      authorization: "Basic c2tfdGVzdF9qdGNMOFFoanVHcGZ4RXJGZlNGR2RpVEo6",
       "content-type": "application/json",
-    }
+    },
   };
 
   try {

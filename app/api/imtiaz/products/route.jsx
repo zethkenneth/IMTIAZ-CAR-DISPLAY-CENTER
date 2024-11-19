@@ -13,6 +13,7 @@ const mkdir = promisify(fs.mkdir);
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const uploadPath = path.join(process.cwd(), "public/uploads/products");
+    fs.mkdirSync(uploadPath, { recursive: true }); // Ensure directory exists
     cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
@@ -22,32 +23,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-export const config = {
-  api: {
-    bodyParser: false, // Disable Next.js default body parsing to handle multipart data
-  },
-};
-
-export async function GET() {
-  try {
-    const products = await Products.findAll();
-    return NextResponse.json({
-      status: 200,
-      data: products,
-    });
-  } catch (error) {
-    console.log("Error: ", error);
-    return NextResponse.json({
-      status: 500,
-      error: "Failed to fetch Products",
-      details: error,
-    });
-  }
-}
-
-function runMiddleware(req, res, fn) {
+async function runMiddleware(req, fn) {
   return new Promise((resolve, reject) => {
-    fn(req, res, (result) => {
+    fn(req, {}, (result) => {
       if (result instanceof Error) {
         return reject(result);
       }
@@ -56,10 +34,29 @@ function runMiddleware(req, res, fn) {
   });
 }
 
-export async function POST(req, res) {
+// GET Handler
+export async function GET() {
   try {
-    // Run multer as middleware
-    await runMiddleware(req, res, upload.any());
+    const products = await Products.findAll();
+    return NextResponse.json({
+      status: 200,
+      data: products,
+    });
+  } catch (error) {
+    console.error("Error: ", error);
+    return NextResponse.json({
+      status: 500,
+      error: "Failed to fetch Products",
+      details: error.message || error,
+    });
+  }
+}
+
+// POST Handler
+export async function POST(req) {
+  try {
+    const uploadMiddleware = upload.any();
+    await runMiddleware(req, uploadMiddleware);
 
     const {
       productname,
@@ -75,47 +72,44 @@ export async function POST(req, res) {
       reorderlevel,
     } = req.body;
 
-    // Ensure req.files is defined before using it
+    // Check for uploaded files
     if (!req.files || req.files.length === 0) {
       throw new Error("No files were uploaded.");
     }
 
-    // Collect paths of all uploaded files
+    // Collect paths of uploaded files
     const attachments = req.files.map((file) =>
       path.join("/uploads/products", file.filename)
     );
 
-    // Insert product data along with file paths in the database
+    // Create new product entry
     const newProduct = await Products.create({
       productName: productname,
-      description: description,
-      description2: description2,
-      model: model,
-      year: year,
-      brand: brand,
-      type: type,
-      category: category,
-      price: price,
+      description,
+      description2,
+      model,
+      year,
+      brand,
+      type,
+      category,
+      price,
       quantityOnHand: quantityonhand,
       reorderLevel: reorderlevel,
-      imageUrl: attachments, // Store file paths as an array
+      imageUrl: attachments,
     });
 
-    return new NextResponse(
-      JSON.stringify({
-        message: "Product created successfully",
-        data: newProduct,
-      }),
-      { status: 200, headers: { "Content-Type": "application/json" } }
-    );
+    return NextResponse.json({
+      message: "Product created successfully",
+      data: newProduct,
+    });
   } catch (error) {
     console.error("Error:", error);
-    return new NextResponse(
-      JSON.stringify({
+    return NextResponse.json(
+      {
         error: "Failed to create product",
         details: error.message || error,
-      }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      },
+      { status: 500 }
     );
   }
 }

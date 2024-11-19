@@ -59,7 +59,7 @@ const ProductLandingPage = () => {
           pt={5}
           pb={5}
         >
-          {products.slice(0, 5).map((value, index) => {
+          {products?.slice(0, 5).map((value, index) => {
             const description2 = JSON.parse(value.description2);
             return (
               <Box
@@ -99,7 +99,7 @@ const ProductLandingPage = () => {
                 </Flex>
               </Box>
             );
-          })}
+          }) ?? []}
         </Flex>
       </Box>
     </Flex>

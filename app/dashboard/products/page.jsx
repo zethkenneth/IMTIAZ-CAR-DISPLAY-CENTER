@@ -12,7 +12,7 @@ const Products = () => {
   useEffect(() => {
     const cancelToken = axios.CancelToken.source();
 
-    if (products.length === 0) {
+    if (products?.length === 0) {
       getInventory(cancelToken.token, (status, feedback) => {
         if (!(status >= 200 && status < 300)) {
           console.log(feedback);
@@ -37,7 +37,7 @@ const Products = () => {
       </Flex>
       <main>
         <div className="flex flex-wrap p-5">
-          {products.map((product, i) => (
+          {products?.map((product, i) => (
             <ProductCard
               key={i}
               name={product.productName}
@@ -46,7 +46,7 @@ const Products = () => {
               description2={JSON.parse(product.description2)}
               isInventoryDisplay={false}
             />
-          ))}
+          )) ?? []}
         </div>
       </main>
     </>

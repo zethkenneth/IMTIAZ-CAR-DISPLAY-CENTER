@@ -10,8 +10,8 @@ function Rootlayout({ children }) {
       <body>
         {/* className="app" remove since this is not set to initial css */}
         <main>
-            <ChakraProvider>{children}</ChakraProvider>
-          {/* <Chatbot /> */}
+          <ChakraProvider>{children}</ChakraProvider>
+          <Chatbot />
         </main>
       </body>
     </html>

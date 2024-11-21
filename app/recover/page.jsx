@@ -36,13 +36,13 @@ function Home() {
 
   return (
     <section className="flex min-h-screen flex-col justify-center items-center px-6 py-12 lg:px-8">
-      <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 w-1/2">
-        <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+      <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8 w-1/2">
+        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           {/* <img class="mx-auto h-10 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="Your Company" /> */}
           <Heading size="md">Recover Account</Heading>
         </div>
-        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form class="space-y-6" action="#" method="POST">
+        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+          <form className="space-y-6" action="#" method="POST">
             {
               /** authentication fields */
               inputDataSet.map((dataSet) => (
@@ -50,7 +50,7 @@ function Home() {
               ))
             }
 
-            <div class="mt-10 w-full">
+            <div className="mt-10 w-full">
               <ButtonComponent
                 label="Submit"
                 loadingLabel="Processing"

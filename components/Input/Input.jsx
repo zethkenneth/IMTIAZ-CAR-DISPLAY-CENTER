@@ -9,7 +9,7 @@ const Input = (props) => {
       <>
         <label
           for={props.name}
-          class="block text-sm font-medium leading-6 text-gray-900"
+          className="block text-sm font-medium leading-6 text-gray-900"
         >
           {props.label}
         </label>
@@ -21,10 +21,10 @@ const Input = (props) => {
   }
   return (
     <>
-      <div class="flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <label
           for={props.name}
-          class="block text-sm font-medium leading-6 text-gray-900"
+          className="block text-sm font-medium leading-6 text-gray-900"
         >
           {props.label}
         </label>

@@ -1,6 +1,7 @@
 // Sidebar.js
+'use client'
 import React from "react";
-import { Link } from "react-router-dom"; // Assuming you're using react-router for navigation
+import  Link  from "next/link"; // Assuming you're using react-router for navigation
 import {
   ArchiveBoxIcon,
   ChartPieIcon,
@@ -46,10 +47,10 @@ const Sidebar = ({ isMini }) => {
   const LinkWithIcon = ({ icon, label, to }) => {
     return (
       <Link
-        to={`/dashboard${to}`}
+        href={`/dashboard${to}`}
         className="block py-2 px-4 hover:bg-orange-100"
       >
-        <div class="flex gap-2 text-gray-600 hover:text-[#FF6F00]">
+        <div className="flex gap-2 text-gray-600 hover:text-[#FF6F00]">
           {icon}
           {!isMini && <p className="font-medium">{label}</p>}
         </div>

@@ -18,6 +18,7 @@ import FormController from "@components/FormController";
 import ModalComponent from "@components/ModalComponent";
 import guides from "@data/guide_data";
 import { useState } from "react";
+import PageContainer from "@components/PageContainer";
 
 const Guide = () => {
   const [selectedGuide, setSelectedGuide] = useState(guides[0]);
@@ -95,79 +96,81 @@ const Guide = () => {
   };
 
   return (
-    <Box>
-      <Flex justifyContent="space-between" alignItems="center">
-        <Heading size="lg" mb="4">
-          Car Guide Troubleshooting and Maintenance
-        </Heading>
-        <Box w="14rem">
-          <FormController
-            rounded={25}
-            name="search"
-            errorMessage={null}
-            placeholder="Search maintenance"
-            value={search}
-            setValue={setSearch}
-          >
-            <MagnifyingGlassIcon className="w-5 h-5" />
-          </FormController>
-        </Box>
-      </Flex>
-      <Box w="inherit" pb={10}>
-        <Grid
-          mt={5}
-          templateColumns="repeat(auto-fit, minmax(350px, 1fr))"
-          gap={4}
-        >
-          {filteredGuides.map((guide) => (
-            <Box
-              p="4"
-              h="13rem"
-              bg="white"
-              boxShadow="lg"
-              key={guide.id}
-              cursor="pointer"
-              borderRadius="lg"
-              overflow="hidden"
-              transform="scale(1)"
-              transition="transform 0.2s"
-              _hover={{ transform: "scale(1.02)" }}
-              onClick={() => openModal(guide)}
-            >
-              <Flex justifyContent="space-between" alignItems="center">
-                <Heading size="md" mb="2">
-                  {guide.title}
-                </Heading>
-                {guide.icon}
-              </Flex>
-              <Text fontSize={14} mt={5}>
-                {guide.summary}
-              </Text>
-              <Text fontSize="14px" mt="2">
-                {guide.content.slice(0, 100)}...
-              </Text>
-            </Box>
-          ))}
-        </Grid>
-      </Box>
-      <ModalComponent
-        title={
-          <Heading size="md" color="gray">
-            {selectedGuide?.title}
+    <PageContainer>
+      <Box>
+        <Flex justifyContent="space-between" alignItems="center">
+          <Heading size="lg" mb="4">
+            Car Guide Troubleshooting and Maintenance
           </Heading>
-        }
-        size="5xl"
-        isOpen={isOpen}
-        onClose={onClose}
-        withCloseButton={true}
-      >
-        <Box w="100%" h="50vh">
-          {selectedGuide === null
-            ? null
-            : GenerateTabList(selectedGuide?.information)}
+          <Box w="14rem">
+            <FormController
+              rounded={25}
+              name="search"
+              errorMessage={null}
+              placeholder="Search maintenance"
+              value={search}
+              setValue={setSearch}
+            >
+              <MagnifyingGlassIcon className="w-5 h-5" />
+            </FormController>
+          </Box>
+        </Flex>
+        <Box w="inherit" pb={10}>
+          <Grid
+            mt={5}
+            templateColumns="repeat(auto-fit, minmax(350px, 1fr))"
+            gap={4}
+          >
+            {filteredGuides.map((guide) => (
+              <Box
+                p="4"
+                h="13rem"
+                bg="white"
+                boxShadow="lg"
+                key={guide.id}
+                cursor="pointer"
+                borderRadius="lg"
+                overflow="hidden"
+                transform="scale(1)"
+                transition="transform 0.2s"
+                _hover={{ transform: "scale(1.02)" }}
+                onClick={() => openModal(guide)}
+              >
+                <Flex justifyContent="space-between" alignItems="center">
+                  <Heading size="md" mb="2">
+                    {guide.title}
+                  </Heading>
+                  {guide.icon}
+                </Flex>
+                <Text fontSize={14} mt={5}>
+                  {guide.summary}
+                </Text>
+                <Text fontSize="14px" mt="2">
+                  {guide.content.slice(0, 100)}...
+                </Text>
+              </Box>
+            ))}
+          </Grid>
         </Box>
-      </ModalComponent>
-    </Box>
+        <ModalComponent
+          title={
+            <Heading size="md" color="gray">
+              {selectedGuide?.title}
+            </Heading>
+          }
+          size="5xl"
+          isOpen={isOpen}
+          onClose={onClose}
+          withCloseButton={true}
+        >
+          <Box w="100%" h="50vh">
+            {selectedGuide === null
+              ? null
+              : GenerateTabList(selectedGuide?.information)}
+          </Box>
+        </ModalComponent>
+      </Box>
+    </PageContainer>
   );
 };
 

@@ -1,4 +1,4 @@
-"use client";
+'use client'
 
 import BarChart from "./barcart";
 import { ChevronDoubleDownIcon } from "@heroicons/react/24/solid";
@@ -53,6 +53,7 @@ const HomeDashboard = () => {
     }
 
     return () => cancelToken.cancel();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const CardStatistic = ({ label, value, icon }) => {

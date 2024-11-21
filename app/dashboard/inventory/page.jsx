@@ -28,6 +28,7 @@ import {
   FaFileWord,
   FaFilePowerpoint,
 } from "react-icons/fa";
+import PageContainer from "@components/PageContainer";
 
 const Inventory = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -151,94 +152,143 @@ const Inventory = () => {
     if (products.length === 0) {
       handleFetchInventory();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <>
-      <InventoryNavBar
-        search={search}
-        setSearch={setSearch}
-        activeButton={activeButton}
-        setActiveButton={setActiveButton}
-        openModal={onOpen}
-      />
-      <main>
-        <div className="flex flex-wrap p-5">
-          {filteredData
-            .filter((value) =>
-              search !== null
-                ? value.name
-                    .toLocaleLowerCase()
-                    .includes(search.toLocaleLowerCase())
-                : value
-            )
-            .map((product, i) => (
-              <ProductCard
-                key={i}
-                name={product.productName}
-                {...product}
-                isInventoryDisplay={true}
-                edit={handleEdit}
+    <PageContainer>
+      <>
+        <InventoryNavBar
+          search={search}
+          setSearch={setSearch}
+          activeButton={activeButton}
+          setActiveButton={setActiveButton}
+          openModal={onOpen}
+        />
+        <main>
+          <div className="flex flex-wrap p-5">
+            {filteredData
+              .filter((value) =>
+                search !== null
+                  ? value.name
+                      .toLocaleLowerCase()
+                      .includes(search.toLocaleLowerCase())
+                  : value
+              )
+              .map((product, i) => (
+                <ProductCard
+                  key={i}
+                  name={product.productName}
+                  {...product}
+                  isInventoryDisplay={true}
+                  edit={handleEdit}
+                />
+              ))}
+          </div>
+        </main>
+        <ModalComponent
+          title="New Product"
+          withCloseButton={true}
+          isOpen={isOpen}
+          onClose={onClose}
+          size="5xl"
+          footer={
+            <Flex gap={5}>
+              <>
+                <input
+                  id="fileInput"
+                  type="file"
+                  multiple
+                  style={{ display: "none" }}
+                  onChange={handleFileChange}
+                />
+                <AnimatedButton
+                  label="Upload Attachment"
+                  variant="secondary"
+                  rounded={7}
+                  // onClick={() => document.getElementById("fileInput").click()}
+                />
+              </>
+              <ButtonComponent
+                w="6rem"
+                label="Save"
+                onClick={handleAddProduct}
               />
-            ))}
-        </div>
-      </main>
-      <ModalComponent
-        title="New Product"
-        withCloseButton={true}
-        isOpen={isOpen}
-        onClose={onClose}
-        size="5xl"
-        footer={
-          <Flex gap={5}>
-            <>
-              <input
-                id="fileInput"
-                type="file"
-                multiple
-                style={{ display: "none" }}
-                onChange={handleFileChange}
-              />
-              <AnimatedButton
-                label="Upload Attachment"
+              <ButtonComponent
+                w="6rem"
+                label="Cancel"
                 variant="secondary"
-                rounded={7}
-                onClick={() => document.getElementById("fileInput").click()}
+                onClick={handleCancel}
               />
-            </>
-            <ButtonComponent w="6rem" label="Save" onClick={handleAddProduct} />
-            <ButtonComponent
-              w="6rem"
-              label="Cancel"
-              variant="secondary"
-              onClick={handleCancel}
-            />
-          </Flex>
-        }
-      >
-        <Box h="500" overflow="scroll">
-          <Text>
-            {
-              "Please provide the required details. This information will be useful later when managing your product listings and inventory."
-            }
-          </Text>
-          <Box pl={5} pr={5}>
-            {
-              /** Patient Personal Information */
-              stateStructureInputsComponent.renderCollection(indexToRender)
-            }
-            {
-              /** Patient Personal Information */
-              stateStructureInputsComponent.renderCollection(indexToRender2)
-            }
-          </Box>
-          <Wrap mt={5}>
-            {files.map((file, index) => {
-              if (
-                !file.name.includes("jpeg") &&
-                !file.name.includes("png") &&
-                !file.name.includes("jpg")
-              ) {
+            </Flex>
+          }
+        >
+          <Box h="500" overflow="scroll">
+            <Text>
+              {
+                "Please provide the required details. This information will be useful later when managing your product listings and inventory."
+              }
+            </Text>
+            <Box pl={5} pr={5}>
+              {
+                /** Patient Personal Information */
+                stateStructureInputsComponent.renderCollection(indexToRender)
+              }
+              {
+                /** Patient Personal Information */
+                stateStructureInputsComponent.renderCollection(indexToRender2)
+              }
+            </Box>
+            <Wrap mt={5}>
+              {files.map((file, index) => {
+                if (
+                  !file.name.includes("jpeg") &&
+                  !file.name.includes("png") &&
+                  !file.name.includes("jpg")
+                ) {
+                  return (
+                    <WrapItem
+                      key={index}
+                      p={2}
+                      position="relative"
+                      overflow="hidden"
+                    >
+                      <Box
+                        p={2}
+                        w="100px"
+                        h="100px"
+                        bg="blackAlpha.400"
+                        rounded={5}
+                        overflow="hidden"
+                      >
+                        {file.name.includes("pdf") ? (
+                          <FaFilePdf size={20} />
+                        ) : file.name.includes("xlsx") ||
+                          file.name.includes("xls") ? (
+                          <FaFileExcel size={20} />
+                        ) : file.name.includes("pptx") ? (
+                          <FaFilePowerpoint size={20} />
+                        ) : (
+                          <FaFileWord size={20} />
+                        )}
+                        <Text mt={2} fontSize={12}>
+                          {file.name}
+                        </Text>
+                      </Box>
+                      <IconButton
+                        icon={<CloseIcon />}
+                        fontSize={12}
+                        colorScheme="transparent"
+                        color="white"
+                        position="absolute"
+                        top="2px"
+                        right="2px"
+                        onClick={() => handleRemoveFile(index)}
+                      />
+                    </WrapItem>
+                  );
+                }
+
                 return (
                   <WrapItem
                     key={index}
@@ -246,28 +296,16 @@ const Inventory = () => {
                     position="relative"
                     overflow="hidden"
                   >
-                    <Box
-                      p={2}
-                      w="100px"
-                      h="100px"
-                      bg="blackAlpha.400"
+                    <Image
+                      src={URL.createObjectURL(file)}
+                      alt={`preview-${index}`}
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        objectFit: "cover",
+                      }}
                       rounded={5}
-                      overflow="hidden"
-                    >
-                      {file.name.includes("pdf") ? (
-                        <FaFilePdf size={20} />
-                      ) : file.name.includes("xlsx") ||
-                        file.name.includes("xls") ? (
-                        <FaFileExcel size={20} />
-                      ) : file.name.includes("pptx") ? (
-                        <FaFilePowerpoint size={20} />
-                      ) : (
-                        <FaFileWord size={20} />
-                      )}
-                      <Text mt={2} fontSize={12}>
-                        {file.name}
-                      </Text>
-                    </Box>
+                    />
                     <IconButton
                       icon={<CloseIcon />}
                       fontSize={12}
@@ -280,42 +318,12 @@ const Inventory = () => {
                     />
                   </WrapItem>
                 );
-              }
-
-              return (
-                <WrapItem
-                  key={index}
-                  p={2}
-                  position="relative"
-                  overflow="hidden"
-                >
-                  <Image
-                    src={URL.createObjectURL(file)}
-                    alt={`preview-${index}`}
-                    style={{
-                      width: "100px",
-                      height: "100px",
-                      objectFit: "cover",
-                    }}
-                    rounded={5}
-                  />
-                  <IconButton
-                    icon={<CloseIcon />}
-                    fontSize={12}
-                    colorScheme="transparent"
-                    color="white"
-                    position="absolute"
-                    top="2px"
-                    right="2px"
-                    onClick={() => handleRemoveFile(index)}
-                  />
-                </WrapItem>
-              );
-            })}
-          </Wrap>
-        </Box>
-      </ModalComponent>
-    </>
+              })}
+            </Wrap>
+          </Box>
+        </ModalComponent>
+      </>
+    </PageContainer>
   );
 };
 

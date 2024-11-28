@@ -85,7 +85,7 @@ const ProductLandingPage = () => {
                       {value.name}
                     </Heading>
                     <Text>{`${value.year} ${value.model}`}</Text>
-                    <Text mt={5}>{description2.engine_options}</Text>
+                    <Text mt={5}>{description2?.engine_options}</Text>
                   </Box>
                   <Flex justifyContent="space-between" alignItems="center">
                     <Text fontSize={18}>

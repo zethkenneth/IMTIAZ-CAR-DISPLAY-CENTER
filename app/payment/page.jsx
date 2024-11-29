@@ -222,14 +222,14 @@ const Payment = () => {
               </Text>
             </Flex>
             <Box mt={8}>
-              <ButtonComponent label="Checkout" onClick={handleClosePaymongoPayment} />
+              <ButtonComponent label="Checkout" onClick={() => onOpen()} />
             </Box>
           </Box>
         </Box>
       </Flex>
       <ModalComponent size="5xl" isOpen={isOpen} onClose={onClose} footer={
         <Flex justifyContent='end'>
-          <ButtonComponent label="Close" onClick={() => onOpen()} />
+          <ButtonComponent label="Close" onClick={handleClosePaymongoPayment} />
         </Flex>
       } >
         

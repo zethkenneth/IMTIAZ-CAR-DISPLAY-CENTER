@@ -60,7 +60,7 @@ const ProductLandingPage = () => {
           pb={5}
         >
           {products?.slice(0, 5).map((value, index) => {
-            const description2 = value?.description2 !== null ? "None" :JSON.parse(value?.description2) ;
+            const description2 =  JSON.parse(value?.description2) ;
             return (
               <Box
                 key={index}

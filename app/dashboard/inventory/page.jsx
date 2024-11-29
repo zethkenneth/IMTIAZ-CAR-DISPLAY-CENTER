@@ -168,7 +168,7 @@ const Inventory = () => {
           openModal={onOpen}
         />
         <main>
-          <div className="flex flex-wrap p-5">
+          <div className="flex flex-wrap p-5 gap-5">
             {filteredData
               .filter((value) =>{
                 return search !== ""

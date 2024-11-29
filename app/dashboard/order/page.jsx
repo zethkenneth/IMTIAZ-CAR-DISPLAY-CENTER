@@ -76,7 +76,6 @@ const Order = () => {
             <Thead>
               <Tr>
                 <Th>Order ID</Th>
-                <Th>Order Code</Th>
                 <Th>Payment Code</Th>
                 <Th>Payment Status</Th>
                 <Th>Customer</Th>
@@ -93,7 +92,6 @@ const Order = () => {
                   onClick={() => handleSelectOrder(order)}
                 >
                   <Td>{order.orderID}</Td>
-                  <Td>{order.orderCode}</Td>
                   <Td>{order.paymentCode}</Td>
                   <Td>{order.paymentStatus}</Td>
                   <Td>{order.customerName}</Td>

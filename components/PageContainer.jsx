@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
+import { Box, Flex, IconButton } from "@chakra-ui/react";
 import Sidebar from "@components/sidebar";
-import { MoonIcon } from "@heroicons/react/24/outline";
+import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons"; // Import CloseIcon
 import MenuCartButton from "@components/MenuCartButton";
 import Notification from "@components/notifications";
-import { Flex, IconButton } from "@chakra-ui/react";
 
-function PageContainer({children}) {
+function PageContainer({ children }) {
   const [isSidebarOpen, setSidebarOpen] = useState(true); // Start with sidebar open
   const [isSidebarMini, setSidebarMini] = useState(false); // Change to true for mini view
 
@@ -20,44 +20,49 @@ function PageContainer({children}) {
   };
 
   return (
-    <>
-      <div className="w-full flex h-screen overflow-hidden">
-        <Sidebar isOpen={isSidebarOpen} isMini={isSidebarMini} />
+    <Box display="flex" w="full" h="100vh" overflow="hidden">
+      <Sidebar isOpen={isSidebarOpen} isMini={isSidebarMini} />
 
-        <div
-          className={`w-full flex-1 flex flex-col transition-all duration-300 ${
-            isSidebarMini ? "ml-16" : "ml-64" // Adjust margin-left based on sidebar width
-          }`}
+      <Box
+        w="full"
+        flex="1"
+        display="flex"
+        flexDirection="column"
+        transition="all 0.3s"
+        ml={isSidebarMini ? "4rem" : "16rem"} // Adjust margin-left based on sidebar width
+      >
+        {/* Navbar */}
+        <Box
+          w="full"
+          bg="white"
+          py={2} // Adjust the height of the navbar
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          boxShadow="md"
         >
-          {/* Navbar */}
-          <div className="w-full bg-white p-4 flex justify-between items-center shadow-md">
-            <button
-              onClick={toggleMiniSidebar}
-              className="text-2xl" // Hide on medium screens and up
-            >
-              ☰
-            </button>
-            <Flex>
-              <Notification />
-              <MenuCartButton />
+          <IconButton
+            aria-label="Toggle Sidebar"
+            icon={!isSidebarMini ? <CloseIcon /> : <HamburgerIcon />} // Conditionally render Hamburger or Close icon
+            fontSize={!isSidebarMini?  "sm": "lg"}
+            bg='transparent'
+            onClick={toggleMiniSidebar} // Toggle sidebar state
+            ml={2} // Left margin for the button
+            _hover={{
+            bg:'transparent'}}
+          />
+          <Flex alignItems='center' mr={5}>
+            <Notification />
+            <MenuCartButton />
+          </Flex>
+        </Box>
 
-              <IconButton
-                border="none"
-                icon={<MoonIcon className="h-6 w-6" />}
-                variant="outline"
-                rounded={25}
-              />
-            </Flex>
-          </div>
-
-          {/* Main content */}
-          <main className="flex-1 p-5 bg-gray-100">
+        {/* Main content */}
+        <Box as="main" flex="1" p={5} bg="gray.100">
           {children}
-          </main>
-          
-        </div>
-      </div>
-    </>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 

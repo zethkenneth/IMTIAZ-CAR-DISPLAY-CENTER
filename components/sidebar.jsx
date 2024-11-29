@@ -34,6 +34,11 @@ const Sidebar = ({ isMini }) => {
     },
     {
       icon: <ArchiveBoxIcon className="h-5 w-5" />,
+      label: "order",
+      to: "/order",
+    },
+    {
+      icon: <ArchiveBoxIcon className="h-5 w-5" />,
       label: "transaction",
       to: "/transaction",
     },

@@ -36,7 +36,7 @@ const Inventory = () => {
   const [title, setTitle] = useState("New");
   const [profilePicture, setProfilePicture] = useState(null);
   const [activeButton, setActiveButton] = useState("Brand New");
-  const [search, setSearch] = useState(null);
+  const [search, setSearch] = useState("");
   const [files, setFiles] = useState([]);
 
   const labels = [
@@ -126,6 +126,8 @@ const Inventory = () => {
     stockThreshold
   );
 
+  console.log(filteredData);  
+
   const handleFileChange = (event) => {
     setFiles(Array.from(event.target.files));
   };
@@ -168,12 +170,13 @@ const Inventory = () => {
         <main>
           <div className="flex flex-wrap p-5">
             {filteredData
-              .filter((value) =>
-                search !== null
-                  ? value.name
-                      .toLocaleLowerCase()
-                      .includes(search.toLocaleLowerCase())
+              .filter((value) =>{
+                return search !== ""
+                  ? value.productName
+                      .toLowerCase()
+                      .includes(search.toLowerCase())
                   : value
+              }
               )
               .map((product, i) => (
                 <ProductCard

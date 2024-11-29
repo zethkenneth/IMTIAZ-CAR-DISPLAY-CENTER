@@ -1,12 +1,11 @@
 "use client";
 
-import { productJsonData } from "@app/dashboard/inventory/data";
 import { Box, Flex, Heading, Text } from "@chakra-ui/react";
 import "../../styles/hide_scroll_bar.css";
 import ProductImage from "@components/ProductImage";
 import ButtonComponent from "@components/button";
 import { useRouter } from "next/navigation";
-import useInventorHooks from "@hooks/inventoryhooks";
+import useInventorHooks from "../../hooks/inventoryhooks";
 import { useEffect } from "react";
 import axios from "axios";
 

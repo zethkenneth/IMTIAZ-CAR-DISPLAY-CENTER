@@ -111,7 +111,6 @@ const Notification = () => {
     >
       <PopoverTrigger>
         <Button
-          mb={4}
           rounded="full"
           colorScheme="gray"
           variant="ghost"

@@ -20,9 +20,9 @@ import useOrderHooks from "@hooks/orderhooks";
 import axios from "axios";
 import PageContainer from "@components/PageContainer";
 
-const Transaction = () => {
+const Order = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { orders, getTransactions } = useOrderHooks();
+  const { orders, getOrders } = useOrderHooks();
   const [order, setOrder] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -51,7 +51,7 @@ const Transaction = () => {
     const cancelToken = axios.CancelToken.source();
 
     if (orders.length === 0) {
-      getTransactions(cancelToken.token, (status, feedback) => {
+      getOrders(cancelToken.token, (status, feedback) => {
         switch (status) {
           case 200:
             console.log(feedback);
@@ -70,12 +70,13 @@ const Transaction = () => {
       <>
         <Box w="inherit" h="80vh" bg="white" rounded={15} boxShadow="md" p={4}>
           <Text fontSize="2xl" mb={4}>
-            Transactions
+            Order List
           </Text>
           <Table variant="striped" colorScheme="orange">
             <Thead>
               <Tr>
                 <Th>Order ID</Th>
+                <Th>Order Code</Th>
                 <Th>Payment Code</Th>
                 <Th>Payment Status</Th>
                 <Th>Customer</Th>
@@ -92,6 +93,7 @@ const Transaction = () => {
                   onClick={() => handleSelectOrder(order)}
                 >
                   <Td>{order.orderID}</Td>
+                  <Td>{order.orderCode}</Td>
                   <Td>{order.paymentCode}</Td>
                   <Td>{order.paymentStatus}</Td>
                   <Td>{order.customerName}</Td>
@@ -144,6 +146,10 @@ const Transaction = () => {
           size="5xl"
         >
           <Flex gap={5}>
+            <Flex gap={2} alignItems="center">
+              <Text fontSize={13}>ORDER Code</Text>
+              <Heading size="sm">{order?.orderCode ?? "NONE"}</Heading>
+            </Flex>
             <Flex gap={2}>
               <Text fontSize={13}>Payment Code</Text>
               <Text fontSize={13}>
@@ -219,4 +225,4 @@ const Transaction = () => {
   );
 };
 
-export default Transaction;
+export default Order;

@@ -18,7 +18,7 @@ import formatPrice from "@utils/formatprice";
 import AnimatedButton from "./AnimatedButton";
 
 const MenuCartButton = () => {
-  const { cart, placeOrder } = useCartHook();
+  const { cart, placeOrder, resetCart } = useCartHook();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   function handlePlaceOrder(stopLoading) {
@@ -28,6 +28,8 @@ const MenuCartButton = () => {
         return console.log(feedback);
       }
 
+      onClose();
+      resetCart();
       return stopLoading();
     });
   }

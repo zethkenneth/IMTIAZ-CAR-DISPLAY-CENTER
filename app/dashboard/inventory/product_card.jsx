@@ -109,19 +109,10 @@ const ProductCard = ({
   };
 
   const ViewProduct = ({ children }) => {
-    const toast = useToast();
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     function handleAddToCard() {
       addToCart(product);
-      toast({
-        title: "Product added.",
-        description: `${product.name} has been added to your cart.`,
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-        position: "top-right",
-      });
     }
 
     return (
@@ -137,7 +128,6 @@ const ProductCard = ({
           shadow="lg"
           rounded="lg"
           overflow="hidden"
-          m="4"
           cursor="pointer"
           onClick={() => onOpen()}
         >
@@ -155,7 +145,7 @@ const ProductCard = ({
                 label="Add To Cart"
                 icon={<ShoppingCartIcon className="w-5 h-5" />}
                 onClick={handleAddToCard}
-                style={{ color: "black" }}
+                style={{ color: "white" }}
               />
             </Box>
           }
@@ -287,7 +277,7 @@ const ProductCard = ({
             w="full"
             bg="orange"
             mt="2"
-            color="black"
+            color="white"
             fontWeight="medium"
             py="1"
             px="2"

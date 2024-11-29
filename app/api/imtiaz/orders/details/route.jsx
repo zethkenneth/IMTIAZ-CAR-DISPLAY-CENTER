@@ -38,14 +38,6 @@ export async function POST(req) {
     const { orderID, productID, quantity, unitPrice, totalPrice } =
       await req.json();
 
-    console.log("asdasd", {
-      orderID,
-      productID,
-      quantity,
-      unitPrice,
-      totalPrice,
-    });
-
     await db.query(
       `INSERT INTO "OrderDetails" ("orderID", "productID", "quantity", "unitPrice", "totalPrice") VALUES (${orderID}, ${productID}, ${quantity}, ${unitPrice}, ${totalPrice});`,
       {

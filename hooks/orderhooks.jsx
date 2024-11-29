@@ -6,6 +6,7 @@ const baseURL = "/api/imtiaz";
 
 const useOrderHooks = create((set) => ({
   orders: [],
+  transactions: [],
   getOrders: (token, callBack) => {
     axios
       .get(`${baseURL}/orders`, token)
@@ -13,6 +14,17 @@ const useOrderHooks = create((set) => ({
       .then((res) => {
         const { data, message } = res;
         set(() => ({ orders: data }));
+        callBack(200, message);
+      })
+      .catch((err) => callBack(...handleFailedStatus(err)));
+  },
+  getTransactions: (token, callBack) => {
+    axios
+      .get(`${baseURL}/transactions`, token)
+      .then((res) => validateStatusOk(res))
+      .then((res) => {
+        const { data, message } = res;
+        set(() => ({ transactions: data }));
         callBack(200, message);
       })
       .catch((err) => callBack(...handleFailedStatus(err)));

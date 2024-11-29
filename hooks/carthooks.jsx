@@ -4,16 +4,12 @@ import axios from "axios";
 
 const baseURL = "/api/imtiaz";
 
-// function generateOrderCode(length = 10) {
-//   const characters =
-//     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-//   let orderCode = "";
-//   for (let i = 0; i < length; i++) {
-//     const randomIndex = Math.floor(Math.random() * characters.length);
-//     orderCode += characters[randomIndex];
-//   }
-//   return orderCode;
-// }
+const formattedDate = new Intl.DateTimeFormat('en-US', {
+  month: 'long',
+  day: '2-digit',
+  year: 'numeric',
+}).format(new Date());
+
 
 const useCartHook = create((set, get) => ({
   cart: {
@@ -86,30 +82,48 @@ const useCartHook = create((set, get) => ({
       },
     }));
   },
-  placeOrder: () => {
-    let form = new FormData();
+  resetCart: () => set(() => ({
+    cart: {
+      quantity: 0,
+      total_amount: 0,
+      products: [],
+    }})),
+  placeOrder: async (callBack) => {
+    
+    const result = await axios.post(`${baseURL}/payments`, {amount: get().cart.total_amount, description: `Payment made on ${formattedDate}`});
 
+    const paymentDetails = result.data.data.attributes;
+    
     let products = get().cart.products.map((value) => {
       const product = {
-        productID: value.id,
+        productID: value.productID,
         quantity: value.quantity,
         unitPrice: value.price,
         totalPrice: value.quantity * value.price,
       };
 
-      return JSON.stringify(product);
+      return product;
     });
 
-    form.append("products", products);
-    form.append("totalPrice", get().cart.totalPrice);
+    const body = {
+      customerId: 1,
+      userId: 1,
+      paymentCode: paymentDetails.reference_number,
+      totalAmount: get().cart.total_amount,
+      products: products
+    }
 
     axios
-      .post(`${baseURL}/checkout`, { body: form })
+      .post(`${baseURL}/orders`, body)
       .then((res) => validateStatusOk(res))
       .then((res) => {
-        const { order, message } = res;
-        console.log(order);
+        const { order, orderDetails, message } = res;
+        console.log('ORDER:', order);
+        console.log('ORDER DETAILS:', orderDetails);
+
+
         set((state) => ({ orders: [...state.orders, order] }));
+
         callBack(200, message);
       })
       .catch((err) => callBack(...handleFailedStatus(err)));

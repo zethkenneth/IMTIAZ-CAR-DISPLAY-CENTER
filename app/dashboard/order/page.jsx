@@ -52,12 +52,8 @@ const Order = () => {
 
     if (orders.length === 0) {
       getOrders(cancelToken.token, (status, feedback) => {
-        switch (status) {
-          case 200:
-            console.log(feedback);
-            break;
-          default:
-            console.log(feedback);
+        if(!(status >= 200 && status < 30)){
+          return console.log(feedback);
         }
       });
     }

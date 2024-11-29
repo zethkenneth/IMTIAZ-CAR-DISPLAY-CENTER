@@ -14,7 +14,7 @@ const useOrderHooks = create((set) => ({
       .then((res) => {
         const { data, message } = res;
         set(() => ({ orders: data }));
-        callBack(200, message);
+        callBack(200, "Order list retrieve");
       })
       .catch((err) => callBack(...handleFailedStatus(err)));
   },

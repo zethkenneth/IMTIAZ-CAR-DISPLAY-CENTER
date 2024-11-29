@@ -22,7 +22,7 @@ import PageContainer from "@components/PageContainer";
 
 const Transaction = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { orders, getTransactions } = useOrderHooks();
+  const { transactions, getTransactions } = useOrderHooks();
   const [order, setOrder] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -30,10 +30,10 @@ const Transaction = () => {
   // Calculate the indices for the current page
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = orders.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = transactions.slice(indexOfFirstItem, indexOfLastItem);
 
   // Calculate total pages
-  const totalPages = Math.ceil(orders.length / itemsPerPage);
+  const totalPages = Math.ceil(transactions.length / itemsPerPage);
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-PH", {
@@ -50,7 +50,7 @@ const Transaction = () => {
   useEffect(() => {
     const cancelToken = axios.CancelToken.source();
 
-    if (orders.length === 0) {
+    if (transactions.length === 0) {
       getTransactions(cancelToken.token, (status, feedback) => {
         switch (status) {
           case 200:
@@ -75,7 +75,7 @@ const Transaction = () => {
           <Table variant="striped" colorScheme="orange">
             <Thead>
               <Tr>
-                <Th>Order ID</Th>
+                <Th>Transaction ID</Th>
                 <Th>Payment Code</Th>
                 <Th>Payment Status</Th>
                 <Th>Customer</Th>

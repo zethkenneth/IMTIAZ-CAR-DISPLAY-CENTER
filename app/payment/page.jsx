@@ -1,14 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
+  Center,
   Flex,
   Heading,
   IconButton,
+  Spinner,
   Text,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import { productJsonData } from "@app/dashboard/inventory/data";
 import { IoArrowBack, IoCartOutline } from "react-icons/io5";
@@ -17,6 +20,8 @@ import ButtonComponent from "@components/button";
 import { useRouter } from "next/navigation";
 import { FaOpencart } from "react-icons/fa";
 import Image from "next/image";
+import usePaymentHook from "@hooks/paymenthook";
+import ModalComponent from "@components/ModalComponent";
 
 const Item = (props) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -63,7 +68,7 @@ const Item = (props) => {
           </Text>
           <Flex gap={2} alignItems="center">
             <ButtonComponent label="+" />
-            <Text fontSize={18}>10</Text>
+            <Text fontSize={18}>{props.quantity}</Text>
             <ButtonComponent label="-" />
           </Flex>
         </Flex>
@@ -73,8 +78,14 @@ const Item = (props) => {
 };
 
 const Payment = () => {
+  const toast = useToast(); // Initialize the toast
   const router = useRouter();
-  const itemList = [productJsonData[0], productJsonData[1], productJsonData[2]];
+
+  const {checkoutURL, paymentCode,  orderDetails, getOrderDetails, getPaymentDetails, getPaymentUpdate} = usePaymentHook();
+  const {isOpen, onOpen, onClose} = useDisclosure();
+  const [loading, setLoading] = useState(true);
+
+  const itemList = orderDetails?.orderDetails??[];
 
   const formatPriceData = (price) => {
     return new Intl.NumberFormat("en-PH", {
@@ -82,6 +93,62 @@ const Payment = () => {
       currency: "PHP",
     }).format(price);
   };
+  
+  const handleClosePaymongoPayment = () => {
+    getPaymentUpdate((status, feedback) => {
+      if(!(status >= 200 && status < 300)){
+        return console.log("Bad response.", {cause: feedback});
+      }
+
+      toast({
+        title: 'Payment Successful',
+        description: 'Your payment has been successfully processed.',
+        status: 'success',
+        duration: 5000, // Duration in milliseconds
+        position: "center-top",
+        isClosable: true,
+      });
+      onClose();
+      // router.push('/');
+    });
+  }
+  
+  const handlePaymentDetails = () => {
+    getPaymentDetails((status, feedback) => {
+      if(!(status >= 200 && status < 300)){
+        return console.log("Bad response.", {cause: feedback});
+      }
+
+      setLoading(false)
+    });
+  }
+
+  const handleViewOrder = () => {
+    getOrderDetails((status, feedback) => {
+      if(!(status >= 200 && status < 300)){
+        return console.log("Bad response.", {cause: feedback});
+      }
+    });
+    handlePaymentDetails();
+  };
+
+  useEffect(() => { 
+    if(loading){
+      setTimeout(() => {
+        setLoading(false);
+      }, 500)
+    }
+  }, [])
+
+  if(orderDetails == null){
+    return (
+      <Center height="100vh" flexDirection="column">
+        <Spinner size="xl" color="blue.500" />
+        <Text mt={4} fontSize="lg" color="gray.600">Fetching order details...</Text>
+      </Center>
+    )
+  }
+
 
   return (
     <Flex w="100%" h="100vh" bg="#f3f4f6" gap={10}>
@@ -132,34 +199,51 @@ const Payment = () => {
               <Text fontSize={17}>
                 <strong>Order Code:</strong>
               </Text>
-              <Text fontSize={17}>1241323</Text>
+              <Text fontSize={17}>{paymentCode}</Text>
             </Flex>
             <Flex justifyContent="space-between">
               <Text fontSize={16}>
                 <strong>Vat</strong>
               </Text>
-              <Text fontSize={16}>{formatPriceData(12345)}</Text>
+              <Text fontSize={16}>{formatPriceData(orderDetails.totalAmount * 0.12)}</Text>
             </Flex>
             <Flex justifyContent="space-between">
               <Text fontSize={16}>
                 <strong>Sub Total</strong>
               </Text>
-              <Text fontSize={16}>{formatPriceData(2051002)}</Text>
+              <Text fontSize={16}>{formatPriceData(orderDetails.totalAmount - (orderDetails.totalAmount * 0.12))}</Text>
             </Flex>
             <Flex justifyContent="space-between" mt={5}>
               <Text fontSize={17} fontWeight={600} color="orange">
                 <strong>Total</strong>
               </Text>
               <Text fontSize={17}>
-                <strong>{formatPriceData(2051002)}</strong>
+                <strong>{formatPriceData(orderDetails.totalAmount)}</strong>
               </Text>
             </Flex>
             <Box mt={8}>
-              <ButtonComponent label="Checkout" />
+              <ButtonComponent label="Checkout" onClick={handleClosePaymongoPayment} />
             </Box>
           </Box>
         </Box>
       </Flex>
+      <ModalComponent size="5xl" isOpen={isOpen} onClose={onClose} footer={
+        <Flex justifyContent='end'>
+          <ButtonComponent label="Close" onClick={() => onOpen()} />
+        </Flex>
+      } >
+        
+        {checkoutURL ? (
+              <iframe
+                src={checkoutURL}
+                width="100%"
+                height="600px"
+                title="PayMongo Payment"
+              />
+            ) : (
+              <p>Loading payment link...</p>
+            )}
+      </ModalComponent>
     </Flex>
   );
 };

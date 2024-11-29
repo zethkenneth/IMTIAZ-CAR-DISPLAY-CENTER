@@ -54,12 +54,18 @@ export async function POST(req) {
 
 export async function GET(req) {
 
-  const searchParams = req.nextUrl.searchParams;
-  const query = searchParams.get("code");
+  const url = new URL(req.url);
+  const code = url.searchParams.get('code');
+
+  if (!code) {
+    return new Response(JSON.stringify({ error: "Code is required" }), {
+      status: 400,
+    });
+  }
 
   const config = {
     method: "GET",
-    url: `https://api.paymongo.com/v1/links?reference_number=${query}`,
+    url: `https://api.paymongo.com/v1/links?reference_number=${code}`,
     headers: {
       accept: "application/json",
       authorization: "Basic c2tfdGVzdF9qdGNMOFFoanVHcGZ4RXJGZlNGR2RpVEo6",

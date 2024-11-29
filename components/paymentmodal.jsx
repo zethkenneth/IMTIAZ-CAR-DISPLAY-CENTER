@@ -6,6 +6,7 @@ import ModalComponent from "./ModalComponent";
 import { HashtagIcon } from "@heroicons/react/24/outline";
 import ButtonComponent from "./button";
 import { useRouter } from "next/navigation";
+import usePaymentHook from "@hooks/paymenthook";
 
 const {
   useDisclosure,
@@ -18,6 +19,7 @@ const {
 
 const PaymentModal = () => {
   const router = useRouter();
+  const {paymentCode, setPaymentCode, getOrderDetails, getPaymentDetails } = usePaymentHook();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [code, setCode] = useState();
 
@@ -27,11 +29,28 @@ const PaymentModal = () => {
     label: "Payment code",
     type: "numeric",
     placeholder: "Enter payment code",
-    value: code,
-    setValue: setCode,
+    value: paymentCode,
+    setValue: setPaymentCode,
   };
 
-  const handleCheckOrder = (stopLoading) => {};
+  const handlePaymentDetails = () => {
+    getPaymentDetails((status, feedback) => {
+      if(!(status >= 200 && status < 300)){
+        return console.log("Bad response.", {cause: feedback});
+      }
+
+      router.push(`/payment`);
+    });
+  }
+
+  const handleViewOrder = (stopLoading) => {
+    getOrderDetails((status, feedback) => {
+      if(!(status >= 200 && status < 300)){
+        return console.log("Bad response.", {cause: feedback});
+      }
+    });
+    handlePaymentDetails();
+  };
 
   return (
     <>
@@ -57,9 +76,9 @@ const PaymentModal = () => {
             <Box mt={10}>
               <ButtonComponent
                 label="Proceed"
-                loadingLabel="Checking order"
+                loadingLabel="Processing"
                 withGradientColor={true}
-                onClick={() => router.push("/payment")}
+                onClick={handleViewOrder}
               />
             </Box>
           </Box>

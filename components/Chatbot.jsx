@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import {
   Box,
   VStack,
@@ -11,10 +10,8 @@ import {
   FormControl,
   IconButton,
   Flex,
-  Center,
 } from "@chakra-ui/react";
 import Image from "next/image";
-import { IoChatboxEllipses } from "react-icons/io5";
 import { IoClose } from "react-icons/io5";
 import { IoSend } from "react-icons/io5";
 import useChatHooks from "@hooks/chathooks";
@@ -86,7 +83,7 @@ const Chatbot = () => {
         onClick={() => setOpenChat(!openChat)}
       >
         <Image
-          src="assets/images/logo-white.svg"
+          src="/assets/images/logo-white.svg"
           alt="LOGO!"
           width={30}
           height={30}

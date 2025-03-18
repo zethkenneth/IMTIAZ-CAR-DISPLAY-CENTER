@@ -86,62 +86,67 @@ const GuideLandingPage = () => {
   };
 
   return (
-    <>
-      <Flex
-        w="100%"
-        h="inherit"
-        justifyContent="center"
-        flexDir="column"
-        alignItems="center"
-        p={2}
-      >
-        <Heading className="orange_gradient text-center">
-          Maintenance Guide
-        </Heading>
-        <Text>
-          Ensure the longevity and performance of your vehicle with our detailed
-          maintenance guide. Learn essential tips and procedures for keeping
-          your car in top condition, covering everything from routine oil
-          changes to advanced engine diagnostics.
-        </Text>
-        <Box w="inherit" mt={10}>
-          <Grid
-            mt={5}
-            templateColumns="repeat(auto-fit, minmax(350px, 1fr))"
-            gap={4}
-          >
-            {guides.slice(0, 10).map((guide) => (
-              <Box
-                p="4"
-                h="13rem"
-                bg="white"
-                boxShadow="lg"
-                key={guide.id}
-                cursor="pointer"
-                borderRadius="lg"
-                overflow="hidden"
-                transform="scale(1)"
-                transition="transform 0.2s"
-                _hover={{ transform: "scale(1.02)" }}
-                onClick={() => openModal(guide)}
-              >
-                <Flex justifyContent="space-between" alignItems="center">
-                  <Heading size="md" mb="2">
+    <Flex
+      w="full"
+      minH="100vh"
+      justifyContent="center"
+      flexDir="column"
+      alignItems="center"
+      p={4}
+    >
+      <Heading className="orange_gradient text-center" mb={4}>
+        Maintenance Guide
+      </Heading>
+      <Text textAlign="center" maxW="600px" mb={8}>
+        Ensure the longevity and performance of your vehicle with our detailed maintenance guide. Learn essential tips and procedures for keeping your car in top condition, covering everything from routine oil changes to advanced engine diagnostics.
+      </Text>
+      <Box w="full" mt={10}>
+        <Grid
+          templateColumns="repeat(auto-fit, minmax(300px, 1fr))"
+          gap={6}
+          pt={5}
+          pb={5}
+        >
+          {guides.slice(0, 10).map((guide) => (
+            <Box
+              p={4}
+              bg="white"
+              boxShadow="lg"
+              key={guide.id}
+              cursor="pointer"
+              borderRadius="lg"
+              overflow="hidden"
+              className="group"
+              _hover={{ boxShadow: "xl", transform: "scale(1.05)" }}
+              transition="all 0.3s ease-in-out"
+              h="200px"
+              onClick={() => openModal(guide)}
+            >
+              <Flex flexDir="column" h="full" justifyContent="space-between">
+                <Flex justifyContent="space-between" alignItems="center" mb={4}>
+                  <Heading
+                    size="md"
+                    className="transition-all duration-300 ease-in-out group-hover:bg-gradient-to-r group-hover:from-orange-400 group-hover:via-orange-500 group-hover:to-orange-600 group-hover:bg-clip-text group-hover:text-transparent"
+                  >
                     {guide.title}
                   </Heading>
-                  {guide.icon}
+                  {guide.icon && (
+                    <span className="transition-colors duration-300 ease-in-out group-hover:text-orange-600">
+                      {guide.icon}
+                    </span>
+                  )}
                 </Flex>
-                <Text fontSize={14} mt={5}>
+                <Text fontSize={14} mb={4} noOfLines={3}>
                   {guide.summary}
                 </Text>
-                <Text fontSize="14px" mt="2">
+                <Text fontSize="14px" color="gray.500" noOfLines={2}>
                   {guide.content.slice(0, 100)}...
                 </Text>
-              </Box>
-            ))}
-          </Grid>
-        </Box>
-      </Flex>
+              </Flex>
+            </Box>
+          ))}
+        </Grid>
+      </Box>
       <ModalComponent
         title={
           <Heading size="md" color="gray">
@@ -159,7 +164,7 @@ const GuideLandingPage = () => {
             : GenerateTabList(selectedGuide?.information)}
         </Box>
       </ModalComponent>
-    </>
+    </Flex>
   );
 };
 

@@ -14,8 +14,7 @@ function Home() {
         <section className="w-full h-screen flex items-center justify-center flex-col px-4 md:px-8">
           <h1 className="head_text text-center">
             BUY and DRIVE
-            <br className="hidden md:block" />
-            <span className="orange_gradient text-center">
+            <span className="block ai-guide orange_gradient">
               AI-powered Guide
             </span>
           </h1>

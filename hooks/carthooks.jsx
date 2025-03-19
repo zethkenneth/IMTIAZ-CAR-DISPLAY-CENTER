@@ -18,7 +18,20 @@ const useCartHook = create((set, get) => ({
     products: [],
   },
   orders: [],
-  addToCart: (product) => {
+  addToCart: async (product) => {
+    // Check if there's enough stock
+    if (product.quantityOnHand <= 0) {
+      return { status: 400, message: "Product out of stock" };
+    }
+
+    // For existing products in cart, check total quantity
+    const existingProduct = get().cart.products.find(p => p.productID === product.productID);
+    if (existingProduct) {
+      if (existingProduct.quantity + 1 > product.quantityOnHand) {
+        return { status: 400, message: "Not enough stock available" };
+      }
+    }
+
     if (get().cart.total_amount === 0) {
       return set((state) => ({
         cart: {
@@ -88,45 +101,59 @@ const useCartHook = create((set, get) => ({
       total_amount: 0,
       products: [],
     }})),
-  placeOrder: async (callBack) => {
-    
-    const result = await axios.post(`${baseURL}/payments`, {amount: get().cart.total_amount, description: `Payment made on ${formattedDate}`});
+  placeOrder: async (callback) => {
+    try {
+      // Get current cart products
+      const cartProducts = get().cart.products;
+      
+      // Validate quantities one final time
+      for (const product of cartProducts) {
+        if (product.quantity > product.quantityOnHand) {
+          callback(400, "Some products no longer have sufficient stock");
+          return;
+        }
+      }
 
-    const paymentDetails = result.data.data.attributes;
-    
-    let products = get().cart.products.map((value) => {
-      const product = {
+      // Process payment
+      const result = await axios.post(`${baseURL}/payments`, {
+        amount: get().cart.total_amount,
+        description: `Payment made on ${formattedDate}`
+      });
+
+      const paymentDetails = result.data.data.attributes;
+      
+      // Prepare products data with quantities
+      const products = cartProducts.map((value) => ({
         productID: value.productID,
         quantity: value.quantity,
         unitPrice: value.price,
         totalPrice: value.quantity * value.price,
-      };
+        quantityOnHand: value.quantityOnHand // Include current stock level
+      }));
 
-      return product;
-    });
+      // Place order
+      const response = await axios.post(`${baseURL}/orders`, {
+        customerId: 1,
+        userId: 1,
+        paymentCode: paymentDetails.reference_number,
+        totalAmount: get().cart.total_amount,
+        products: products
+      });
 
-    const body = {
-      customerId: 1,
-      userId: 1,
-      paymentCode: paymentDetails.reference_number,
-      totalAmount: get().cart.total_amount,
-      products: products
+      // Handle success
+      if (response.status === 200) {
+        callback(200, "Order placed successfully");
+        set(() => ({ 
+          cart: {
+            quantity: 0,
+            total_amount: 0,
+            products: []
+          }
+        }));
+      }
+    } catch (error) {
+      callback(500, error.message);
     }
-
-    axios
-      .post(`${baseURL}/orders`, body)
-      .then((res) => validateStatusOk(res))
-      .then((res) => {
-        const { order, orderDetails, message } = res;
-        console.log('ORDER:', order);
-        console.log('ORDER DETAILS:', orderDetails);
-
-
-        set((state) => ({ orders: [...state.orders, order] }));
-
-        callBack(200, message);
-      })
-      .catch((err) => callBack(...handleFailedStatus(err)));
   },
 }));
 

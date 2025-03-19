@@ -14,6 +14,13 @@ import axios from "axios";
 const HomeDashboard = () => {
   const { analytic, getAnalytic } = useDashboardHook();
 
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-PH', {
+      style: 'currency',
+      currency: 'PHP'
+    }).format(amount || 0);
+  };
+
   const cards = [
     {
       label: "Total Month Order",
@@ -22,7 +29,7 @@ const HomeDashboard = () => {
     },
     {
       label: "Today Sale",
-      value: analytic?.totalSalesToday ?? 0,
+      value: formatCurrency(analytic?.totalSalesToday ?? 0),
       icon: <PresentationChartLineIcon className="text-lg" />,
     },
     {

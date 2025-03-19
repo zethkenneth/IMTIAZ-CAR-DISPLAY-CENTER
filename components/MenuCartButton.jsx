@@ -7,6 +7,7 @@ import {
   IconButton,
   Text,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 import formatprice from "@utils/formatprice";
@@ -16,21 +17,45 @@ import ButtonComponent from "./button";
 import useCartHook from "@hooks/carthooks";
 import formatPrice from "@utils/formatprice";
 import AnimatedButton from "./AnimatedButton";
+import useInventorHooks from "@hooks/inventoryhooks";
 
 const MenuCartButton = () => {
   const { cart, placeOrder, resetCart } = useCartHook();
+  const { getInventory } = useInventorHooks();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
 
   function handlePlaceOrder(stopLoading) {
     placeOrder((status, feedback) => {
-      if (!(status >= 200 && status < 300)) {
+      if (status !== 200) {
+        toast({
+          title: "Error",
+          description: feedback,
+          status: "error",
+          duration: 3000,
+          isClosable: true
+        });
         stopLoading();
-        return console.log(feedback);
+        return;
       }
 
+      toast({
+        title: "Success",
+        description: "Order placed successfully",
+        status: "success",
+        duration: 3000,
+        isClosable: true
+      });
+      
+      getInventory().then(result => {
+        if (result.status !== 200) {
+          console.error("Failed to refresh inventory:", result.message);
+        }
+      });
+      
       onClose();
       resetCart();
-      return stopLoading();
+      stopLoading();
     });
   }
 

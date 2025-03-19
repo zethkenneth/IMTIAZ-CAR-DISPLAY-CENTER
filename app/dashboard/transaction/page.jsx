@@ -13,7 +13,6 @@ import {
   Button,
   Flex,
   useDisclosure,
-  Heading,
 } from "@chakra-ui/react";
 import ModalComponent from "@components/ModalComponent";
 import useOrderHooks from "@hooks/orderhooks";
@@ -67,21 +66,31 @@ const Transaction = () => {
 
   return (
     <PageContainer>
-      <>
-        <Box w="inherit" h="80vh" bg="white" rounded={15} boxShadow="md" p={4}>
-          <Text fontSize="2xl" mb={4}>
-            Transactions
-          </Text>
+      <Box 
+        w="inherit" 
+        h="80vh" 
+        bg="white" 
+        rounded={15} 
+        boxShadow="md" 
+        p={4}
+        display="flex"
+        flexDirection="column"
+      >
+        <Text fontSize="2xl" mb={4}>
+          Transactions
+        </Text>
+        
+        <Box overflowY="auto" flex="1">
           <Table variant="striped" colorScheme="orange">
-            <Thead>
+            <Thead position="sticky" top={0} bg="white" zIndex={1}>
               <Tr>
-                <Th>Transaction ID</Th>
-                <Th>Payment Code</Th>
-                <Th>Payment Status</Th>
-                <Th>Customer</Th>
-                <Th>Order Date</Th>
-                <Th>Status</Th>
-                <Th>Total Amount</Th>
+                <Th textAlign="center">Transaction ID</Th>
+                <Th textAlign="center">Payment Code</Th>
+                <Th textAlign="center">Payment Status</Th>
+                <Th textAlign="center">Customer</Th>
+                <Th textAlign="center">Order Date</Th>
+                <Th textAlign="center">Status</Th>
+                <Th textAlign="center">Total Amount</Th>
               </Tr>
             </Thead>
             <Tbody>
@@ -91,11 +100,11 @@ const Transaction = () => {
                   _hover={{ cursor: "pointer" }}
                   onClick={() => handleSelectOrder(order)}
                 >
-                  <Td>{order.orderID}</Td>
-                  <Td>{order.paymentCode}</Td>
-                  <Td>{order.paymentStatus}</Td>
-                  <Td>{order.customerName}</Td>
-                  <Td>
+                  <Td textAlign="center">{order.orderID}</Td>
+                  <Td textAlign="center">{order.paymentCode}</Td>
+                  <Td textAlign="center">{order.paymentStatus}</Td>
+                  <Td textAlign="center">{order.customerName}</Td>
+                  <Td textAlign="center">
                     {order?.orderDate
                       ? new Date(order.orderDate).toLocaleDateString("en-US", {
                           year: "numeric",
@@ -104,45 +113,49 @@ const Transaction = () => {
                         })
                       : "NONE"}
                   </Td>
-                  <Td>{order.status}</Td>
-                  <Td>
+                  <Td textAlign="center">{order.status}</Td>
+                  <Td textAlign="center">
                     {formatPrice(parseFloat(order.totalAmount).toFixed(2))}
                   </Td>
                 </Tr>
               ))}
             </Tbody>
           </Table>
-          <Flex justifyContent="end" alignItems="center" gap={10} mt={4}>
-            <Button
-              size="sm"
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-              isDisabled={currentPage === 1}
-              colorScheme="orange"
-            >
-              <Text fontSize={13}>Previous</Text>
-            </Button>
-            <Text fontSize={14} fontWeight={600}>
-              Page {currentPage} of {totalPages}
-            </Text>
-            <Button
-              size="sm"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-              isDisabled={currentPage === totalPages}
-              colorScheme="orange"
-            >
-              <Text fontSize={13}>Next</Text>
-            </Button>
-          </Flex>
         </Box>
-        <ModalComponent
-          title={"Order Details"}
-          isOpen={isOpen}
-          onClose={onClose}
-          withCloseButton={true}
-          size="5xl"
-        >
+
+        <Flex justifyContent="end" alignItems="center" gap={10} mt={4} p={2}>
+          <Button
+            size="sm"
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            isDisabled={currentPage === 1}
+            colorScheme="orange"
+          >
+            <Text fontSize={13}>Previous</Text>
+          </Button>
+          <Text fontSize={14} fontWeight={600}>
+            Page {currentPage} of {totalPages}
+          </Text>
+          <Button
+            size="sm"
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            isDisabled={currentPage === totalPages}
+            colorScheme="orange"
+          >
+            <Text fontSize={13}>Next</Text>
+          </Button>
+        </Flex>
+      </Box>
+
+      <ModalComponent
+        title={"Order Details"}
+        isOpen={isOpen}
+        onClose={onClose}
+        withCloseButton={true}
+        size="5xl"
+      >
+        <Box overflowY="auto" maxH="60vh">
           <Flex gap={5}>
             <Flex gap={2}>
               <Text fontSize={13}>Payment Code</Text>
@@ -183,38 +196,37 @@ const Transaction = () => {
               </Text>
             </Flex>
           </Flex>
+          
           <Table mt={5} variant="striped" colorScheme="orange">
             <Thead>
               <Tr>
-                <Th>Product ID</Th>
-                <Th>Product Name</Th>
-                <Th>Model</Th>
-                <Th>Brand</Th>
-                <Th>Price</Th>
-                <Th>Quantity</Th>
-                <Th>Total Price</Th>
+                <Th textAlign="center">Product ID</Th>
+                <Th textAlign="center">Product Name</Th>
+                <Th textAlign="center">Model</Th>
+                <Th textAlign="center">Brand</Th>
+                <Th textAlign="center">Price</Th>
+                <Th textAlign="center">Quantity</Th>
+                <Th textAlign="center">Total Price</Th>
               </Tr>
             </Thead>
             <Tbody>
               {order?.orderDetails?.map((orderProduct) => (
                 <Tr key={orderProduct.productID} _hover={{ cursor: "pointer" }}>
-                  <Td>{orderProduct.productID}</Td>
-                  <Td>{orderProduct.productName}</Td>
-                  <Td>{orderProduct.model}</Td>
-                  <Td>{orderProduct.brand}</Td>
-                  <Td>{orderProduct.price}</Td>
-                  <Td>{orderProduct.quantity}</Td>
-                  <Td>
-                    {formatPrice(
-                      parseFloat(orderProduct.totalPrice).toFixed(2)
-                    )}
+                  <Td textAlign="center">{orderProduct.productID}</Td>
+                  <Td textAlign="center">{orderProduct.productName}</Td>
+                  <Td textAlign="center">{orderProduct.model}</Td>
+                  <Td textAlign="center">{orderProduct.brand}</Td>
+                  <Td textAlign="center">{orderProduct.price}</Td>
+                  <Td textAlign="center">{orderProduct.quantity}</Td>
+                  <Td textAlign="center">
+                    {formatPrice(parseFloat(orderProduct.totalPrice).toFixed(2))}
                   </Td>
                 </Tr>
               )) ?? null}
             </Tbody>
           </Table>
-        </ModalComponent>
-      </>
+        </Box>
+      </ModalComponent>
     </PageContainer>
   );
 };

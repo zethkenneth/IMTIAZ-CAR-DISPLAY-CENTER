@@ -29,6 +29,7 @@ const ProductCard = ({
   quantity,
   edit,
   product,
+  quantityOnHand,
 }) => {
   const { addToCart } = useCartHook();
   function handleEdit() {
@@ -91,7 +92,10 @@ const ProductCard = ({
               </Box>
               <Box mb="2">
                 <Text color="gray.900" fontSize="sm">
-                  Price: <strong>${parseFloat(price).toFixed(2)}</strong>
+                  <strong>Price:</strong> {parseFloat(price).toFixed(2)}
+                </Text>
+                <Text color="gray.900" fontSize="sm" mt={1}>
+                  <strong>Quantity:</strong> {quantityOnHand || 0}
                 </Text>
               </Box>
             </Flex>
@@ -265,6 +269,9 @@ const ProductCard = ({
         <Box mb="2">
           <Text color="gray.900" fontSize="sm">
             <strong>Price:</strong> {formatPrice(price)}
+          </Text>
+          <Text color="gray.900" fontSize="sm" mt={1}>
+            <strong>Quantity:</strong> {quantityOnHand || 0}
           </Text>
         </Box>
         {isInventoryDisplay ? (

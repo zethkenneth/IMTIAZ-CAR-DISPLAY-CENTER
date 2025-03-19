@@ -55,6 +55,11 @@ const Sidebar = ({ isOpen, isMini }) => {
       label: "Guide",
       to: "/guide",
     },
+    {
+      icon: <BanknotesIcon className="h-5 w-5" />,
+      label: "Payment",
+      to: "/payment",
+    },
   ];
 
   const LinkWithIcon = ({ icon, label, to }) => {

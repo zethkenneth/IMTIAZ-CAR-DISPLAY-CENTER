@@ -64,6 +64,15 @@ const Inventory = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // Special handling for price field
+    if (name === 'price') {
+      const numValue = parseFloat(value);
+      if (numValue > 99999999.99) {
+        return; // Don't update if value is too large
+      }
+    }
+    
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -400,6 +409,8 @@ const Inventory = () => {
                       value={formData.price}
                       onChange={handleInputChange}
                       type="number"
+                      max="99999999.99"
+                      step="0.01"
                       fontSize={13}
                       bg="white"
                     />

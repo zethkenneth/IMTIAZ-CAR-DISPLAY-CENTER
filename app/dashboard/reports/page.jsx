@@ -278,7 +278,7 @@ const Reports = () => {
           </Card>
         </SimpleGrid>
 
-        <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={4}>
+        <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={4} mb={8}>
           {/* Order Trends */}
           <Card>
             <CardBody>
@@ -303,38 +303,57 @@ const Reports = () => {
                         data: reportData?.orderTrends?.map(trend => trend.totalOrders) || [],
                         borderColor: 'rgba(66, 153, 225, 1)',
                         backgroundColor: 'rgba(66, 153, 225, 0.2)',
-                        fill: true
+                        fill: true,
+                        tension: 0.4,
+                        spanGaps: true
                       },
                       {
                         label: 'Paid Orders',
                         data: reportData?.orderTrends?.map(trend => trend.paidOrders) || [],
                         borderColor: 'rgba(72, 187, 120, 1)',
                         backgroundColor: 'rgba(72, 187, 120, 0.2)',
-                        fill: true
+                        fill: true,
+                        tension: 0.4,
+                        spanGaps: true
                       }
                     ]
                   }}
                   options={{
                     responsive: true,
                     maintainAspectRatio: false,
+                    layout: {
+                      padding: {
+                        left: 10,
+                        right: 10,
+                        top: 20,
+                        bottom: 20
+                      }
+                    },
                     scales: {
                       y: {
                         beginAtZero: true,
                         ticks: {
-                          stepSize: 1
+                          stepSize: 1,
+                          padding: 10
                         }
                       },
                       x: {
-                        reverse: true, // Show most recent dates on the right
+                        reverse: true,
+                        grid: {
+                          display: true
+                        },
                         ticks: {
                           maxRotation: 45,
-                          minRotation: 45
+                          minRotation: 45,
+                          autoSkip: false,
+                          padding: 10
                         }
                       }
                     },
                     plugins: {
                       legend: {
-                        position: 'bottom'
+                        position: 'bottom',
+                        padding: 20
                       },
                       tooltip: {
                         callbacks: {
@@ -349,6 +368,21 @@ const Reports = () => {
                           }
                         }
                       }
+                    },
+                    elements: {
+                      line: {
+                        tension: 0.4
+                      },
+                      point: {
+                        radius: 4,
+                        hitRadius: 10,
+                        hoverRadius: 6,
+                        borderWidth: 2
+                      }
+                    },
+                    interaction: {
+                      intersect: false,
+                      mode: 'index'
                     }
                   }}
                 />
@@ -364,6 +398,7 @@ const Reports = () => {
           rounded="lg" 
           shadow="md"
         >
+          <Text fontSize="lg" fontWeight="bold" mb={4}>Monthly Sales Overview</Text>
           <Box h="400px">
             <BarChart 
               labels={analytics.yearSales.map(sale => sale.name)}

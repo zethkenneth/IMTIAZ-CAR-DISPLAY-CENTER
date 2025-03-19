@@ -40,29 +40,39 @@ const ProductLandingPage = () => {
       <Text>We sell brand new cars, second hand and auto parts.</Text>
       <Box w="full" mt={10}>
         <Flex overflowX="auto" gap={10} className="scrollbar-hide" pt={5} pb={5}>
-          {products.slice(0, 5).map((value, index) => {
-            const description2 = JSON.parse(value?.description2);
-            return (
-              <Box key={index} bg="white" h="50vh" boxShadow="lg" p={5} rounded={10}>
-                <Flex flexDir="column" w="25rem" h="full" pb={10} justifyContent="space-between" overflow="hidden">
-                  <Box>
-                    <ProductImage imageUrl={value.imageUrl} />
-                    <Heading mt={2} size="lg">
-                      {value.name}
-                    </Heading>
-                    <Text>{`${value.year} ${value.model}`}</Text>
-                    <Text mt={5}>{description2?.engine_options}</Text>
-                  </Box>
-                  <Flex justifyContent="space-between" alignItems="center">
-                    <Text fontSize={18}>
-                      <strong>{formatPrice(value.price)}</strong>
-                    </Text>
-                    <ButtonComponent w="7rem" label="Buy now!" onClick={() => router.push("/login")} />
+          {products && products.length > 0 ? (
+            products.slice(0, 5).map((value, index) => {
+              let description2 = {};
+              try {
+                description2 = JSON.parse(value?.description2 || '{}');
+              } catch (error) {
+                console.warn('Failed to parse description2:', error);
+              }
+
+              return (
+                <Box key={index} bg="white" h="50vh" boxShadow="lg" p={5} rounded={10}>
+                  <Flex flexDir="column" w="25rem" h="full" pb={10} justifyContent="space-between" overflow="hidden">
+                    <Box>
+                      <ProductImage imageUrl={value.imageUrl} />
+                      <Heading mt={2} size="lg">
+                        {value.name}
+                      </Heading>
+                      <Text>{`${value.year || ''} ${value.model || ''}`}</Text>
+                      <Text mt={5}>{description2?.engine_options || 'No engine details available'}</Text>
+                    </Box>
+                    <Flex justifyContent="space-between" alignItems="center">
+                      <Text fontSize={18}>
+                        <strong>{formatPrice(value.price || 0)}</strong>
+                      </Text>
+                      <ButtonComponent w="7rem" label="Buy now!" onClick={() => router.push("/login")} />
+                    </Flex>
                   </Flex>
-                </Flex>
-              </Box>
-            );
-          })}
+                </Box>
+              );
+            })
+          ) : (
+            <Text textAlign="center" w="full">No products available at the moment.</Text>
+          )}
         </Flex>
       </Box>
     </Flex>

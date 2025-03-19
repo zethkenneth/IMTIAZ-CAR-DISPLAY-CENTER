@@ -40,19 +40,57 @@ const BarChart = ({ labels, values }) => {
     plugins: {
       legend: {
         position: "top",
+        align: "end",
+        labels: {
+          boxWidth: 15,
+          usePointStyle: true,
+          pointStyle: "circle",
+        },
       },
       title: {
         display: true,
         text: "Monthly Sales Data",
+        align: "start",
+        font: {
+          size: 16,
+          weight: "bold",
+        },
+        padding: {
+          bottom: 30,
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: true,
+          drawBorder: false,
+        },
+        ticks: {
+          font: {
+            size: 12,
+          },
+        },
+      },
+      y: {
+        grid: {
+          display: true,
+          drawBorder: false,
+        },
+        ticks: {
+          font: {
+            size: 12,
+          },
+          callback: (value) => {
+            return value.toLocaleString();
+          },
+        },
       },
     },
   };
 
   return (
-    <div
-      style={{ height: "70vh" }}
-      className="bg-white shadow-md rounded-lg w-full p-4"
-    >
+    <div className="bg-white rounded-lg w-full p-4" style={{ height: "400px" }}>
       <Bar data={data} options={options} />
     </div>
   );

@@ -3,13 +3,13 @@
 import React, { useState } from "react";
 import { Box, Flex, IconButton } from "@chakra-ui/react";
 import Sidebar from "@components/sidebar";
-import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons"; // Import CloseIcon
+import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import MenuCartButton from "@components/MenuCartButton";
 import Notification from "@components/notifications";
 
 function PageContainer({ children }) {
-  const [isSidebarOpen, setSidebarOpen] = useState(true); // Start with sidebar open
-  const [isSidebarMini, setSidebarMini] = useState(false); // Change to true for mini view
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [isSidebarMini, setSidebarMini] = useState(false);
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
@@ -29,36 +29,49 @@ function PageContainer({ children }) {
         display="flex"
         flexDirection="column"
         transition="all 0.3s"
-        ml={isSidebarMini ? "4rem" : "16rem"} // Adjust margin-left based on sidebar width
+        marginLeft={isSidebarMini ? "64px" : "256px"}
+        position="relative"
+        maxWidth={`calc(100% - ${isSidebarMini ? "64px" : "256px"})`}
       >
         {/* Navbar */}
         <Box
           w="full"
           bg="white"
-          py={2} // Adjust the height of the navbar
+          py={2}
+          px={4}
           display="flex"
           justifyContent="space-between"
           alignItems="center"
           boxShadow="md"
+          position="sticky"
+          top={0}
+          zIndex={10}
         >
           <IconButton
             aria-label="Toggle Sidebar"
-            icon={!isSidebarMini ? <CloseIcon /> : <HamburgerIcon />} // Conditionally render Hamburger or Close icon
-            fontSize={!isSidebarMini?  "sm": "lg"}
-            bg='transparent'
-            onClick={toggleMiniSidebar} // Toggle sidebar state
-            ml={2} // Left margin for the button
-            _hover={{
-            bg:'transparent'}}
+            icon={isSidebarMini ? <HamburgerIcon /> : <CloseIcon />}
+            fontSize="20px"
+            variant="ghost"
+            onClick={toggleMiniSidebar}
+            color="gray.600"
+            _hover={{ bg: "gray.100" }}
           />
-          <Flex alignItems='center' mr={5}>
+          <Flex alignItems="center" gap={4}>
             <Notification />
             <MenuCartButton />
           </Flex>
         </Box>
 
         {/* Main content */}
-        <Box as="main" flex="1" p={5} bg="gray.100">
+        <Box 
+          as="main" 
+          flex="1" 
+          p={5} 
+          bg="gray.100" 
+          overflowY="auto"
+          h="calc(100vh - 3.5rem)"
+          w="full"
+        >
           {children}
         </Box>
       </Box>

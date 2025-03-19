@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Products from "@models/products";
-import { upload, runMiddleware } from "@utils/upload";
+import { upload, runMiddleware, ensureUploadDirectory, saveUploadedFiles, processFiles } from "@utils/upload";
 import path from "path";
 
 export async function GET() {
@@ -32,31 +32,49 @@ export async function GET() {
 
 export async function POST(req) {
   try {
-    const uploadMiddleware = upload.any();
-    await runMiddleware(req, uploadMiddleware);
+    const data = await req.formData();
+    
+    // Extract all product information
+    const productData = {
+      productName: data.get('productName'),
+      description: data.get('description'),
+      model: data.get('model'),
+      year: data.get('year'),
+      brand: data.get('brand'),
+      type: data.get('type'),
+      category: data.get('category'),
+      price: parseFloat(data.get('price')),
+      quantityOnHand: parseInt(data.get('quantityOnHand')),
+      reorderLevel: parseInt(data.get('reorderLevel')) || 0, // Optional with default
+    };
 
-    const formData = await req.formData();
-    const description2 = formData.get('description2');
+    // Parse description2
+    let description2 = data.get('description2');
+    try {
+      description2 = JSON.parse(description2);
+    } catch (e) {
+      console.error('Error parsing description2:', e);
+      description2 = {};
+    }
+    productData.description2 = description2;
 
-    // Create new product entry
-    const newProduct = await Products.create({
-      productName: formData.get('productName'),
-      description: formData.get('description'),
-      description2: description2,
-      model: formData.get('model'),
-      year: formData.get('year'),
-      type: formData.get('type'),
-      price: formData.get('price'),
-      quantityOnHand: formData.get('quantityOnHand'),
-      imageUrl: req.files ? req.files.map(file => path.join("/uploads/products", file.filename)) : [],
-    });
+    // Handle file uploads
+    const attachments = data.getAll('attachments[]');
+    if (attachments.length > 0) {
+      const imageUrls = await processFiles(attachments);
+      productData.imageUrl = imageUrls;
+      console.log('Processed image URLs:', imageUrls);
+    }
+
+    // Create new product
+    const newProduct = await Products.create(productData);
 
     return NextResponse.json({
       message: "Product created successfully",
       newProduct
     });
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error in POST /api/imtiaz/products:", error);
     return NextResponse.json(
       {
         error: "Failed to create product",

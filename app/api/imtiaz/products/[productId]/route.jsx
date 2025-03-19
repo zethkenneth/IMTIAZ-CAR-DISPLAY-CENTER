@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import Products from "@models/products";
-import { upload, runMiddleware } from "@utils/upload";
+import { upload, runMiddleware, processFiles } from "@utils/upload";
 import path from "path";
 
 export async function GET(req, { params }) {
@@ -39,13 +39,8 @@ export async function GET(req, { params }) {
 export async function PUT(req, { params }) {
   try {
     const { productId } = params;
-    const uploadMiddleware = upload.any();
-    await runMiddleware(req, uploadMiddleware);
-
-    const formData = await req.formData();
-    const description2 = formData.get('description2');
-    const existingImages = JSON.parse(formData.get('existingImages') || '[]');
-
+    const data = await req.formData();
+    
     const product = await Products.findByPk(productId);
     if (!product) {
       return NextResponse.json(
@@ -55,45 +50,57 @@ export async function PUT(req, { params }) {
     }
 
     // Parse description2
-    let parsedDescription2;
+    let description2 = data.get('description2');
     try {
-      parsedDescription2 = JSON.parse(description2);
+      description2 = JSON.parse(description2);
     } catch (e) {
       console.error('Error parsing description2:', e);
-      parsedDescription2 = {};
+      description2 = {};
     }
 
-    // Combine existing images with new uploaded files
-    const newImageUrls = req.files ? 
-      req.files.map(file => path.join("/uploads/products", file.filename)) : 
-      [];
-    
+    // Get existing images
+    let existingImages = [];
+    try {
+      existingImages = JSON.parse(data.get('existingImages') || '[]');
+    } catch (e) {
+      console.error('Error parsing existing images:', e);
+    }
+
+    // Process new files
+    const attachments = data.getAll('attachments[]');
+    let newImageUrls = [];
+    if (attachments.length > 0) {
+      newImageUrls = await processFiles(attachments);
+    }
+
+    // Combine existing and new images
     const combinedImageUrls = [...existingImages, ...newImageUrls];
 
-    // Update product
+    // Update product with all fields
     const updatedProduct = await product.update({
-      productName: formData.get('productName'),
-      description: formData.get('description'),
-      description2: parsedDescription2,
-      model: formData.get('model'),
-      year: formData.get('year'),
-      type: formData.get('type'),
-      price: formData.get('price'),
-      quantityOnHand: formData.get('quantityOnHand'),
+      productName: data.get('productName'),
+      description: data.get('description'),
+      description2: description2,
+      model: data.get('model'),
+      year: data.get('year'),
+      brand: data.get('brand'),
+      type: data.get('type'),
+      category: data.get('category'),
+      price: data.get('price'),
+      quantityOnHand: data.get('quantityOnHand'),
+      reorderLevel: data.get('reorderLevel'),
       imageUrl: combinedImageUrls,
     });
 
-    const formattedProduct = {
-      ...updatedProduct.toJSON(),
-      description2: parsedDescription2
-    };
-
     return NextResponse.json({
       message: "Product updated successfully",
-      updatedProduct: formattedProduct
+      updatedProduct: {
+        ...updatedProduct.toJSON(),
+        description2: description2
+      }
     });
   } catch (error) {
-    console.error("Error:", error);
+    console.error("Error in PUT /api/imtiaz/products/[productId]:", error);
     return NextResponse.json(
       {
         error: "Failed to update product",

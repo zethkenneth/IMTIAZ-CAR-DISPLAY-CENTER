@@ -31,6 +31,7 @@ import {
   FaFilePowerpoint,
 } from "react-icons/fa";
 import PageContainer from "@components/PageContainer";
+import { useToast } from "@chakra-ui/react";
 
 const Inventory = () => {
   const { isOpen, onOpen, onClose: chakraOnClose } = useDisclosure();
@@ -60,6 +61,8 @@ const Inventory = () => {
     comfort: '',
     design: '',
     performance: '',
+    brand: '',
+    category: '',
   });
 
   const handleInputChange = (e) => {
@@ -101,53 +104,81 @@ const Inventory = () => {
   }, [getInventory]);
 
   const handleSaveProduct = async () => {
-    let form = new FormData();
-    
-    // Append basic product info
-    const basicFields = ['productName', 'description', 'year', 'model', 'type', 'price', 'quantityOnHand'];
-    basicFields.forEach(key => {
-      form.append(key, formData[key] || '');
-    });
+    try {
+      const form = new FormData();
+      
+      // Append all product info
+      form.append('productName', formData.productName || '');
+      form.append('description', formData.description || '');
+      form.append('year', formData.year || '');
+      form.append('model', formData.model || '');
+      form.append('brand', formData.brand || '');
+      form.append('type', formData.type || '');
+      form.append('category', formData.category || '');
+      form.append('price', formData.price || '');
+      form.append('quantityOnHand', formData.quantityOnHand || '');
 
-    // Append description2 as JSON
-    const description2 = {
-      overview: formData.overview || '',
-      engine_options: formData.engine_options || '',
-      transmissions: formData.transmissions || '',
-      fuel_efficiency: formData.fuel_efficiency || '',
-      interior: formData.interior || '',
-      safety: formData.safety || '',
-      comfort: formData.comfort || '',
-      design: formData.design || '',
-      performance: formData.performance || '',
-    };
-    form.append('description2', JSON.stringify(description2));
+      // Append description2 as JSON
+      const description2 = {
+        overview: formData.overview || '',
+        engine_options: formData.engine_options || '',
+        transmissions: formData.transmissions || '',
+        fuel_efficiency: formData.fuel_efficiency || '',
+        interior: formData.interior || '',
+        safety: formData.safety || '',
+        comfort: formData.comfort || '',
+        design: formData.design || '',
+        performance: formData.performance || '',
+      };
+      form.append('description2', JSON.stringify(description2));
 
-    // Append existing image URLs
-    const existingImages = files.filter(file => file.isExisting).map(file => file.url);
-    form.append('existingImages', JSON.stringify(existingImages));
+      // Handle existing images
+      const existingImages = files
+        .filter(file => file.isExisting)
+        .map(file => file.url);
+      form.append('existingImages', JSON.stringify(existingImages));
 
-    // Append new files
-    const newFiles = files.filter(file => !file.isExisting);
-    newFiles.forEach((file) => {
-      form.append("attachments[]", file);
-    });
+      // Handle new files
+      const newFiles = files.filter(file => !file.isExisting);
+      newFiles.forEach((file) => {
+        form.append('attachments[]', file);
+      });
 
-    let result;
-    if (editingProductId) {
-      result = await updateProduct(editingProductId, form);
+      let result;
+      if (editingProductId) {
+        result = await updateProduct(editingProductId, form);
+      } else {
+        result = await storeProduct(form);
+      }
+
       if (result.status >= 200 && result.status < 300) {
         await getInventory(); // Refresh the product list
+        onClose();
+        toast({
+          title: "Success",
+          description: result.message,
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: result.message || "Failed to save product",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
       }
-    } else {
-      result = await storeProduct(form);
-    }
-
-    if (result.status >= 200 && result.status < 300) {
-      onClose();
-      console.log(result.message);
-    } else {
-      console.error(result.message);
+    } catch (error) {
+      console.error('Error saving product:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save product",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
@@ -177,6 +208,9 @@ const Inventory = () => {
       comfort: '',
       design: '',
       performance: '',
+      brand: '',
+      category: '',
+      reorderLevel: '',
     });
     setFiles([]);
   }
@@ -218,6 +252,9 @@ const Inventory = () => {
         comfort: desc2?.comfort || '',
         design: desc2?.design || '',
         performance: desc2?.performance || '',
+        brand: product.brand || '',
+        category: product.category || '',
+        reorderLevel: product.reorderLevel?.toString() || '',
       });
     } catch (error) {
       console.error('Error parsing description2:', error);
@@ -261,8 +298,16 @@ const Inventory = () => {
   };
 
   const handleRemoveFile = (indexToRemove) => {
-    setFiles(prevFiles => prevFiles.filter((_, index) => index !== indexToRemove));
+    setFiles(prevFiles => {
+      const newFiles = [...prevFiles];
+      console.log('Removing file at index:', indexToRemove);
+      console.log('File being removed:', newFiles[indexToRemove]);
+      newFiles.splice(indexToRemove, 1);
+      return newFiles;
+    });
   };
+
+  const toast = useToast();
 
   return (
     <PageContainer>
@@ -345,7 +390,7 @@ const Inventory = () => {
               <Flex direction="column" gap={4} mt={5}>
                 {/* Basic Information */}
                 <FormControl>
-                  <FormLabel fontSize={12}>Name</FormLabel>
+                  <FormLabel fontSize={12}>Product Name</FormLabel>
                   <Input
                     name="productName"
                     value={formData.productName}
@@ -388,6 +433,17 @@ const Inventory = () => {
                       bg="white"
                     />
                   </FormControl>
+
+                  <FormControl>
+                    <FormLabel fontSize={12}>Brand</FormLabel>
+                    <Input
+                      name="brand"
+                      value={formData.brand}
+                      onChange={handleInputChange}
+                      fontSize={13}
+                      bg="white"
+                    />
+                  </FormControl>
                 </Flex>
 
                 <Flex gap={4}>
@@ -399,9 +455,24 @@ const Inventory = () => {
                       onChange={handleInputChange}
                       fontSize={13}
                       bg="white"
+                      placeholder="e.g., Brand New, Second Hand"
                     />
                   </FormControl>
 
+                  <FormControl>
+                    <FormLabel fontSize={12}>Category</FormLabel>
+                    <Input
+                      name="category"
+                      value={formData.category}
+                      onChange={handleInputChange}
+                      fontSize={13}
+                      bg="white"
+                      placeholder="e.g., Auto Part, Vehicle"
+                    />
+                  </FormControl>
+                </Flex>
+
+                <Flex gap={4}>
                   <FormControl>
                     <FormLabel fontSize={12}>Price</FormLabel>
                     <Input
@@ -544,10 +615,8 @@ const Inventory = () => {
                     position="relative"
                   >
                     {file.isExisting ? (
-                      // Display existing image
                       <Image src={file.url} alt="Product" objectFit="cover" w="100%" h="100%" />
                     ) : (
-                      // Display new file preview
                       file.name.match(/\.(jpg|jpeg|png|gif)$/i) ? (
                         <Image 
                           src={URL.createObjectURL(file)} 
@@ -557,7 +626,6 @@ const Inventory = () => {
                           h="100%" 
                         />
                       ) : (
-                        // Display file type icon for non-images
                         <Box>
                           {file.name.includes("pdf") ? (
                             <FaFilePdf size={20} />

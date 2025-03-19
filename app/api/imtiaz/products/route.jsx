@@ -1,113 +1,93 @@
 import { NextResponse } from "next/server";
-import db from "../../../../utils/sequelize.js";
-import { QueryTypes } from "sequelize";
-import Products from "../../../../models/products.js";
-import multer from "multer";
+import Products from "@models/products";
+import { upload, runMiddleware } from "@utils/upload";
 import path from "path";
-import fs from "fs";
-import { promisify } from "util";
 
-const mkdir = promisify(fs.mkdir);
-
-// Configure Multer storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadPath = path.join(process.cwd(), "public/uploads/products");
-    fs.mkdirSync(uploadPath, { recursive: true }); // Ensure directory exists
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  },
-});
-
-const upload = multer({ storage: storage });
-
-async function runMiddleware(req, fn) {
-  return new Promise((resolve, reject) => {
-    fn(req, {}, (result) => {
-      if (result instanceof Error) {
-        return reject(result);
-      }
-      resolve(result);
-    });
-  });
-}
-
-// GET Handler
 export async function GET() {
   try {
     const products = await Products.findAll();
-    return NextResponse.json({
-      status: 200,
-      data: products,
+    
+    const productsArray = products.map(product => {
+      const productJSON = product.toJSON();
+      // Parse description2 if it's a string
+      if (typeof productJSON.description2 === 'string') {
+        try {
+          productJSON.description2 = JSON.parse(productJSON.description2);
+        } catch (e) {
+          console.error('Error parsing description2:', e);
+          productJSON.description2 = {};
+        }
+      }
+      return productJSON;
     });
+    
+    return NextResponse.json(productsArray);
   } catch (error) {
-    console.error("Error: ", error);
-    return NextResponse.json({
-      status: 500,
-      error: "Failed to fetch Products",
-      details: error.message || error,
-    });
+    return NextResponse.json(
+      { error: "Failed to fetch products", details: error.message },
+      { status: 500 }
+    );
   }
 }
 
-// POST Handler
 export async function POST(req) {
   try {
     const uploadMiddleware = upload.any();
     await runMiddleware(req, uploadMiddleware);
 
-    const {
-      productname,
-      description,
-      description2,
-      model,
-      year,
-      brand,
-      type,
-      category,
-      price,
-      quantityonhand,
-      reorderlevel,
-    } = req.body;
-
-    // Check for uploaded files
-    if (!req.files || req.files.length === 0) {
-      throw new Error("No files were uploaded.");
-    }
-
-    // Collect paths of uploaded files
-    const attachments = req.files.map((file) =>
-      path.join("/uploads/products", file.filename)
-    );
+    const formData = await req.formData();
+    const description2 = formData.get('description2');
 
     // Create new product entry
     const newProduct = await Products.create({
-      productName: productname,
-      description,
-      description2,
-      model,
-      year,
-      brand,
-      type,
-      category,
-      price,
-      quantityOnHand: quantityonhand,
-      reorderLevel: reorderlevel,
-      imageUrl: attachments,
+      productName: formData.get('productName'),
+      description: formData.get('description'),
+      description2: description2,
+      model: formData.get('model'),
+      year: formData.get('year'),
+      type: formData.get('type'),
+      price: formData.get('price'),
+      quantityOnHand: formData.get('quantityOnHand'),
+      imageUrl: req.files ? req.files.map(file => path.join("/uploads/products", file.filename)) : [],
     });
 
     return NextResponse.json({
       message: "Product created successfully",
-      data: newProduct,
+      newProduct
     });
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json(
       {
         error: "Failed to create product",
-        details: error.message || error,
+        details: error.message
+      },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req, { params }) {
+  try {
+    const productId = params.productId;
+    const product = await Products.findByPk(productId);
+    
+    if (!product) {
+      return NextResponse.json(
+        { error: "Product not found" },
+        { status: 404 }
+      );
+    }
+
+    await product.destroy();
+    return NextResponse.json({
+      message: "Product deleted successfully"
+    });
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: "Failed to delete product",
+        details: error.message
       },
       { status: 500 }
     );

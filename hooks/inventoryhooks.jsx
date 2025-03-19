@@ -6,54 +6,73 @@ const baseURL = "/api/imtiaz";
 
 const useInventorHooks = create((set) => ({
   products: [],
-  getInventory: (token, callBack) => {
-    axios
-      .get(`${baseURL}/products`, token)
-      .then((res) => validateStatusOk(res))
-      .then((res) => {
-        const { data, message } = res;
-        set(() => ({ products: data }));
-        callBack(200, message);
-      })
-      .catch((err) => callBack(...handleFailedStatus(err)));
+  getInventory: async () => {
+    try {
+      const response = await axios.get(`${baseURL}/products`);
+      const products = response.data;
+      set(() => ({ products: Array.isArray(products) ? products : [] }));
+      return { status: 200, message: "Products retrieved successfully" };
+    } catch (err) {
+      console.error("Error fetching inventory:", err);
+      set(() => ({ products: [] }));
+      return { status: 500, message: err.message };
+    }
   },
-  getProduct: (token, productID, callBack) => {
-    axios
-      .get(`${baseURL}/products/${productID}`, token)
-      .then((res) => validateStatusOk(res))
-      .then((res) => {
-        const { data, message } = res;
-        set(() => ({ products: data }));
-        callBack(200, message);
-      })
-      .catch((err) => callBack(...handleFailedStatus(err)));
+  getProduct: async (productID) => {
+    try {
+      const response = await axios.get(`${baseURL}/products/${productID}`);
+      const validatedResponse = validateStatusOk(response);
+      const { data } = validatedResponse;
+      set(() => ({ products: data }));
+      return { status: 200, message: "Product retrieved successfully" };
+    } catch (err) {
+      console.error("Error fetching product:", err);
+      return { status: 500, message: err.message };
+    }
   },
-  storeProduct: (form, callBack) => {
-    axios
-      .post(`${baseURL}/products`, form)
-      .then((res) => validateStatusOk(res))
-      .then((res) => {
-        const { newProduct, message } = res;
-        set((state) => ({ products: [...state.products, newProduct] }));
-        callBack(200, message);
-      })
-      .catch((err) => callBack(...handleFailedStatus(err)));
+  storeProduct: async (form) => {
+    try {
+      const response = await axios.post(`${baseURL}/products`, form);
+      const newProduct = response.data.newProduct;
+      set((state) => ({ products: [...state.products, newProduct] }));
+      return { status: 200, message: "Product stored successfully" };
+    } catch (err) {
+      console.error("Error storing product:", err);
+      return { status: 500, message: err.message };
+    }
   },
-  deleteProduct: (token, productID, callBack) => {
-    axios
-      .delete(`${baseURL}/products/${productID}`, token)
-      .then((res) => validateStatusOk(res))
-      .then((res) => {
-        const { message } = res;
-
-        set((state) => ({
-          products: state.products.filter(
-            (product) => product.id !== productID
-          ),
-        }));
-        callBack(200, message);
-      })
-      .catch((err) => callBack(...handleFailedStatus(err)));
+  updateProduct: async (productId, form) => {
+    try {
+      console.log('Updating product:', productId);
+      const response = await axios.put(`${baseURL}/products/${productId}`, form);
+      console.log('Update response:', response);
+      const updatedProduct = response.data.updatedProduct;
+      set((state) => ({
+        products: state.products.map(product => 
+          (product.id === productId || product.productID === productId) 
+            ? updatedProduct 
+            : product
+        )
+      }));
+      return { status: 200, message: "Product updated successfully" };
+    } catch (err) {
+      console.error("Error updating product:", err);
+      return { status: 500, message: err.message };
+    }
+  },
+  deleteProduct: async (productID) => {
+    try {
+      await axios.delete(`${baseURL}/products/${productID}`);
+      set((state) => ({
+        products: state.products.filter(
+          (product) => product.id !== productID
+        ),
+      }));
+      return { status: 200, message: "Product deleted successfully" };
+    } catch (err) {
+      console.error("Error deleting product:", err);
+      return { status: 500, message: err.message };
+    }
   },
 }));
 

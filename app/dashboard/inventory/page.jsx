@@ -12,11 +12,13 @@ import {
   useDisclosure,
   Wrap,
   WrapItem,
+  FormControl,
+  FormLabel,
+  Input,
+  Textarea,
+  Spinner,
 } from "@chakra-ui/react";
-import useStateStructureGenerator from "@utils/StateStructureGenerator";
-import StateStructureInputsComponents from "@utils/StateStructureInputsComponents";
 import ButtonComponent from "@components/button";
-import { productJsonData } from "./data";
 import { useEffect, useState } from "react";
 import FileUpload from "@components/Fileupload";
 import useInventorHooks from "@hooks/inventoryhooks";
@@ -31,131 +33,227 @@ import {
 import PageContainer from "@components/PageContainer";
 
 const Inventory = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const { products, getInventory, storeProduct } = useInventorHooks();
+  const { isOpen, onOpen, onClose: chakraOnClose } = useDisclosure();
+  const { products = [], getInventory, storeProduct, updateProduct } = useInventorHooks();
   const [title, setTitle] = useState("New");
-  const [profilePicture, setProfilePicture] = useState(null);
   const [activeButton, setActiveButton] = useState("Brand New");
   const [search, setSearch] = useState("");
   const [files, setFiles] = useState([]);
+  const [editingProductId, setEditingProductId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    productName: '',
+    description: '',
+    year: '',
+    model: '',
+    type: '',
+    price: '',
+    quantityOnHand: '',
+    overview: '',
+    engine_options: '',
+    transmissions: '',
+    fuel_efficiency: '',
+    interior: '',
+    safety: '',
+    comfort: '',
+    design: '',
+    performance: '',
+  });
 
-  const labels = [
-    "i.Name",
-    "i.Description",
-    "i.Year",
-    "i.Model",
-    "i.Type",
-    "i.Price",
-    "i.Quantity",
-    "a.Overview",
-    "a.Engine Options",
-    "a.Transmissions",
-    "a.Fuel Efficiency",
-    "a.Interior",
-    "a.Safety",
-    "a.Comfort",
-    "a.Design",
-    "a.Performance",
-  ];
-  const indexToRender = ["0.3", "4.6"];
-  const indexToRender2 = [
-    "7.7",
-    "8.8",
-    "9.9",
-    "10.10",
-    "11.11",
-    "12.12",
-    "13.13",
-    "14.14",
-  ];
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
-  const formState = useStateStructureGenerator(labels);
-  const stateStructureInputsComponent = new StateStructureInputsComponents(
-    labels,
-    formState,
-    "100%",
-    { gap: 5, mt: 5 }
-  );
+  useEffect(() => {
+    const fetchInventory = async () => {
+      try {
+        setIsLoading(true);
+        console.log('Starting fetch...');
+        const result = await getInventory();
+        console.log('Fetch result:', result);
+        console.log('Current products:', products);
+        if (result.status !== 200) {
+          console.error(result.message);
+        }
+      } catch (error) {
+        console.error('Error fetching inventory:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  function handleAddProduct() {
-    let form = stateStructureInputsComponent.retrieveFormDataFromFormState();
+    fetchInventory();
+  }, [getInventory]);
 
-    files.forEach((file) => {
+  const handleSaveProduct = async () => {
+    let form = new FormData();
+    
+    // Append basic product info
+    const basicFields = ['productName', 'description', 'year', 'model', 'type', 'price', 'quantityOnHand'];
+    basicFields.forEach(key => {
+      form.append(key, formData[key] || '');
+    });
+
+    // Append description2 as JSON
+    const description2 = {
+      overview: formData.overview || '',
+      engine_options: formData.engine_options || '',
+      transmissions: formData.transmissions || '',
+      fuel_efficiency: formData.fuel_efficiency || '',
+      interior: formData.interior || '',
+      safety: formData.safety || '',
+      comfort: formData.comfort || '',
+      design: formData.design || '',
+      performance: formData.performance || '',
+    };
+    form.append('description2', JSON.stringify(description2));
+
+    // Append existing image URLs
+    const existingImages = files.filter(file => file.isExisting).map(file => file.url);
+    form.append('existingImages', JSON.stringify(existingImages));
+
+    // Append new files
+    const newFiles = files.filter(file => !file.isExisting);
+    newFiles.forEach((file) => {
       form.append("attachments[]", file);
     });
 
-    storeProduct(form, (status, feedback) => {
-      if (!(status >= 200 && status < 300)) {
-        return console.log(feedback);
+    let result;
+    if (editingProductId) {
+      result = await updateProduct(editingProductId, form);
+      if (result.status >= 200 && result.status < 300) {
+        await getInventory(); // Refresh the product list
       }
+    } else {
+      result = await storeProduct(form);
+    }
 
-      return console.log(feedback);
-    });
-  }
+    if (result.status >= 200 && result.status < 300) {
+      onClose();
+      console.log(result.message);
+    } else {
+      console.error(result.message);
+    }
+  };
+
+  // Custom onClose handler that calls handleCancel
+  const onClose = () => {
+    handleCancel();
+    chakraOnClose();
+  };
 
   function handleCancel() {
-    onClose();
+    setTitle("New");
+    setEditingProductId(null);
+    setFormData({
+      productName: '',
+      description: '',
+      year: '',
+      model: '',
+      type: '',
+      price: '',
+      quantityOnHand: '',
+      overview: '',
+      engine_options: '',
+      transmissions: '',
+      fuel_efficiency: '',
+      interior: '',
+      safety: '',
+      comfort: '',
+      design: '',
+      performance: '',
+    });
+    setFiles([]);
   }
 
-  function handleEdit() {
+  function handleEdit(product) {
     onOpen();
     setTitle("Update");
+    setEditingProductId(product.id || product.productID);
+    
+    try {
+      const desc2 = typeof product.description2 === 'string' ? 
+        JSON.parse(product.description2) : 
+        product.description2 || {};
+
+      // Convert existing image URLs to File objects if they exist
+      if (product.imageUrl && Array.isArray(product.imageUrl)) {
+        // Store the existing image URLs
+        setFiles(product.imageUrl.map(url => ({
+          name: url.split('/').pop(),
+          url: url,
+          isExisting: true // Flag to identify existing images
+        })));
+      }
+
+      setFormData({
+        productName: product.productName || '',
+        description: product.description || '',
+        year: product.year || '',
+        model: product.model || '',
+        type: product.type || '',
+        price: product.price?.toString() || '',
+        quantityOnHand: product.quantityOnHand?.toString() || '',
+        overview: desc2?.overview || '',
+        engine_options: desc2?.engine_options || '',
+        transmissions: desc2?.transmissions || '',
+        fuel_efficiency: desc2?.fuel_efficiency || '',
+        interior: desc2?.interior || '',
+        safety: desc2?.safety || '',
+        comfort: desc2?.comfort || '',
+        design: desc2?.design || '',
+        performance: desc2?.performance || '',
+      });
+    } catch (error) {
+      console.error('Error parsing description2:', error);
+    }
   }
 
   const stockThreshold = 10;
 
   const filterProducts = (data, filterCriteria, stockThreshold) => {
+    if (!data || !Array.isArray(data)) return [];
+    
+    // If no filter criteria matches, return all products
+    if (!filterCriteria) return data;
+
+    const criteria = filterCriteria.toLowerCase();
+    
     return data.filter((value) => {
-      if (filterCriteria === "low stock") {
-        return value.quantity < stockThreshold;
-      } else if (
-        filterCriteria === "brand new" ||
-        filterCriteria === "second hand"
-      ) {
-        return value.category === "car" && value.type === filterCriteria;
-      } else if (filterCriteria === "auto part") {
-        return value.category === "auto part";
+      if (criteria === "low stock") {
+        return parseInt(value.quantityOnHand) < stockThreshold;
+      } else if (criteria === "brand new" || criteria === "second hand") {
+        return value.type?.toLowerCase() === criteria;
+      } else if (criteria === "auto part") {
+        return value.category?.toLowerCase() === "auto part";
       }
-      return false;
+      return true; // Show all products if no filter matches
     });
   };
 
   const filteredData = filterProducts(
-    products ?? [],
-    activeButton.toLocaleLowerCase(),
+    products,
+    activeButton.toLowerCase(),
     stockThreshold
   );
 
-  console.log(filteredData);  
-
   const handleFileChange = (event) => {
-    setFiles(Array.from(event.target.files));
+    const newFiles = Array.from(event.target.files);
+    setFiles(prevFiles => [
+      ...prevFiles.filter(file => file.isExisting), // Keep existing files
+      ...newFiles // Add new files
+    ]);
   };
 
   const handleRemoveFile = (indexToRemove) => {
-    setFiles((prevFiles) =>
-      prevFiles.filter((_, index) => index !== indexToRemove)
-    );
+    setFiles(prevFiles => prevFiles.filter((_, index) => index !== indexToRemove));
   };
-
-  const handleFetchInventory = (token) => {
-    getInventory(token, (status, feedback) => {
-      switch (status) {
-        case 200:
-          console.log(feedback);
-          break;
-        default:
-          console.log(feedback);
-      }
-    });
-  };
-
-  useEffect(() => {
-    if (products.length === 0) {
-      handleFetchInventory();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <PageContainer>
@@ -168,160 +266,311 @@ const Inventory = () => {
           openModal={onOpen}
         />
         <main>
-          <div className="flex flex-wrap p-5 gap-5">
-            {filteredData
-              .filter((value) =>{
-                return search !== ""
-                  ? value.productName
-                      .toLowerCase()
-                      .includes(search.toLowerCase())
-                  : value
-              }
-              )
-              .map((product, i) => (
-                <ProductCard
-                  key={i}
-                  name={product.productName}
-                  {...product}
-                  isInventoryDisplay={true}
-                  edit={handleEdit}
-                />
-              ))}
-          </div>
+          {isLoading ? (
+            <Flex justify="center" align="center" h="200px">
+              <Spinner size="xl" color="orange.500" />
+            </Flex>
+          ) : (
+            <div className="flex flex-wrap p-5 gap-5">
+              {filteredData.length === 0 ? (
+                <Text>No products found</Text>
+              ) : (
+                filteredData
+                  .filter((value) => 
+                    search === "" || 
+                    value.productName?.toLowerCase().includes(search.toLowerCase())
+                  )
+                  .map((product, i) => (
+                    <ProductCard
+                      key={i}
+                      name={product.productName}
+                      {...product}
+                      isInventoryDisplay={true}
+                      edit={() => handleEdit(product)}
+                    />
+                  ))
+              )}
+            </div>
+          )}
         </main>
         <ModalComponent
-          title="New Product"
+          title={`${title} Product`}
           withCloseButton={true}
           isOpen={isOpen}
           onClose={onClose}
           size="5xl"
           footer={
             <Flex gap={5}>
-              <>
-                <input
-                  id="fileInput"
-                  type="file"
-                  multiple
-                  style={{ display: "none" }}
-                  onChange={handleFileChange}
-                />
-                <AnimatedButton
-                  label="Upload Attachment"
-                  variant="secondary"
-                  rounded={7}
-                  // onClick={() => document.getElementById("fileInput").click()}
-                />
-              </>
+              <input
+                id="fileInput"
+                type="file"
+                multiple
+                style={{ display: "none" }}
+                onChange={handleFileChange}
+              />
+              <AnimatedButton
+                label="Upload Attachment"
+                variant="secondary"
+                rounded={7}
+                onClick={() => document.getElementById("fileInput").click()}
+              />
               <ButtonComponent
                 w="6rem"
                 label="Save"
-                onClick={handleAddProduct}
+                onClick={handleSaveProduct}
               />
               <ButtonComponent
                 w="6rem"
                 label="Cancel"
                 variant="secondary"
-                onClick={handleCancel}
+                onClick={onClose}
               />
             </Flex>
           }
         >
           <Box h="500" overflow="scroll">
             <Text>
-              {
-                "Please provide the required details. This information will be useful later when managing your product listings and inventory."
-              }
+              Please provide the required details. This information will be useful later when managing your product listings and inventory.
             </Text>
             <Box pl={5} pr={5}>
-              {
-                /** Patient Personal Information */
-                stateStructureInputsComponent.renderCollection(indexToRender)
-              }
-              {
-                /** Patient Personal Information */
-                stateStructureInputsComponent.renderCollection(indexToRender2)
-              }
-            </Box>
-            <Wrap mt={5}>
-              {files.map((file, index) => {
-                if (
-                  !file.name.includes("jpeg") &&
-                  !file.name.includes("png") &&
-                  !file.name.includes("jpg")
-                ) {
-                  return (
-                    <WrapItem
-                      key={index}
-                      p={2}
-                      position="relative"
-                      overflow="hidden"
-                    >
-                      <Box
-                        p={2}
-                        w="100px"
-                        h="100px"
-                        bg="blackAlpha.400"
-                        rounded={5}
-                        overflow="hidden"
-                      >
-                        {file.name.includes("pdf") ? (
-                          <FaFilePdf size={20} />
-                        ) : file.name.includes("xlsx") ||
-                          file.name.includes("xls") ? (
-                          <FaFileExcel size={20} />
-                        ) : file.name.includes("pptx") ? (
-                          <FaFilePowerpoint size={20} />
-                        ) : (
-                          <FaFileWord size={20} />
-                        )}
-                        <Text mt={2} fontSize={12}>
-                          {file.name}
-                        </Text>
-                      </Box>
-                      <IconButton
-                        icon={<CloseIcon />}
-                        fontSize={12}
-                        colorScheme="transparent"
-                        color="white"
-                        position="absolute"
-                        top="2px"
-                        right="2px"
-                        onClick={() => handleRemoveFile(index)}
-                      />
-                    </WrapItem>
-                  );
-                }
+              <Flex direction="column" gap={4} mt={5}>
+                {/* Basic Information */}
+                <FormControl>
+                  <FormLabel fontSize={12}>Name</FormLabel>
+                  <Input
+                    name="productName"
+                    value={formData.productName}
+                    onChange={handleInputChange}
+                    fontSize={13}
+                    bg="white"
+                  />
+                </FormControl>
 
-                return (
-                  <WrapItem
-                    key={index}
-                    p={2}
-                    position="relative"
-                    overflow="hidden"
-                  >
-                    <Image
-                      src={URL.createObjectURL(file)}
-                      alt={`preview-${index}`}
-                      style={{
-                        width: "100px",
-                        height: "100px",
-                        objectFit: "cover",
-                      }}
-                      rounded={5}
+                <FormControl>
+                  <FormLabel fontSize={12}>Description</FormLabel>
+                  <Textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    fontSize={13}
+                    bg="white"
+                  />
+                </FormControl>
+
+                <Flex gap={4}>
+                  <FormControl>
+                    <FormLabel fontSize={12}>Year</FormLabel>
+                    <Input
+                      name="year"
+                      value={formData.year}
+                      onChange={handleInputChange}
+                      fontSize={13}
+                      bg="white"
                     />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel fontSize={12}>Model</FormLabel>
+                    <Input
+                      name="model"
+                      value={formData.model}
+                      onChange={handleInputChange}
+                      fontSize={13}
+                      bg="white"
+                    />
+                  </FormControl>
+                </Flex>
+
+                <Flex gap={4}>
+                  <FormControl>
+                    <FormLabel fontSize={12}>Type</FormLabel>
+                    <Input
+                      name="type"
+                      value={formData.type}
+                      onChange={handleInputChange}
+                      fontSize={13}
+                      bg="white"
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel fontSize={12}>Price</FormLabel>
+                    <Input
+                      name="price"
+                      value={formData.price}
+                      onChange={handleInputChange}
+                      type="number"
+                      fontSize={13}
+                      bg="white"
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel fontSize={12}>Quantity</FormLabel>
+                    <Input
+                      name="quantityOnHand"
+                      value={formData.quantityOnHand}
+                      onChange={handleInputChange}
+                      type="number"
+                      fontSize={13}
+                      bg="white"
+                    />
+                  </FormControl>
+                </Flex>
+
+                {/* Additional Information */}
+                <FormControl>
+                  <FormLabel fontSize={12}>Overview</FormLabel>
+                  <Textarea
+                    name="overview"
+                    value={formData.overview}
+                    onChange={handleInputChange}
+                    fontSize={13}
+                    bg="white"
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel fontSize={12}>Engine Options</FormLabel>
+                  <Textarea
+                    name="engine_options"
+                    value={formData.engine_options}
+                    onChange={handleInputChange}
+                    fontSize={13}
+                    bg="white"
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel fontSize={12}>Transmissions</FormLabel>
+                  <Textarea
+                    name="transmissions"
+                    value={formData.transmissions}
+                    onChange={handleInputChange}
+                    fontSize={13}
+                    bg="white"
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel fontSize={12}>Fuel Efficiency</FormLabel>
+                  <Textarea
+                    name="fuel_efficiency"
+                    value={formData.fuel_efficiency}
+                    onChange={handleInputChange}
+                    fontSize={13}
+                    bg="white"
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel fontSize={12}>Interior</FormLabel>
+                  <Textarea
+                    name="interior"
+                    value={formData.interior}
+                    onChange={handleInputChange}
+                    fontSize={13}
+                    bg="white"
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel fontSize={12}>Safety</FormLabel>
+                  <Textarea
+                    name="safety"
+                    value={formData.safety}
+                    onChange={handleInputChange}
+                    fontSize={13}
+                    bg="white"
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel fontSize={12}>Comfort</FormLabel>
+                  <Textarea
+                    name="comfort"
+                    value={formData.comfort}
+                    onChange={handleInputChange}
+                    fontSize={13}
+                    bg="white"
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel fontSize={12}>Design</FormLabel>
+                  <Textarea
+                    name="design"
+                    value={formData.design}
+                    onChange={handleInputChange}
+                    fontSize={13}
+                    bg="white"
+                  />
+                </FormControl>
+
+                <FormControl>
+                  <FormLabel fontSize={12}>Performance</FormLabel>
+                  <Textarea
+                    name="performance"
+                    value={formData.performance}
+                    onChange={handleInputChange}
+                    fontSize={13}
+                    bg="white"
+                  />
+                </FormControl>
+              </Flex>
+            </Box>
+
+            <Wrap mt={5}>
+              {files.map((file, index) => (
+                <WrapItem key={index} p={2} position="relative" overflow="hidden">
+                  <Box
+                    p={2}
+                    w="100px"
+                    h="100px"
+                    bg="blackAlpha.400"
+                    rounded={5}
+                    overflow="hidden"
+                    position="relative"
+                  >
+                    {file.isExisting ? (
+                      // Display existing image
+                      <Image src={file.url} alt="Product" objectFit="cover" w="100%" h="100%" />
+                    ) : (
+                      // Display new file preview
+                      file.name.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+                        <Image 
+                          src={URL.createObjectURL(file)} 
+                          alt="Preview" 
+                          objectFit="cover" 
+                          w="100%" 
+                          h="100%" 
+                        />
+                      ) : (
+                        // Display file type icon for non-images
+                        <Box>
+                          {file.name.includes("pdf") ? (
+                            <FaFilePdf size={20} />
+                          ) : file.name.includes("xlsx") || file.name.includes("xls") ? (
+                            <FaFileExcel size={20} />
+                          ) : file.name.includes("pptx") ? (
+                            <FaFilePowerpoint size={20} />
+                          ) : (
+                            <FaFileWord size={20} />
+                          )}
+                        </Box>
+                      )
+                    )}
                     <IconButton
                       icon={<CloseIcon />}
-                      fontSize={12}
-                      colorScheme="transparent"
-                      color="white"
+                      size="xs"
                       position="absolute"
-                      top="2px"
-                      right="2px"
+                      top={1}
+                      right={1}
                       onClick={() => handleRemoveFile(index)}
                     />
-                  </WrapItem>
-                );
-              })}
+                  </Box>
+                </WrapItem>
+              ))}
             </Wrap>
           </Box>
         </ModalComponent>

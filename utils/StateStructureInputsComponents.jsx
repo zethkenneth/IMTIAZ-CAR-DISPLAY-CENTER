@@ -215,6 +215,18 @@ class StateStructureInputsComponents {
   }
 
   /**
+   * Update form state with new data
+   * @param {Object} formData - Object containing form field values
+   */
+  updateFormState(formData) {
+    Object.keys(formData).forEach(key => {
+      if (this.formState[key]) {
+        this.formState[key].value = formData[key];
+      }
+    });
+  }
+
+  /**
    * Reset all form states to their initial values
    */
   resetFormState() {

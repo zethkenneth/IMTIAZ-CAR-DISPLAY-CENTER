@@ -32,7 +32,7 @@ const ProductCard = ({
 }) => {
   const { addToCart } = useCartHook();
   function handleEdit() {
-    edit();
+    edit(product);
   }
 
   const DeletePromptButton = () => {

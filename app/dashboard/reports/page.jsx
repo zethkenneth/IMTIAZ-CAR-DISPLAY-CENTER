@@ -94,12 +94,57 @@ const Reports = () => {
     }).format(amount || 0);
   };
 
-  const exportToExcel = () => {
-    // Implement Excel export logic
+  const exportToExcel = async () => {
+    try {
+      const response = await axios.post('/api/imtiaz/reports/export', {
+        type: reportType,
+        data: reportData,
+        exportType: 'excel'
+      }, {
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'sales-report.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Export failed:', error);
+      // Add error toast notification here
+    }
   };
 
-  const exportToPDF = () => {
-    // Implement PDF export logic
+  const exportToPDF = async () => {
+    try {
+      const response = await axios.post('/api/imtiaz/reports/export', {
+        type: reportType,
+        data: reportData,
+        exportType: 'pdf'
+      }, {
+        responseType: 'arraybuffer',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Create blob from array buffer
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      
+      // Open PDF in new tab
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      
+      // Cleanup
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+      }, 100);
+    } catch (error) {
+      console.error('Export failed:', error);
+      // Add error notification here
+    }
   };
 
   return (

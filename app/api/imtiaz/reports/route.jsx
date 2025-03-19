@@ -93,30 +93,46 @@ export async function GET(req) {
       LIMIT 10
     `;
 
-    // Payment analytics from completed transactions
-    const paymentAnalyticsQuery = `
+    // Payment status analytics query
+    const paymentStatusAnalyticsQuery = `
       SELECT 
-        o."paymentCode",
-        COUNT(DISTINCT o."orderID") as "count",
-        SUM(o."totalAmount") as "totalAmount",
-        AVG(o."totalAmount") as "averageAmount",
-        COUNT(*) * 100.0 / (
-          SELECT COUNT(*) 
-          FROM "Orders" o2 
-          WHERE o2."paymentStatus" = 'Completed' 
-          ${dateFilter.replace(/o\./g, 'o2.')}
-        ) as "percentage"
+        COUNT(CASE WHEN "paymentStatus" = 'Completed' THEN 1 END) as "paid",
+        COUNT(CASE WHEN "paymentStatus" = 'Pending' THEN 1 END) as "pending",
+        COUNT(CASE WHEN "paymentStatus" IS NULL OR "paymentStatus" NOT IN ('Completed', 'Pending') THEN 1 END) as "other"
       FROM "Orders" o
-      WHERE o."paymentStatus" = 'Completed'
-      ${dateFilter}
-      GROUP BY o."paymentCode"
+      WHERE ${dateFilter.substring(4)}
     `;
 
-    const [orders, salesSummary, topProducts, paymentAnalytics] = await Promise.all([
+    // Updated order trends query to respect report type
+    const orderTrendsQuery = `
+      SELECT 
+        DATE(o."orderDate") as "date",
+        COUNT(*) as "totalOrders",
+        SUM(CASE WHEN "paymentStatus" = 'Completed' THEN 1 ELSE 0 END) as "paidOrders",
+        SUM("totalAmount") as "totalAmount"
+      FROM "Orders" o
+      WHERE o."orderDate" >= CASE 
+        WHEN '${type}' = 'daily' THEN CURRENT_DATE - INTERVAL '7 days'
+        WHEN '${type}' = 'weekly' THEN CURRENT_DATE - INTERVAL '4 weeks'
+        WHEN '${type}' = 'monthly' THEN CURRENT_DATE - INTERVAL '12 months'
+        ELSE CURRENT_DATE - INTERVAL '7 days'
+      END
+      GROUP BY DATE(o."orderDate")
+      ORDER BY "date" DESC
+      LIMIT CASE 
+        WHEN '${type}' = 'daily' THEN 7
+        WHEN '${type}' = 'weekly' THEN 28
+        WHEN '${type}' = 'monthly' THEN 365
+        ELSE 7
+      END
+    `;
+
+    const [orders, salesSummary, topProducts, paymentStatusAnalytics, orderTrends] = await Promise.all([
       db.query(ordersQuery, { type: QueryTypes.SELECT }),
       db.query(salesSummaryQuery, { type: QueryTypes.SELECT }),
       db.query(topProductsQuery, { type: QueryTypes.SELECT }),
-      db.query(paymentAnalyticsQuery, { type: QueryTypes.SELECT })
+      db.query(paymentStatusAnalyticsQuery, { type: QueryTypes.SELECT }),
+      db.query(orderTrendsQuery, { type: QueryTypes.SELECT })
     ]);
 
     return NextResponse.json({
@@ -125,7 +141,8 @@ export async function GET(req) {
         orders,
         salesSummary: salesSummary[0],
         topProducts,
-        paymentAnalytics,
+        paymentStatusAnalytics: paymentStatusAnalytics[0],
+        orderTrends,
         reportType: type
       },
     });

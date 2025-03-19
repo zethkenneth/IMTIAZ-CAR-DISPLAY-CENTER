@@ -28,7 +28,7 @@ import PageContainer from '@components/PageContainer';
 import { FaFileExcel, FaFilePdf, FaChartLine, FaShoppingCart, FaExclamationTriangle } from 'react-icons/fa';
 import axios from 'axios';
 import BarChart from '../Home/barcart';
-import { Bar, Doughnut } from 'react-chartjs-2';
+import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -37,7 +37,9 @@ import {
   Title,
   Tooltip,
   Legend,
-  ArcElement
+  ArcElement,
+  LineElement,
+  PointElement
 } from 'chart.js';
 
 // Register the chart components
@@ -48,7 +50,9 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  ArcElement
+  ArcElement,
+  LineElement,
+  PointElement
 );
 
 const Reports = () => {
@@ -59,7 +63,8 @@ const Reports = () => {
     totalSalesToday: 0,
     pendingOrdersCount: 0,
     lowStockProducts: [],
-    yearSales: []
+    yearSales: [],
+    paymentMethodStats: []
   });
   const [loading, setLoading] = useState(false);
 
@@ -223,28 +228,128 @@ const Reports = () => {
 
           <Card>
             <CardBody>
-              <Text fontSize="lg" fontWeight="bold" mb={4}>Payment Methods</Text>
+              <Text fontSize="lg" fontWeight="bold" mb={4}>Payment Status Distribution</Text>
               <Box h="300px">
                 <Doughnut
                   data={{
-                    labels: reportData?.paymentMethods?.map(p => p.paymentMethod) || [],
+                    labels: ['Paid', 'Pending', 'Other'],
                     datasets: [{
-                      data: reportData?.paymentMethods?.map(p => p.totalAmount) || [],
+                      data: [
+                        reportData?.paymentStatusAnalytics?.paid || 0,
+                        reportData?.paymentStatusAnalytics?.pending || 0,
+                        reportData?.paymentStatusAnalytics?.other || 0
+                      ],
                       backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(72, 187, 120, 0.2)',  // Green for paid
+                        'rgba(254, 178, 66, 0.2)',   // Orange for pending
+                        'rgba(160, 174, 192, 0.2)',  // Gray for other
                       ],
                       borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
+                        'rgba(72, 187, 120, 1)',
+                        'rgba(254, 178, 66, 1)',
+                        'rgba(160, 174, 192, 1)',
                       ],
+                      borderWidth: 1
                     }]
                   }}
                   options={{
                     responsive: true,
                     maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: 'bottom',
+                      },
+                      tooltip: {
+                        callbacks: {
+                          label: function(context) {
+                            const label = context.label || '';
+                            const value = context.raw || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `${label}: ${value} orders (${percentage}%)`;
+                          }
+                        }
+                      }
+                    }
+                  }}
+                />
+              </Box>
+            </CardBody>
+          </Card>
+        </SimpleGrid>
+
+        <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={4}>
+          {/* Order Trends */}
+          <Card>
+            <CardBody>
+              <Text fontSize="lg" fontWeight="bold" mb={4}>
+                Order Trends ({reportType === 'daily' ? 'Last 7 Days' : 
+                             reportType === 'weekly' ? 'Last 4 Weeks' : 
+                             'Last 12 Months'})
+              </Text>
+              <Box h="300px">
+                <Line
+                  data={{
+                    labels: reportData?.orderTrends?.map(trend => 
+                      new Date(trend.date).toLocaleDateString('en-US', {
+                        day: reportType === 'monthly' ? undefined : 'numeric',
+                        month: 'short',
+                        year: reportType === 'monthly' ? 'numeric' : undefined
+                      })
+                    ) || [],
+                    datasets: [
+                      {
+                        label: 'Total Orders',
+                        data: reportData?.orderTrends?.map(trend => trend.totalOrders) || [],
+                        borderColor: 'rgba(66, 153, 225, 1)',
+                        backgroundColor: 'rgba(66, 153, 225, 0.2)',
+                        fill: true
+                      },
+                      {
+                        label: 'Paid Orders',
+                        data: reportData?.orderTrends?.map(trend => trend.paidOrders) || [],
+                        borderColor: 'rgba(72, 187, 120, 1)',
+                        backgroundColor: 'rgba(72, 187, 120, 0.2)',
+                        fill: true
+                      }
+                    ]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        ticks: {
+                          stepSize: 1
+                        }
+                      },
+                      x: {
+                        reverse: true, // Show most recent dates on the right
+                        ticks: {
+                          maxRotation: 45,
+                          minRotation: 45
+                        }
+                      }
+                    },
+                    plugins: {
+                      legend: {
+                        position: 'bottom'
+                      },
+                      tooltip: {
+                        callbacks: {
+                          title: (context) => {
+                            const date = new Date(reportData.orderTrends[context[0].dataIndex].date);
+                            return date.toLocaleDateString('en-US', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            });
+                          }
+                        }
+                      }
+                    }
                   }}
                 />
               </Box>

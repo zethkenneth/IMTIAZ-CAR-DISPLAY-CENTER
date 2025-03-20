@@ -70,10 +70,11 @@ const PaymentDashboard = () => {
           <InputGroup size="md" mb={6}>
             <InputLeftElement
               pointerEvents="none"
-              children="#"
               color="gray.500"
               fontSize="md"
-            />
+            >
+              #
+            </InputLeftElement>
             <Input
               placeholder="Enter payment code"
               value={paymentCode || ''}

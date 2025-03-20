@@ -3,9 +3,6 @@ const nextConfig = {
   images: {
     domains: ["lh3.googleusercontent.com"],
   },
-  experimental: {
-    serverActions: true,
-  },
   webpack(config, { isServer }) {
     // Enable top-level await
     config.experiments = {

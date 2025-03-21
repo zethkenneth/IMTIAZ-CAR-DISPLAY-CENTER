@@ -113,14 +113,10 @@ const useCartHook = create((set, get) => ({
         }
       }
 
-      // Send the original amount without any conversion
-      console.log(get().cart.total_amount)
       const result = await axios.post(`${baseURL}/payments`, {
         amount: get().cart.total_amount,
         description: `Payment made on ${formattedDate}`
       });
-
-      console.log(result)
 
       const paymentDetails = result.data.data.attributes;
       

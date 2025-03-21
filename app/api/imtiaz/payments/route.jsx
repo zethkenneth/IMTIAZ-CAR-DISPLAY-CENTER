@@ -5,13 +5,21 @@ export async function POST(req) {
     try {
         const { amount, description } = await req.json();
         
-        const cleanAmount = amount.toString().replace('.00', '');
-        const amountInCents = parseInt(cleanAmount)
+        if (!amount || isNaN(amount)) {
+            throw new Error('Invalid amount provided');
+        }
+
+        // Convert to number and ensure it's a valid amount
+        const paymentAmount = Math.round(parseFloat(amount) * 100);
+        
+        if (paymentAmount <= 0) {
+            throw new Error('Amount must be greater than 0');
+        }
 
         const data = {
             data: {
                 attributes: {
-                    amount: amountInCents,
+                    amount: paymentAmount,
                     description: description,
                     currency: "PHP"
                 },
@@ -38,7 +46,7 @@ export async function POST(req) {
         console.error("Error: ", error);
         console.error("Amount processing error:", {
             originalAmount: amount,
-            attemptedConversion: amountInCents
+            attemptedAmount: paymentAmount
         });
         return NextResponse.json({
             status: 500,

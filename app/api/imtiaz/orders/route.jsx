@@ -5,47 +5,43 @@ import OrderDetail from "@models/orderdetails.js";
 import Order from "@models/order.js";
 import Product from '@models/products.js';
 
-export async function GET() {
+export async function GET(req) {
   try {
     // Fetch orders with associated order details and product details as a subquery
     const Orders = await db.query(
-      `
-        SELECT 
-          o.*, 
-          CONCAT(c."firstName", ' ', c."lastName") AS "customerName",
-          CASE 
-            WHEN o."paymentStatus" = 'Completed' THEN 'Paid'
-            ELSE o."paymentStatus"
-          END AS "status",
-          (
-            SELECT json_agg(od)
-            FROM (
-              SELECT 
-                od."productID", 
-                p."productName", 
-                p."description", 
-                p."description2", 
-                p."model", 
-                p."year", 
-                p."brand", 
-                p."type", 
-                p."category", 
-                p."price", 
-                p."quantityOnHand", 
-                p."reorderLevel", 
-                p."imageUrl", 
-                od."quantity", 
-                od."unitPrice", 
-                od."totalPrice"
-              FROM "OrderDetails" od
-              JOIN "Products" p ON od."productID" = p."productID"
-              WHERE od."orderID" = o."orderID"
-            ) AS od
-          ) AS "orderDetails"
-        FROM "Orders" o
-        JOIN "Customers" c ON o."customerID" = c."customerID"
-        WHERE o."paymentStatus" <> 'Completed'
-      `,
+      `SELECT o.*, 
+              CONCAT(c."firstName", ' ', c."lastName") AS "customerName",
+              CASE 
+                WHEN o."paymentStatus" = 'Completed' THEN 'Paid'
+                ELSE o."paymentStatus"
+              END AS "status",
+              (
+                SELECT json_agg(od)
+                FROM (
+                  SELECT od."productID", 
+                         p."productName", 
+                         p."description", 
+                         p."description2", 
+                         p."model", 
+                         p."year", 
+                         p."brand", 
+                         p."type", 
+                         p."category", 
+                         p."price", 
+                         p."quantityOnHand", 
+                         p."reorderLevel", 
+                         p."imageUrl", 
+                         od."quantity", 
+                         od."unitPrice", 
+                         od."totalPrice"
+                  FROM "OrderDetails" od
+                  JOIN "Products" p ON od."productID" = p."productID"
+                  WHERE od."orderID" = o."orderID"
+                ) AS od
+              ) AS "orderDetails"
+       FROM "Orders" o
+       JOIN "Customers" c ON o."customerID" = c."customerID"
+       ORDER BY o."orderID" DESC`,
       { type: QueryTypes.SELECT }
     );
 

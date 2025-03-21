@@ -2,64 +2,44 @@ import { Button, Text } from "@chakra-ui/react";
 import { useState } from "react";
 
 const ButtonComponent = ({
-  w = null,
   label,
-  loadingLabel = null,
-  icon,
+  loadingLabel,
   onClick,
+  style,
   variant = "primary",
-  style = {},
-  withGradientColor = false
+  ...props
 }) => {
   const [loading, setLoading] = useState(false);
 
-  const toggleLoading = () => setLoading(!loading);
-
-  const handleClick = (e) => {
-    if (loadingLabel === null) {
-      onClick(e);
-      return;
-    }
-    toggleLoading();
-    onClick(() => toggleLoading());
+  const defaultStyle = {
+    width: "100%",
+    background: variant === "primary" ? "#f97316" : "#E2E8F0",
+    color: variant === "primary" ? "white" : "black",
+    _hover: { 
+      background: variant === "primary" ? "#ea580c" : "#CBD5E0"
+    },
+    borderRadius: "6px",
+    ...style
   };
 
-  if(withGradientColor){
-    return (
-      <Button
-        w={w === null ? "100%" : w}
-        size="sm"
-        bgGradient={variant === "primary" ? "linear(to-r, orange.400, orange.500, orange.600)" : "gray.100"}
-        bg={variant !== "primary" ? "gray.100" : undefined} // Fallback bg color
-        isLoading={loadingLabel !== null ? loading : false}
-        _hover={{
-          bgGradient: variant === "primary" ? "linear(to-r, orange.500, orange.600, orange.700)" : "gray.200",
-          bg: variant !== "primary" ? "gray.200" : undefined // Fallback bg color
-        }}
-        leftIcon={icon}
-        loadingText={loadingLabel}
-        onClick={handleClick}
-        style={style}
-        color="white"
-      >
-        <Text>{label}</Text>
-      </Button>
-    );
-  }
+  const handleClick = (e) => {
+    if (loadingLabel) {
+      setLoading(true);
+      onClick(e, () => setLoading(false));
+    } else {
+      onClick(e);
+    }
+  };
 
   return (
     <Button
-      w={w === null ? "100%" : w}
-      size="sm"
-      bg={variant === "primary" ? "orange" : "gray.100"}
-      isLoading={loadingLabel !== null ? loading : false}
-      _hover={{ bg: variant === "primary" ? "orange.400" : "gray" }}
-      leftIcon={icon}
+      isLoading={loading}
       loadingText={loadingLabel}
       onClick={handleClick}
-      style={style}
+      {...defaultStyle}
+      {...props}
     >
-      <Text>{label}</Text>
+      {label}
     </Button>
   );
 };

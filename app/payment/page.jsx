@@ -78,14 +78,57 @@ const Item = (props) => {
 };
 
 const Payment = () => {
-  const toast = useToast(); // Initialize the toast
+  const toast = useToast();
   const router = useRouter();
-
-  const {checkoutURL, paymentCode,  orderDetails, getOrderDetails, getPaymentDetails, getPaymentUpdate} = usePaymentHook();
-  const {isOpen, onOpen, onClose} = useDisclosure();
+  const { checkoutURL, paymentCode, orderDetails, getOrderDetails, getPaymentDetails, getPaymentUpdate } = usePaymentHook();
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    if (loading) {
+      handleViewOrder();
+    }
+  }, []);
+
+  const handleClosePaymongoPayment = () => {
+    getPaymentUpdate((status, feedback) => {
+      if (!(status >= 200 && status < 300)) {
+        return console.log("Bad response.", { cause: feedback });
+      }
+
+      toast({
+        title: 'Payment Successful',
+        description: 'Your payment has been successfully processed.',
+        status: 'success',
+        duration: 5000,
+        position: "center-top",
+        isClosable: true,
+      });
+      onClose();
+    });
+  };
+
+  const handleViewOrder = () => {
+    getOrderDetails((status, feedback) => {
+      if (!(status >= 200 && status < 300)) {
+        return console.log("Bad response.", { cause: feedback });
+      }
+      
+      handlePaymentDetails();
+    });
+  };
+
+  const handlePaymentDetails = () => {
+    getPaymentDetails((status, feedback) => {
+      if (!(status >= 200 && status < 300)) {
+        return console.log("Bad response.", { cause: feedback });
+      }
+      setLoading(false);
+    });
+  };
+
   const itemList = orderDetails?.orderDetails??[];
+
 
   const formatPriceData = (price) => {
     return new Intl.NumberFormat("en-PH", {
@@ -93,52 +136,6 @@ const Payment = () => {
       currency: "PHP",
     }).format(price);
   };
-  
-  const handleClosePaymongoPayment = () => {
-    getPaymentUpdate((status, feedback) => {
-      if(!(status >= 200 && status < 300)){
-        return console.log("Bad response.", {cause: feedback});
-      }
-
-      toast({
-        title: 'Payment Successful',
-        description: 'Your payment has been successfully processed.',
-        status: 'success',
-        duration: 5000, // Duration in milliseconds
-        position: "center-top",
-        isClosable: true,
-      });
-      onClose();
-      // router.push('/');
-    });
-  }
-  
-  const handlePaymentDetails = () => {
-    getPaymentDetails((status, feedback) => {
-      if(!(status >= 200 && status < 300)){
-        return console.log("Bad response.", {cause: feedback});
-      }
-
-      setLoading(false)
-    });
-  }
-
-  const handleViewOrder = () => {
-    getOrderDetails((status, feedback) => {
-      if(!(status >= 200 && status < 300)){
-        return console.log("Bad response.", {cause: feedback});
-      }
-    });
-    handlePaymentDetails();
-  };
-
-  useEffect(() => { 
-    if(loading){
-      setTimeout(() => {
-        setLoading(false);
-      }, 500)
-    }
-  }, [])
 
   if(orderDetails == null){
     return (

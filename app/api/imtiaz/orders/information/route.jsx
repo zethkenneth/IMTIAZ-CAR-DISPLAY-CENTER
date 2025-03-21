@@ -8,7 +8,7 @@ export async function GET( req ) {
     const code = url.searchParams.get('code');
 
     const Orders = await db.query(
-      `SELECT * FROM "Orders" WHERE "paymentCode" = :code`,
+      `SELECT * FROM "Orders" WHERE "paymentCode" = :code ORDER BY "orderID" DESC`,
       {
         replacements: { code }, // Safely inject the 'code' into the query
         type: QueryTypes.SELECT,
@@ -42,6 +42,8 @@ export async function GET( req ) {
           o."productID" = p."productID"
         WHERE 
           o."orderID" = :orderID
+        ORDER BY 
+          o."orderID" DESC
       `,
       {
         replacements: { orderID }, // Safely inject the 'orderID' value into the query

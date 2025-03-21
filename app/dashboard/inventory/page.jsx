@@ -300,8 +300,6 @@ const Inventory = () => {
   const handleRemoveFile = (indexToRemove) => {
     setFiles(prevFiles => {
       const newFiles = [...prevFiles];
-      console.log('Removing file at index:', indexToRemove);
-      console.log('File being removed:', newFiles[indexToRemove]);
       newFiles.splice(indexToRemove, 1);
       return newFiles;
     });

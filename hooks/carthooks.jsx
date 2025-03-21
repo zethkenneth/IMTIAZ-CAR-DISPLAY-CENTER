@@ -103,10 +103,9 @@ const useCartHook = create((set, get) => ({
     }})),
   placeOrder: async (callback) => {
     try {
-      // Get current cart products
       const cartProducts = get().cart.products;
       
-      // Validate quantities one final time
+      // Validate quantities
       for (const product of cartProducts) {
         if (product.quantity > product.quantityOnHand) {
           callback(400, "Some products no longer have sufficient stock");
@@ -114,11 +113,14 @@ const useCartHook = create((set, get) => ({
         }
       }
 
-      // Process payment
+      // Send the original amount without any conversion
+      console.log(get().cart.total_amount)
       const result = await axios.post(`${baseURL}/payments`, {
         amount: get().cart.total_amount,
         description: `Payment made on ${formattedDate}`
       });
+
+      console.log(result)
 
       const paymentDetails = result.data.data.attributes;
       
@@ -128,7 +130,7 @@ const useCartHook = create((set, get) => ({
         quantity: value.quantity,
         unitPrice: value.price,
         totalPrice: value.quantity * value.price,
-        quantityOnHand: value.quantityOnHand // Include current stock level
+        quantityOnHand: value.quantityOnHand
       }));
 
       // Place order
@@ -140,7 +142,6 @@ const useCartHook = create((set, get) => ({
         products: products
       });
 
-      // Handle success
       if (response.status === 200) {
         callback(200, "Order placed successfully");
         set(() => ({ 

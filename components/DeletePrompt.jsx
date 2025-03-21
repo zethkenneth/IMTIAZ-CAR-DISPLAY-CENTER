@@ -11,16 +11,14 @@ const DeletePrompt = ({
   handleCancel,
   children,
 }) => {
-  function submit(stopLoading) {
-    handleSubmit(pin.join(""), (status) => {
-      if (!status) {
-        stopLoading();
-        return;
+  const submit = (stopLoading) => {
+    handleSubmit((success) => {
+      if (success) {
+        onClose();
       }
-      onClose();
       stopLoading();
     });
-  }
+  };
 
   return (
     <ModalComponent
@@ -29,19 +27,28 @@ const DeletePrompt = ({
       isOpen={isOpen}
       onClose={onClose}
       size="md"
-      footer={
-        <Flex gap={5}>
-          <ButtonComponent w="6rem" label="Delete" onClick={submit} />
-          <ButtonComponent
-            w="6rem"
-            label="Cancel"
-            variant="secondary"
-            onClick={handleCancel}
-          />
-        </Flex>
-      }
     >
-      <Box mb={5}>{children}</Box>
+      <Box mb={5}>
+        <Text fontSize="lg" mb={4}>
+          Are you sure you want to delete this product?
+        </Text>
+        {children}
+      </Box>
+      <Flex gap={5} justifyContent="flex-end" mt={6}>
+        <ButtonComponent
+          w="6rem"
+          label="Delete"
+          loadingLabel="Deleting..."
+          style={{ backgroundColor: "red", color: "white" }}
+          onClick={submit}
+        />
+        <ButtonComponent
+          w="6rem"
+          label="Cancel"
+          variant="secondary"
+          onClick={handleCancel}
+        />
+      </Flex>
     </ModalComponent>
   );
 };

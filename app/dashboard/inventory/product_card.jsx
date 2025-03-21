@@ -15,7 +15,8 @@ import ProductImage from "@components/ProductImage";
 import { ShoppingCartIcon } from "@heroicons/react/24/solid";
 import useCartHook from "@hooks/carthooks";
 import React, { useState } from "react";
-
+import axios from "axios";
+import useInventorHooks from "@hooks/inventoryhooks";
 const ProductCard = ({
   imageUrl,
   name,
@@ -28,36 +29,70 @@ const ProductCard = ({
   model,
   quantity,
   edit,
+  productID,
   product,
   quantityOnHand,
 }) => {
   const { addToCart } = useCartHook();
+  const { getInventory } = useInventorHooks();
+  const toast = useToast();
+
   function handleEdit() {
     edit(product);
   }
 
   const DeletePromptButton = () => {
     const { isOpen, onOpen, onClose } = useDisclosure();
-    function handleSubmitDelete() {}
 
-    function handleCancelDelete() {
-      onClose();
-    }
-
-    const handleOpenModal = (e) => {
-      if (e && e.stopPropagation) {
-        e.preventDefault();
-        e.stopPropagation();
+    const handleDeleteClick = (e) => {
+      if (e) {
+        e.stopPropagation(); // Add safety check
       }
       onOpen();
     };
 
+    const handleCancelDelete = () => {
+      onClose();
+    };
+
+    async function handleSubmitDelete() {
+      try {
+        if (!productID) {
+          console.error('Product object:', product);
+          throw new Error('Product ID not found');
+        }
+
+        const response = await axios.delete(`/api/imtiaz/products/${productID}`);
+        if (response.status === 200) {
+          toast({
+            title: "Success",
+            description: "Product deleted successfully",
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+          await getInventory();
+          onClose();
+        }
+      } catch (error) {
+        console.error('Delete error:', error);
+        console.error('Product object:', product);  // Add this for debugging
+        toast({
+          title: "Error",
+          description: error.message || "Failed to delete product",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    }
+
     return (
       <>
         <ButtonComponent
-          label="Remove"
+          label="Delete"
           style={{ backgroundColor: "red", color: "white" }}
-          onClick={handleOpenModal}
+          onClick={handleDeleteClick}
         />
         <DeletePrompt
           isOpen={isOpen}
@@ -65,40 +100,16 @@ const ProductCard = ({
           handleSubmit={handleSubmitDelete}
           handleCancel={handleCancelDelete}
         >
-          <Box w="inherit" h="30vh">
-            <ProductImage imageUrl={imageUrl} />
-            <Flex
-              flex="1"
-              w="full"
-              pt="2"
-              flexDirection="column"
-              justifyContent="space-between"
-              leading="normal"
-            >
-              <Box mb="2">
-                <Heading
-                  as="h2"
-                  size="md"
-                  color="gray.900"
-                  fontWeight="bold"
-                  mb="2"
-                >
-                  {name}
-                </Heading>
-                <Text fontSize={13}>{description}</Text>
-                <Text fontSize={13} mt={2}>
-                  <strong>{type}</strong>
-                </Text>
-              </Box>
-              <Box mb="2">
-                <Text color="gray.900" fontSize="sm">
-                  <strong>Price:</strong> {parseFloat(price).toFixed(2)}
-                </Text>
-                <Text color="gray.900" fontSize="sm" mt={1}>
-                  <strong>Quantity:</strong> {quantityOnHand || 0}
-                </Text>
-              </Box>
-            </Flex>
+          <Box>
+            <ProductImage imageUrl={imageUrl} h="200px" />
+            <Box mt={4}>
+              <Text fontWeight="bold" fontSize="lg">{name}</Text>
+              <Text mt={2} fontSize="sm" color="gray.600">{description}</Text>
+              <Flex mt={3} justifyContent="space-between">
+                <Text><strong>Type:</strong> {type}</Text>
+                <Text><strong>Quantity:</strong> {quantityOnHand}</Text>
+              </Flex>
+            </Box>
           </Box>
         </DeletePrompt>
       </>

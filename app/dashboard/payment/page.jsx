@@ -10,6 +10,7 @@ import {
   InputGroup,
   InputLeftElement,
   useDisclosure,
+  useToast,
 } from "@chakra-ui/react";
 import PageContainer from "@components/PageContainer";
 import ButtonComponent from "@components/button";
@@ -22,22 +23,47 @@ const PaymentDashboard = () => {
   const processButtonToggleRef = useRef(null);
   const { paymentCode, setPaymentCode, getOrderDetails, getPaymentDetails, checkoutURL, getPaymentUpdate } = usePaymentHook();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const toast = useToast();
 
   const handleViewOrder = (toggleLoading) => {
-    if (!paymentCode) {
-      toggleLoading && toggleLoading();
+    if (!paymentCode || paymentCode.trim() === '') {
+      toast({
+        title: "Error",
+        description: "Please enter a payment code",
+        status: "error",
+        duration: 3000,
+        isClosable: true
+      });
+      if (toggleLoading) toggleLoading();  // Make sure to clear loading state
       return;
     }
     
     processButtonToggleRef.current = toggleLoading;
     
     getOrderDetails((status, feedback) => {
-      if (!(status >= 200 && status < 300)) {
-        toggleLoading && toggleLoading();
-        return console.log("Bad response.", { cause: feedback });
-      }
-      handlePaymentDetails();
-      onOpen();
+      try {
+        if (!(status >= 200 && status < 300)) {
+          toast({
+            title: "Error",
+            description: "Invalid payment code",
+            status: "error",
+            duration: 3000,
+            isClosable: true
+          });
+          return;
+        }
+        handlePaymentDetails();
+        onOpen();
+      } catch (error) {
+        console.error('Error in handleViewOrder:', error);
+        toast({
+          title: "Error",
+          description: "An error occurred while processing the payment",
+          status: "error",
+          duration: 3000,
+          isClosable: true
+        });
+      } 
     });
   };
 
@@ -47,6 +73,36 @@ const PaymentDashboard = () => {
         return console.log("Bad response.", { cause: feedback });
       }
     });
+  };
+
+  const handleClosePayment = () => {
+    getPaymentUpdate((status, feedback) => {
+      if (!(status >= 200 && status < 300)) {
+        onClose();
+        setPaymentCode('');
+        return;
+      }
+      
+      // Check if payment was actually completed
+      if (feedback?.paymentStatus === "completed" || feedback?.status === "paid") {
+        toast({
+          title: "Success",
+          description: "Payment processed successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true
+        });
+      }
+      
+      setPaymentCode('');
+      onClose();
+      window.location.reload();
+    });
+  };
+
+  const handleSimpleClose = () => {
+    setPaymentCode('');
+    onClose();
   };
 
   return (
@@ -105,22 +161,12 @@ const PaymentDashboard = () => {
         <ModalComponent 
           size="5xl" 
           isOpen={isOpen} 
-          onClose={onClose}
+          onClose={handleSimpleClose}
           footer={
             <Flex justifyContent="end">
               <ButtonComponent 
                 label="Close"
-                onClick={() => {
-                  getPaymentUpdate((status, feedback) => {
-                    if (!(status >= 200 && status < 300)) {
-                      return console.log("Bad response.", { cause: feedback });
-                    }
-                    setPaymentCode('');
-                    onClose();
-                    // Hard reload the page
-                    window.location.reload();
-                  });
-                }}
+                onClick={handleClosePayment}
                 variant="secondary"
               />
             </Flex>

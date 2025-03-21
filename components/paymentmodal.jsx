@@ -19,9 +19,8 @@ const {
 
 const PaymentModal = () => {
   const router = useRouter();
-  const {paymentCode, setPaymentCode, getOrderDetails, getPaymentDetails } = usePaymentHook();
+  const { paymentCode, setPaymentCode, getOrderDetails, getPaymentDetails } = usePaymentHook();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [code, setCode] = useState();
 
   const data = {
     icon: <HashtagIcon className="h-5 w-5" />,
@@ -33,23 +32,21 @@ const PaymentModal = () => {
     setValue: setPaymentCode,
   };
 
-  const handlePaymentDetails = () => {
-    getPaymentDetails((status, feedback) => {
-      if(!(status >= 200 && status < 300)){
-        return console.log("Bad response.", {cause: feedback});
-      }
-
-      router.push(`/payment`);
-    });
-  }
-
   const handleViewOrder = (stopLoading) => {
     getOrderDetails((status, feedback) => {
-      if(!(status >= 200 && status < 300)){
-        return console.log("Bad response.", {cause: feedback});
+      if (!(status >= 200 && status < 300)) {
+        return console.log("Bad response.", { cause: feedback });
       }
+      
+      getPaymentDetails((status, feedback) => {
+        if (!(status >= 200 && status < 300)) {
+          return console.log("Bad response.", { cause: feedback });
+        }
+        
+        router.push(`/payment`);
+        if (stopLoading) stopLoading();
+      });
     });
-    handlePaymentDetails();
   };
 
   return (
@@ -70,14 +67,20 @@ const PaymentModal = () => {
           <Box>
             <Heading size="lg">Payment Code</Heading>
             <Text color='gray' fontSize={15} mt={2} mb={10}>
-              A payment code is needed, this payment code is link to your order.
+              A payment code is needed, this payment code is linked to your order.
             </Text>
             <InputComponent key={data.name} {...data} />
             <Box mt={10}>
               <ButtonComponent
                 label="Proceed"
                 loadingLabel="Processing"
-                withGradientColor={true}
+                style={{
+                  width: "100%",
+                  background: "#f97316", // Orange 500
+                  color: "white",
+                  _hover: { background: "#ea580c" }, // Orange 600
+                  borderRadius: "6px",
+                }}
                 onClick={handleViewOrder}
               />
             </Box>

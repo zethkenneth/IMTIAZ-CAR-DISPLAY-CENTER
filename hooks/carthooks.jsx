@@ -101,7 +101,7 @@ const useCartHook = create((set, get) => ({
       total_amount: 0,
       products: [],
     }})),
-  placeOrder: async (callback) => {
+  placeOrder: async (callback, customerId) => {
     try {
       const cartProducts = get().cart.products;
       
@@ -129,9 +129,9 @@ const useCartHook = create((set, get) => ({
         quantityOnHand: value.quantityOnHand
       }));
 
-      // Place order
+      // Place order with customerId
       const response = await axios.post(`${baseURL}/orders`, {
-        customerId: 1,
+        customerId: customerId,
         userId: 1,
         paymentCode: paymentDetails.reference_number,
         totalAmount: get().cart.total_amount,

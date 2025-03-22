@@ -8,6 +8,10 @@ import {
   Text,
   useDisclosure,
   useToast,
+  SimpleGrid,
+  FormControl,
+  FormLabel,
+  Input,
 } from "@chakra-ui/react";
 import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 import formatprice from "@utils/formatprice";
@@ -18,19 +22,81 @@ import useCartHook from "@hooks/carthooks";
 import formatPrice from "@utils/formatprice";
 import AnimatedButton from "./AnimatedButton";
 import useInventorHooks from "@hooks/inventoryhooks";
+import { useState } from "react";
+import axios from "axios";
+
+const baseURL = "/api/imtiaz";
 
 const MenuCartButton = () => {
   const { cart, placeOrder, resetCart } = useCartHook();
   const { getInventory } = useInventorHooks();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  const [customerInfo, setCustomerInfo] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  function handlePlaceOrder(stopLoading) {
-    placeOrder((status, feedback) => {
-      if (status !== 200) {
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setCustomerInfo(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  async function checkExistingCustomer() {
+    try {
+      const response = await axios.get(`${baseURL}/customers/check`, {
+        params: {
+          firstName: customerInfo.firstName,
+          lastName: customerInfo.lastName
+        }
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error checking customer:', error);
+      return null;
+    }
+  }
+
+  async function createCustomer() {
+    try {
+      console.log("Creating customer with data:", customerInfo); // Debug log
+      const response = await axios.post(`${baseURL}/customers`, {
+        firstName: customerInfo.firstName,
+        lastName: customerInfo.lastName,
+        email: customerInfo.email,
+        phone: customerInfo.phone
+      });
+      
+      if (response.data && response.data.status === 200) {
+        return response.data;
+      } else {
+        throw new Error(response.data.error || "Failed to create customer");
+      }
+    } catch (error) {
+      console.error('Error creating customer:', error);
+      throw error;
+    }
+  }
+
+  async function handlePlaceOrder(e, stopLoading) {
+    if (!stopLoading) {
+      stopLoading = () => {};
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Validate form
+      if (!customerInfo.firstName || !customerInfo.lastName || !customerInfo.email || !customerInfo.phone) {
         toast({
           title: "Error",
-          description: feedback,
+          description: "All fields are required",
           status: "error",
           duration: 3000,
           isClosable: true
@@ -39,35 +105,80 @@ const MenuCartButton = () => {
         return;
       }
 
+      // Check existing customer
+      let customerId;
+      const existingCustomerResponse = await checkExistingCustomer();
+      
+      if (existingCustomerResponse && existingCustomerResponse.status === 200) {
+        customerId = existingCustomerResponse.id;
+      } else {
+        // Create new customer
+        const newCustomerResponse = await createCustomer();
+        if (newCustomerResponse && newCustomerResponse.status === 200) {
+          customerId = newCustomerResponse.id;
+        } else {
+          throw new Error("Failed to create/get customer");
+        }
+      }
+
+      if (!customerId) {
+        throw new Error("Customer ID is required");
+      }
+
+      // Place order with customer ID
+      placeOrder((status, feedback) => {
+        if (status !== 200) {
+          toast({
+            title: "Error",
+            description: feedback,
+            status: "error",
+            duration: 3000,
+            isClosable: true
+          });
+          stopLoading();
+          return;
+        }
+
+        toast({
+          title: "Success",
+          description: "Order placed successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true
+        });
+        
+        getInventory().then(result => {
+          if (result.status !== 200) {
+            console.error("Failed to refresh inventory:", result.message);
+          }
+        });
+        
+        onClose();
+        resetCart();
+        setCustomerInfo({
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: ''
+        });
+        stopLoading();
+      }, customerId);
+    } catch (error) {
+      console.error("Error in handlePlaceOrder:", error);
       toast({
-        title: "Success",
-        description: "Order placed successfully",
-        status: "success",
+        title: "Error",
+        description: error.message || "Failed to process order",
+        status: "error",
         duration: 3000,
         isClosable: true
       });
-      
-      getInventory().then(result => {
-        if (result.status !== 200) {
-          console.error("Failed to refresh inventory:", result.message);
-        }
-      });
-      
-      onClose();
-      resetCart();
       stopLoading();
-    });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const Item = (props) => {
-    const { isOpen, onOpen, onClose } = useDisclosure();
-
-    function handleViewOrder() {
-      onOpen();
-    }
-
-    function handleProceedOrder() {}
-
     const CartItemDesign = (propsData) => {
       return (
         <Flex
@@ -75,10 +186,8 @@ const MenuCartButton = () => {
           borderBottom="1px solid rgba(0,0,0,0.2)"
           p={2}
           gap={2}
-          cursor="pointer"
-          onClick={propsData.onClick}
         >
-          <Box w={propsData.w} h={propsData.h}>
+          <Box w={propsData.w || "10rem"} h={propsData.h || "6rem"}>
             <ProductImage imageUrl={props.imageUrl} h={propsData.h} />
           </Box>
           <Box>
@@ -99,71 +208,7 @@ const MenuCartButton = () => {
       );
     };
 
-    return (
-      <>
-        <CartItemDesign onClick={handleViewOrder} w="10rem" h="6rem" />
-        <ModalComponent
-          size="2xl"
-          isOpen={isOpen}
-          onClose={onClose}
-          withCloseButton={true}
-        >
-          <Flex justifyContent="space-between" gap={5} mt={2}>
-            <Box>
-              <Heading size="sm">My Cart</Heading>
-              <CartItemDesign w="15rem" h="12rem" size={15} />
-            </Box>
-            <Box w="15rem" bg="gray.100" p={5} rounded={5}>
-              <Box>
-                <Heading size="sm">Order Details</Heading>
-                <Flex
-                  fontSize={12}
-                  mt={5}
-                  fontWeight={600}
-                  justifyContent="space-between"
-                >
-                  <Text>Sub Total</Text>
-                  <Text>{formatprice(props.price)}</Text>
-                </Flex>
-                <Flex
-                  fontSize={12}
-                  mt={3}
-                  fontWeight={600}
-                  justifyContent="space-between"
-                >
-                  <Text>Discount</Text>
-                  <Text>{formatprice(props.price)}</Text>
-                </Flex>
-                <Flex
-                  fontSize={12}
-                  mt={3}
-                  fontWeight={600}
-                  justifyContent="space-between"
-                >
-                  <Text>Tax</Text>
-                  <Text>{formatprice(props.price)}</Text>
-                </Flex>
-                <Flex
-                  fontSize={14}
-                  mt={5}
-                  fontWeight={600}
-                  justifyContent="space-between"
-                >
-                  <Text>Total</Text>
-                  <Text>{formatprice(props.price)}</Text>
-                </Flex>
-              </Box>
-              <Box mt={5}>
-                <ButtonComponent
-                  label="Proceed Order"
-                  onClick={handleProceedOrder}
-                />
-              </Box>
-            </Box>
-          </Flex>
-        </ModalComponent>
-      </>
-    );
+    return <CartItemDesign />;
   };
 
   return (
@@ -203,18 +248,64 @@ const MenuCartButton = () => {
             label="Place Order"
             loadingLabel="Processing"
             onClick={handlePlaceOrder}
+            isDisabled={isSubmitting || cart.products.length === 0}
           />
         }
       >
         <Box>
-          <Text>
-            {
-              "After placing an order the details of order will be display give this to the customer the payment code. Thank you."
-            }
+          <Text mb={4}>
+            {"After placing an order the details of order will be display give this to the customer the payment code. Thank you."}
           </Text>
+          
+          {/* Customer Information Form */}
+          <Box mb={6} p={4} bg="gray.50" borderRadius="md">
+            <Heading size="sm" mb={4}>Customer Information</Heading>
+            <SimpleGrid columns={2} spacing={4}>
+              <FormControl isRequired>
+                <FormLabel>First Name</FormLabel>
+                <Input
+                  name="firstName"
+                  value={customerInfo.firstName}
+                  onChange={handleInputChange}
+                  placeholder="Enter first name"
+                />
+              </FormControl>
+              <FormControl isRequired>
+                <FormLabel>Last Name</FormLabel>
+                <Input
+                  name="lastName"
+                  value={customerInfo.lastName}
+                  onChange={handleInputChange}
+                  placeholder="Enter last name"
+                />
+              </FormControl>
+              <FormControl isRequired>
+                <FormLabel>Email</FormLabel>
+                <Input
+                  name="email"
+                  type="email"
+                  value={customerInfo.email}
+                  onChange={handleInputChange}
+                  placeholder="Enter email"
+                />
+              </FormControl>
+              <FormControl isRequired>
+                <FormLabel>Phone Number</FormLabel>
+                <Input
+                  name="phone"
+                  value={customerInfo.phone}
+                  onChange={handleInputChange}
+                  placeholder="Enter phone number"
+                />
+              </FormControl>
+            </SimpleGrid>
+          </Box>
+
+          {/* Existing cart items */}
           {cart.products.map((value, i) => (
             <Item key={i} {...value} />
           ))}
+          
           <Flex gap={5} mt={5} justifyContent="space-between">
             <Flex gap={3}>
               <Text>Quantity : </Text>

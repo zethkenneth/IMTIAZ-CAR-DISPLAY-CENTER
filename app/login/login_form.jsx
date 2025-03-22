@@ -35,9 +35,8 @@ const LoginForm = () => {
     },
   ];
 
-  function handleSignIn(stopLoading) {
-    setTimeout(() => stopLoading(), 1000);
-
+  function handleSignIn(e, stopLoading) {
+  
     let form = new FormData();
     form.append("username", email);
     form.append("password", password);

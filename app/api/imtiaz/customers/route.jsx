@@ -1,50 +1,64 @@
 import { NextResponse } from "next/server";
-import db from "../../../../utils/sequelize.js"
-import { QueryTypes } from "sequelize"
-
-
-export async function GET() {
-  try {
-    const customers = await db.query(`SELECT * FROM "Customers"`, {
-      type: QueryTypes.SELECT,
-    });
-
-    return NextResponse.json({
-      status: 200,
-      data: customers
-    });
-  } catch (error) {
-    console.log("Error: ", error);
-    return NextResponse.json({ 
-      status: 500,
-      error: "Failed to fetch customers",
-      details: error
-     });
-  }
-}
+import Customer from "../../../../models/customer";
 
 export async function POST(req) {
   try {
-   const { firstname, lastname, email, phone } = await req.json();
-
-   await db.query(
-     `INSERT INTO "Customers" ("firstName", "lastName", "email", "phone") VALUES ('${firstname}','${lastname}','${email}','${phone}')`,
-     {
-       type: QueryTypes.INSERT,
-     }
-   );
+    const body = await req.json();
+    console.log("Received customer data:", body); // Debug log
+    
+    const customer = await Customer.create({
+      firstName: body.firstName,
+      lastName: body.lastName,
+      email: body.email,
+      phone: body.phone // Make sure this matches the frontend field name
+    });
 
     return NextResponse.json({
       status: 200,
-      message: "Customer has been insert successfully",
+      message: "Customer created successfully",
+      id: customer.customerID
     });
-
   } catch (error) {
-    console.log("Error: ", error);
+    console.error("Error creating customer:", error);
     return NextResponse.json({
       status: 500,
-      error: "Failed to Create Customer",
-      details: error,
+      error: "Failed to create customer",
+      details: error.message
+    });
+  }
+}
+
+export async function GET(req) {
+  try {
+    const url = new URL(req.url);
+    const firstName = url.searchParams.get('firstName');
+    const lastName = url.searchParams.get('lastName');
+
+    const customer = await Customer.findOne({
+      where: {
+        firstName,
+        lastName
+      }
+    });
+
+    if (!customer) {
+      return NextResponse.json({
+        status: 404,
+        message: "Customer not found"
+      });
+    }
+
+    return NextResponse.json({
+      status: 200,
+      id: customer.customerID,
+      customer
+    });
+  } catch (error) {
+    console.error("Error checking customer:", error);
+    return NextResponse.json({
+      status: 500,
+      error: "Failed to check customer",
+      details: error.message
     });
   }
 }

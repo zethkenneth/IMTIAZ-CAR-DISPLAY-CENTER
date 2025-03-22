@@ -150,39 +150,36 @@ async function updateProductStocks(products) {
   }
 }
   
-export async function POST (req) {
+export async function POST(req) {
   try {
     const { customerId, userId, paymentCode, totalAmount, products } = await req.json();
 
-    // const lastOrder = await Order.findOne({
-    //   order: [['orderID', 'DESC']], // Sort by orderID in descending order
-    // });
-
+    // Create the order with proper customer ID
     const order = await Order.create({
-      // orderID: lastOrder.orderID + 1,
       paymentCode: paymentCode,
-      customerID: customerId,
+      customerID: customerId, // This should now be properly passed from the frontend
       orderDate: new Date(),
-      totalAmount: totalAmount, 
+      totalAmount: totalAmount,
       userID: userId,
-    })
+      paymentStatus: "Pending" // Add payment status
+    });
 
     const orderDetails = await registerOrderDetails(order.orderID, products);
     const updatedProductStocks = await updateProductStocks(products);
 
     return NextResponse.json({
       status: 200,
-      message: "Order has been insert successfully",
+      message: "Order has been inserted successfully",
       order: order,
-      ordderDetails: orderDetails,
-      updateProductStocks: updatedProductStocks
+      orderDetails: orderDetails,
+      updatedProductStocks: updatedProductStocks
     });
   } catch (error) {
-    console.log("Error: ", error);
+    console.error("Error creating order:", error);
     return NextResponse.json({
       status: 500,
       error: "Failed to Create Order",
-      details: error,
+      details: error.message
     });
   }
 }

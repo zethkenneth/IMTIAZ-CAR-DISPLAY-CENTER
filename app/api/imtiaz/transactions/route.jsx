@@ -7,6 +7,7 @@ export async function GET() {
     // Fetch orders with associated order details and product details as a subquery
     const Orders = await db.query(
       `SELECT o.*, 
+              o."paymentMethod",
               CONCAT(c."firstName", ' ', c."lastName") AS "customerName",
               CASE 
                 WHEN o."paymentStatus" = 'Completed' THEN 'Paid'
@@ -39,6 +40,7 @@ export async function GET() {
        FROM "Orders" o
        JOIN "Customers" c ON o."customerID" = c."customerID"
        WHERE o."paymentStatus" = 'Completed'
+       ORDER BY o."orderID" DESC, o."orderDate" DESC
        `,
       { type: QueryTypes.SELECT }
     );

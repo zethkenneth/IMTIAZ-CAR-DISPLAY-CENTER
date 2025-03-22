@@ -8,6 +8,7 @@ const usePaymentHook = create((set, get) => ({
     orderDetails: null,
     checkoutURL: null,
     setPaymentCode: (paymentCode) => set(() => ({paymentCode: paymentCode})),
+    setCheckoutURL: (url) => set(() => ({checkoutURL: url})),
     getOrderDetails: (callBack) => {
         axios.get(`/api/imtiaz/orders/information`, {params: {code: get().paymentCode}}).
         then(res => {
@@ -46,9 +47,9 @@ const usePaymentHook = create((set, get) => ({
         .catch((err) => callBack(...handleFailedStatus(err)));
     },
     getPaymentUpdate: (callBack) => {
-        axios.get(`/api/imtiaz/checkpayments`, {params: {code: get().paymentCode}}).
-        then(res => {
-            const {status } = res;
+        axios.get(`/api/imtiaz/checkpayments`, {params: {code: get().paymentCode}})
+        .then(res => {
+            const {status} = res;
             
             if(!(status >= 200 && status < 300)){
                 throw new Error("Bad response.", {cause: res});
@@ -56,10 +57,19 @@ const usePaymentHook = create((set, get) => ({
             
             return res.data;
         }).then((res) => {
-            const {message} = res;
+            const {paymentStatus, message} = res;
 
-            set((state) => ({paymentDetails: {...state.paymentDetails, paymentStatus: "Complete"}}))
-            callBack(200, message);
+            set((state) => ({
+                paymentDetails: {
+                    ...state.paymentDetails, 
+                    paymentStatus: paymentStatus
+                }
+            }));
+            
+            callBack(200, {
+                message,
+                paymentStatus
+            });
         })
         .catch((err) => callBack(...handleFailedStatus(err)));
     },

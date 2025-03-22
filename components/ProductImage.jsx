@@ -2,18 +2,21 @@ import { useState } from "react";
 const { Box, Button, Flex } = require("@chakra-ui/react");
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
 
-const ProductImage = ({imageUrl, isCarousel = false, h='10rem' }) => {
+const ProductImage = ({imageUrl = [], isCarousel = false, h='10rem' }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
+
+    // If imageUrl is null or empty, use a default image
+    const images = imageUrl?.length ? imageUrl : ['/assets/images/no-image.png'];
 
     const handlePrev = () => {
         setCurrentIndex((prevIndex) =>
-        prevIndex === 0 ? imageUrl.length - 1 : prevIndex - 1
+        prevIndex === 0 ? images.length - 1 : prevIndex - 1
         );
     };
 
     const handleNext = () => {
         setCurrentIndex((prevIndex) =>
-        prevIndex === imageUrl.length - 1 ? 0 : prevIndex + 1
+        prevIndex === images.length - 1 ? 0 : prevIndex + 1
         );
     };
 
@@ -28,7 +31,7 @@ const ProductImage = ({imageUrl, isCarousel = false, h='10rem' }) => {
                         h="100%"
                         w="full"
                     >
-                        {imageUrl.map((url, index) => (
+                        {images.map((url, index) => (
                         <Box
                             key={index}
                             flexShrink="0"
@@ -50,40 +53,63 @@ const ProductImage = ({imageUrl, isCarousel = false, h='10rem' }) => {
                         position="absolute"
                         top="50%"
                         left="0"
-                        color='gray.300'
                         transform="translateY(-50%)"
                         onClick={handlePrev}
-                        bg="transparent"
-                        _hover={{ bg: "gray.200",bg:"transparent"  }}
+                        bg="#F4511E"
+                        color="white"
+                        _hover={{ 
+                            bg: "#D84315",
+                            transform: "translateY(-50%) scale(1.1)"
+                        }}
+                        _active={{
+                            bg: "#BF360C"
+                        }}
                         zIndex="1"
+                        size="sm"
+                        rounded="full"
+                        shadow="md"
                     >
-                        <ChevronLeftIcon className="w-8 h-8" />
+                        <ChevronLeftIcon className="w-5 h-5" />
                     </Button>
                     <Button
                         position="absolute"
                         top="50%"
                         right="0"
-                        color='gray.300'
                         transform="translateY(-50%)"
                         onClick={handleNext}
-                        bg="transparent"
-                        _hover={{ bg: "gray.200",bg:"transparent" }}
+                        bg="#F4511E"
+                        color="white"
+                        _hover={{ 
+                            bg: "#D84315",
+                            transform: "translateY(-50%) scale(1.1)"
+                        }}
+                        _active={{
+                            bg: "#BF360C"
+                        }}
                         zIndex="1"
+                        size="sm"
+                        rounded="full"
+                        shadow="md"
                     >
-                        <ChevronRightIcon className="w-8 h-8" />
+                        <ChevronRightIcon className="w-5 h-5" />
                     </Button>
 
                     {/* Dot Indicators */}
                     <Flex justifyContent="center" mt="4" position="absolute" bottom="0" left="0" w="full">
-                        {imageUrl.map((_, index) => (
+                        {images.map((_, index) => (
                         <Box
                             key={index}
-                            w="8px"
-                            h="8px"
-                            bg={index === currentIndex ? "gray.800" : "gray.500"}
+                            w="6px"
+                            h="6px"
+                            bg={index === currentIndex ? "#F4511E" : "gray.300"}
                             borderRadius="50%"
-                            mx="2"
-                            opacity={index === currentIndex ? 1 : 0.5}
+                            mx="1"
+                            cursor="pointer"
+                            onClick={() => setCurrentIndex(index)}
+                            transition="all 0.2s"
+                            _hover={{
+                                transform: "scale(1.2)"
+                            }}
                         ></Box>
                         ))}
                     </Flex>
@@ -102,7 +128,7 @@ const ProductImage = ({imageUrl, isCarousel = false, h='10rem' }) => {
                 bgRepeat="no-repeat"
                 bgPos="center"
                 style={{
-                    backgroundImage: `url(${imageUrl[0]})`,
+                    backgroundImage: `url(${images[0]})`,
                     mixBlendMode: "multiply",
                 }}
             ></Box>

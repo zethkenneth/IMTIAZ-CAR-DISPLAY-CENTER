@@ -58,13 +58,13 @@ export async function POST(req) {
 
 
 export async function GET(req) {
-
   const url = new URL(req.url);
   const code = url.searchParams.get('code');
 
   if (!code) {
-    return new Response(JSON.stringify({ error: "Code is required" }), {
+    return NextResponse.json({ 
       status: 400,
+      error: "Code is required" 
     });
   }
 
@@ -79,25 +79,18 @@ export async function GET(req) {
   };
 
   try {
-
-     const result = await axios(config)
-       .then(function (response) {
-         return response.data.data;
-       })
-       .catch(function (error) {
-         console.log(error);
-       });
-
+    const result = await axios(config);
     return NextResponse.json({
       status: 200,
-      data: result,
+      data: result.data.data,
+      checkoutURL: result.data.data[0]?.attributes?.checkout_url
     });
   } catch (error) {
     console.log("Error: ", error);
     return NextResponse.json({
       status: 500,
-      error: "Failed to fetch Products",
-      details: error,
+      error: "Failed to fetch payment details",
+      details: error.message
     });
   }
 }

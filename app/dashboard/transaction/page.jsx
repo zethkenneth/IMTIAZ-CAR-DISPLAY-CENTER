@@ -86,6 +86,7 @@ const Transaction = () => {
               <Tr>
                 <Th textAlign="center">Transaction ID</Th>
                 <Th textAlign="center">Payment Code</Th>
+                <Th textAlign="center">Payment Method</Th>
                 <Th textAlign="center">Payment Status</Th>
                 <Th textAlign="center">Customer</Th>
                 <Th textAlign="center">Order Date</Th>
@@ -102,6 +103,7 @@ const Transaction = () => {
                 >
                   <Td textAlign="center">{order.orderID}</Td>
                   <Td textAlign="center">{order.paymentCode}</Td>
+                  <Td textAlign="center">{order.paymentMethod }</Td>
                   <Td textAlign="center">{order.paymentStatus}</Td>
                   <Td textAlign="center">{order.customerName}</Td>
                   <Td textAlign="center">

@@ -83,3 +83,35 @@ export async function POST( req, { params } ) {
     });
   }
 }
+
+export async function PUT(req, { params }) {
+  try {
+    const { id } = params;
+    const { customerId } = await req.json();
+
+    await db.query(
+      `UPDATE "Orders"
+       SET "customerID" = :customerId
+       WHERE "orderID" = :orderId`,
+      {
+        replacements: { 
+          customerId: customerId,
+          orderId: id
+        },
+        type: QueryTypes.UPDATE,
+      }
+    );
+
+    return NextResponse.json({
+      status: 200,
+      message: "Order updated successfully"
+    });
+  } catch (error) {
+    console.error("Error updating order:", error);
+    return NextResponse.json({
+      status: 500,
+      error: "Failed to update order",
+      details: error.message
+    });
+  }
+}

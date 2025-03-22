@@ -48,42 +48,6 @@ const MenuCartButton = () => {
     }));
   };
 
-  async function checkExistingCustomer() {
-    try {
-      const response = await axios.get(`${baseURL}/customers/check`, {
-        params: {
-          firstName: customerInfo.firstName,
-          lastName: customerInfo.lastName
-        }
-      });
-      return response.data;
-    } catch (error) {
-      console.error('Error checking customer:', error);
-      return null;
-    }
-  }
-
-  async function createCustomer() {
-    try {
-      console.log("Creating customer with data:", customerInfo); // Debug log
-      const response = await axios.post(`${baseURL}/customers`, {
-        firstName: customerInfo.firstName,
-        lastName: customerInfo.lastName,
-        email: customerInfo.email,
-        phone: customerInfo.phone
-      });
-      
-      if (response.data && response.data.status === 200) {
-        return response.data;
-      } else {
-        throw new Error(response.data.error || "Failed to create customer");
-      }
-    } catch (error) {
-      console.error('Error creating customer:', error);
-      throw error;
-    }
-  }
-
   async function handlePlaceOrder(e, stopLoading) {
     if (!stopLoading) {
       stopLoading = () => {};
@@ -106,27 +70,34 @@ const MenuCartButton = () => {
       }
 
       // Check existing customer
+      const checkCustomerResponse = await axios.get('/api/imtiaz/customers/check', {
+        params: {
+          firstName: customerInfo.firstName,
+          lastName: customerInfo.lastName
+        }
+      });
+
       let customerId;
-      const existingCustomerResponse = await checkExistingCustomer();
       
-      if (existingCustomerResponse && existingCustomerResponse.status === 200) {
-        customerId = existingCustomerResponse.id;
+      if (checkCustomerResponse.data.status === 200) {
+        // Customer exists, use existing ID
+        customerId = checkCustomerResponse.data.customerId;
       } else {
         // Create new customer
-        const newCustomerResponse = await createCustomer();
-        if (newCustomerResponse && newCustomerResponse.status === 200) {
-          customerId = newCustomerResponse.id;
+        const createCustomerResponse = await axios.post('/api/imtiaz/customers', customerInfo);
+        if (createCustomerResponse.data.status === 200) {
+          customerId = createCustomerResponse.data.customerId;
         } else {
-          throw new Error("Failed to create/get customer");
+          throw new Error("Failed to create customer");
         }
       }
 
       if (!customerId) {
-        throw new Error("Customer ID is required");
+        throw new Error("Failed to get or create customer ID");
       }
 
       // Place order with customer ID
-      placeOrder((status, feedback) => {
+      await placeOrder(async (status, feedback) => {
         if (status !== 200) {
           toast({
             title: "Error",
@@ -137,6 +108,16 @@ const MenuCartButton = () => {
           });
           stopLoading();
           return;
+        }
+
+        // Update order with customer ID if needed
+        try {
+          await axios.put(`${baseURL}/orders/${feedback.orderId}`, {
+            customerId: customerId
+          });
+        } catch (error) {
+          console.error("Error updating order with customer ID:", error);
+          // Continue with the process even if this fails
         }
 
         toast({
@@ -162,7 +143,8 @@ const MenuCartButton = () => {
           phone: ''
         });
         stopLoading();
-      }, customerId);
+      }, customerId);  // Pass customerId to placeOrder
+
     } catch (error) {
       console.error("Error in handlePlaceOrder:", error);
       toast({

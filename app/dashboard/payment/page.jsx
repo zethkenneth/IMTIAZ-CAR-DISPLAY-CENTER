@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   Box,
   Flex,
@@ -17,13 +17,28 @@ import ButtonComponent from "@components/button";
 import usePaymentHook from "@hooks/paymenthook";
 import ModalComponent from "@components/ModalComponent";
 import { useRouter } from "next/navigation";
+import PaymentMethodSelect from "@components/PaymentMethodSelect";
+import CashPaymentModal from "@components/CashPaymentModal";
+import axios from "axios";
+import CheckoutModal from "@components/CheckoutModal";
 
 const PaymentDashboard = () => {
   const router = useRouter();
   const processButtonToggleRef = useRef(null);
-  const { paymentCode, setPaymentCode, getOrderDetails, getPaymentDetails, checkoutURL, getPaymentUpdate } = usePaymentHook();
+  const { 
+    paymentCode, 
+    setPaymentCode, 
+    orderDetails,
+    getOrderDetails, 
+    getPaymentDetails, 
+    checkoutURL, 
+    getPaymentUpdate 
+  } = usePaymentHook();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
+  const [paymentMethod, setPaymentMethod] = useState("ONLINE");
+  const [showCashModal, setShowCashModal] = useState(false);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
 
   const handleViewOrder = (toggleLoading) => {
     if (!paymentCode || paymentCode.trim() === '') {
@@ -34,7 +49,7 @@ const PaymentDashboard = () => {
         duration: 3000,
         isClosable: true
       });
-      if (toggleLoading) toggleLoading();  // Make sure to clear loading state
+      if (toggleLoading) toggleLoading();
       return;
     }
     
@@ -52,8 +67,13 @@ const PaymentDashboard = () => {
           });
           return;
         }
-        handlePaymentDetails();
-        onOpen();
+
+        if (paymentMethod === "CASH") {
+          setShowCashModal(true);
+        } else {
+          handlePaymentDetails();
+          onOpen();
+        }
       } catch (error) {
         console.error('Error in handleViewOrder:', error);
         toast({
@@ -105,6 +125,48 @@ const PaymentDashboard = () => {
     onClose();
   };
 
+  const handleCashPayment = async (cashReceived, change) => {
+    try {
+      const response = await axios.post(`/api/imtiaz/payments/cash`, {
+        paymentCode,
+        cashReceived,
+        change
+      });
+
+      if (response.status === 200) {
+        toast({
+          title: "Success",
+          description: "Cash payment processed successfully",
+          status: "success",
+          duration: 3000,
+          isClosable: true
+        });
+        setShowCashModal(false);
+        onClose();
+        window.location.reload();
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to process cash payment",
+        status: "error",
+        duration: 3000,
+        isClosable: true
+      });
+    }
+  };
+
+  const handlePaymentComplete = (checkoutURL) => {
+    setShowCheckoutModal(false);
+    if (checkoutURL) {
+      // For online payment, show the PayMongo modal
+      onOpen();
+    } else {
+      // For cash payment, redirect to transaction page
+      router.push('/dashboard/transaction');
+    }
+  };
+
   return (
     <PageContainer>
       <Box 
@@ -143,6 +205,11 @@ const PaymentDashboard = () => {
             />
           </InputGroup>
 
+          <PaymentMethodSelect 
+            value={paymentMethod}
+            onChange={(e) => setPaymentMethod(e.target.value)}
+          />
+
           <ButtonComponent
             label="Process Payment"
             loadingLabel="Processing"
@@ -153,6 +220,7 @@ const PaymentDashboard = () => {
               color: 'white',
               height: '45px',
               borderRadius: '6px',
+              marginTop: '20px',
               _hover: { backgroundColor: '#D66A1B' }
             }}
           />
@@ -186,6 +254,22 @@ const PaymentDashboard = () => {
             </Flex>
           )}
         </ModalComponent>
+
+        <CashPaymentModal
+          isOpen={showCashModal}
+          onClose={() => setShowCashModal(false)}
+          totalAmount={orderDetails?.totalAmount || 0}
+          onConfirm={handleCashPayment}
+        />
+
+        <CheckoutModal
+          isOpen={showCheckoutModal}
+          onClose={() => setShowCheckoutModal(false)}
+          orderDetails={orderDetails}
+          paymentCode={paymentCode}
+          onPaymentComplete={handlePaymentComplete}
+          returnPath="/dashboard/transaction"
+        />
       </Box>
     </PageContainer>
   );

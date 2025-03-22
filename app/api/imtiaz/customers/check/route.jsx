@@ -1,43 +1,6 @@
 import { NextResponse } from "next/server";
-import db from "../../../../utils/sequelize.js";
+import db from "../../../../../utils/sequelize.js";
 import { QueryTypes } from "sequelize";
-
-export async function POST(req) {
-  try {
-    const { firstName, lastName, email, phone } = await req.json();
-
-    // Create new customer
-    const result = await db.query(
-      `INSERT INTO "Customers" ("firstName", "lastName", "email", "phone")
-       VALUES (:firstName, :lastName, :email, :phone)
-       RETURNING "customerID"`,
-      {
-        replacements: { 
-          firstName, 
-          lastName, 
-          email, 
-          phone
-        },
-        type: QueryTypes.INSERT,
-      }
-    );
-
-    const customerId = result[0][0].customerID;
-
-    return NextResponse.json({
-      status: 200,
-      customerId: customerId,
-      message: "Customer created successfully"
-    });
-  } catch (error) {
-    console.error("Error creating customer:", error);
-    return NextResponse.json({
-      status: 500,
-      error: "Failed to create customer",
-      details: error.message
-    });
-  }
-}
 
 export async function GET(req) {
   try {
@@ -88,4 +51,4 @@ export async function GET(req) {
       details: error.message
     });
   }
-}
+} 

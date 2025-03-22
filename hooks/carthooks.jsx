@@ -138,8 +138,13 @@ const useCartHook = create((set, get) => ({
         products: products
       });
 
-      if (response.status === 200) {
-        callback(200, "Order placed successfully");
+      if (response.data.status === 200) {
+        callback(200, {
+          message: "Order placed successfully",
+          orderId: response.data.order.orderID,
+          paymentCode: paymentDetails.reference_number
+        });
+        
         set(() => ({ 
           cart: {
             quantity: 0,
@@ -147,6 +152,8 @@ const useCartHook = create((set, get) => ({
             products: []
           }
         }));
+      } else {
+        throw new Error(response.data.message || "Failed to place order");
       }
     } catch (error) {
       callback(500, error.message);

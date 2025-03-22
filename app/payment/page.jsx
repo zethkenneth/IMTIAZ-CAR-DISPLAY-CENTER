@@ -22,89 +22,48 @@ import { FaOpencart } from "react-icons/fa";
 import Image from "next/image";
 import usePaymentHook from "@hooks/paymenthook";
 import ModalComponent from "@components/ModalComponent";
-
-const Item = (props) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("en-PH", {
-      style: "currency",
-      currency: "PHP",
-    }).format(price);
-  };
-
-  function handleViewOrder() {
-    onOpen();
-  }
-
-  function handleProceedOrder() {}
-
-  return (
-    <Flex
-      alignItems="center"
-      borderBottom="1px solid rgba(0,0,0,0.1)"
-      p={2}
-      pt={5}
-      pb={5}
-      gap={2}
-      cursor="pointer"
-      onClick={props.onClick}
-    >
-      <Box w="30%" h="15vh">
-        <ProductImage imageUrl={props.imageUrl} h="15vh" />
-      </Box>
-      <Box w="70%">
-        <Heading size="md">{props.name}</Heading>
-        <Text
-          mt={2}
-          fontSize={props.size ? props.size : 14}
-        >{`${props.model} ${props.year}`}</Text>
-        <Text mt={2} fontSize={props.size ? props.size : 14} fontWeight={400}>
-          {props.description2.overview}
-        </Text>
-        <Flex justifyContent="space-between">
-          <Text mt={2} fontSize={props.size ? props.size : 17} fontWeight={600}>
-            {formatPrice(props.price)}
-          </Text>
-          <Flex gap={2} alignItems="center">
-            <ButtonComponent label="+" />
-            <Text fontSize={18}>{props.quantity}</Text>
-            <ButtonComponent label="-" />
-          </Flex>
-        </Flex>
-      </Box>
-    </Flex>
-  );
-};
+import CheckoutModal from "@components/CheckoutModal";
+import axios from "axios";
+import Item from "@components/Item";
 
 const Payment = () => {
   const toast = useToast();
   const router = useRouter();
-  const { checkoutURL, paymentCode, orderDetails, getOrderDetails, getPaymentDetails, getPaymentUpdate } = usePaymentHook();
+  const { 
+    paymentCode, 
+    orderDetails,
+    checkoutURL,
+    setCheckoutURL,
+    getOrderDetails,
+    getPaymentDetails 
+  } = usePaymentHook();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(true);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
 
   useEffect(() => {
-    if (loading) {
-      handleViewOrder();
-    }
+    handleViewOrder();
   }, []);
 
   const handleClosePaymongoPayment = () => {
     getPaymentUpdate((status, feedback) => {
       if (!(status >= 200 && status < 300)) {
-        return console.log("Bad response.", { cause: feedback });
+        console.log("Bad response.", { cause: feedback });
+        return;
       }
 
-      toast({
-        title: 'Payment Successful',
-        description: 'Your payment has been successfully processed.',
-        status: 'success',
-        duration: 5000,
-        position: "center-top",
-        isClosable: true,
-      });
+      if (feedback?.paymentStatus === "Completed") {
+        toast({
+          title: 'Payment Successful',
+          description: 'Your payment has been successfully processed.',
+          status: 'success',
+          duration: 5000,
+          position: "center-top",
+          isClosable: true,
+        });
+      }
       onClose();
+      router.push('/');
     });
   };
 
@@ -127,7 +86,7 @@ const Payment = () => {
     });
   };
 
-  const itemList = orderDetails?.orderDetails??[];
+  const itemList = orderDetails?.orderDetails ?? [];
 
 
   const formatPriceData = (price) => {
@@ -135,6 +94,26 @@ const Payment = () => {
       style: "currency",
       currency: "PHP",
     }).format(price);
+  };
+
+  const handleCheckout = () => {
+    setShowCheckoutModal(true);
+  };
+
+  const handlePaymentComplete = async (paymongoURL) => {
+    setShowCheckoutModal(false);
+    if (paymongoURL) {
+      setCheckoutURL(paymongoURL);
+      onOpen();
+    } else {
+      // For cash payment, redirect to home
+      router.push('/');
+    }
+  };
+
+  const handleClosePayment = () => {
+    onClose();
+    router.push('/');
   };
 
   if(orderDetails == null){
@@ -219,27 +198,46 @@ const Payment = () => {
               </Text>
             </Flex>
             <Box mt={8}>
-              <ButtonComponent label="Checkout" onClick={() => onOpen()} />
+              <ButtonComponent label="Checkout" onClick={handleCheckout} />
             </Box>
           </Box>
         </Box>
       </Flex>
-      <ModalComponent size="5xl" isOpen={isOpen} onClose={onClose} footer={
-        <Flex justifyContent='end'>
-          <ButtonComponent label="Close" onClick={handleClosePaymongoPayment} />
-        </Flex>
-      } >
-        
+      <CheckoutModal
+        isOpen={showCheckoutModal}
+        onClose={() => setShowCheckoutModal(false)}
+        orderDetails={orderDetails}
+        paymentCode={paymentCode}
+        onPaymentComplete={handlePaymentComplete}
+        returnPath="/"
+      />
+      <ModalComponent 
+        size="5xl" 
+        isOpen={isOpen} 
+        onClose={onClose}
+        footer={
+          <Flex justifyContent="end">
+            <ButtonComponent 
+              label="Close"
+              onClick={handleClosePayment}
+              variant="secondary"
+            />
+          </Flex>
+        }
+      >
         {checkoutURL ? (
-              <iframe
-                src={checkoutURL}
-                width="100%"
-                height="600px"
-                title="PayMongo Payment"
-              />
-            ) : (
-              <p>Loading payment link...</p>
-            )}
+          <iframe
+            src={checkoutURL}
+            width="100%"
+            height="600px"
+            title="PayMongo Payment"
+            style={{ border: 'none' }}
+          />
+        ) : (
+          <Flex justify="center" align="center" h="400px">
+            <Text>Loading payment link...</Text>
+          </Flex>
+        )}
       </ModalComponent>
     </Flex>
   );

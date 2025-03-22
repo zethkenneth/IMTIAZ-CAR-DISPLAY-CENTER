@@ -20,37 +20,41 @@ export async function GET(req) {
       };
 
       const paymentResult = await axios(config)
-      .then(function (response) {
-        return response.data.data;
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+        .then(function (response) {
+          return response.data.data;
+        })
+        .catch(function (error) {
+          console.log(error);
+          throw error;
+        });
 
       const paymentStatusResult = paymentResult[0].attributes.status;
+      const paymentStatus = paymentStatusResult === "unpaid" ? "Pending" : "Completed";
 
-      const paymentStatus = paymentStatusResult === "unpaid"? "Pending": "Completed";
-
-
-      const updatedRows = await db.query(
+      await db.query(
         `UPDATE "Orders"
-        SET "paymentStatus" = :paymentStatus
+        SET "paymentStatus" = :paymentStatus,
+            "paymentMethod" = 'ONLINE'
         WHERE "paymentCode" = :paymentCode`,
         {
-          replacements: { paymentStatus: paymentStatus, paymentCode: code },
+          replacements: { 
+            paymentStatus: paymentStatus, 
+            paymentCode: code 
+          },
           type: QueryTypes.UPDATE,
         }
       );
 
       return NextResponse.json({
         status: 200,
-        message: "Checkout Successful",
+        message: "Payment status updated",
+        paymentStatus: paymentStatus
       });
     } catch (error) {
-      console.error("Error fetching orders: ", error);
+      console.error("Error updating payment status: ", error);
       return NextResponse.json({
         status: 500,
-        error: "Failed to fetch orders",
+        error: "Failed to update payment status",
         details: error.message,
       });
     }

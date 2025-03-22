@@ -22,6 +22,11 @@ module.exports = {
         type: Sequelize.STRING(10),
         defaultValue: "Pending",
       },
+      paymentMethod: {
+        type: Sequelize.STRING(10),
+        allowNull: false,
+        defaultValue: "ONLINE",
+      },
       customerID: {
         type: Sequelize.INTEGER,
         references: {

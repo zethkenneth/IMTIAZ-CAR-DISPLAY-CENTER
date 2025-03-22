@@ -154,25 +154,31 @@ export async function POST(req) {
   try {
     const { customerId, userId, paymentCode, totalAmount, products } = await req.json();
 
+    if (!customerId) {
+      return NextResponse.json({
+        status: 400,
+        error: "Customer ID is required"
+      });
+    }
+
     // Create the order with proper customer ID
     const order = await Order.create({
       paymentCode: paymentCode,
-      customerID: customerId, // This should now be properly passed from the frontend
+      customerID: customerId,
       orderDate: new Date(),
       totalAmount: totalAmount,
       userID: userId,
-      paymentStatus: "Pending" // Add payment status
+      paymentStatus: "Pending",
     });
 
     const orderDetails = await registerOrderDetails(order.orderID, products);
-    const updatedProductStocks = await updateProductStocks(products);
+    await updateProductStocks(products);
 
     return NextResponse.json({
       status: 200,
       message: "Order has been inserted successfully",
       order: order,
-      orderDetails: orderDetails,
-      updatedProductStocks: updatedProductStocks
+      orderDetails: orderDetails
     });
   } catch (error) {
     console.error("Error creating order:", error);

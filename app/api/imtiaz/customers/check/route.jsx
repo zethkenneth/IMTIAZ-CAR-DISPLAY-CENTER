@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import db from "../../../../../utils/sequelize.js";
 import { QueryTypes } from "sequelize";
 
-export async function GET(req) {
+export async function GET(request) {
   try {
-    const { searchParams } = new URL(req.url);
+    const searchParams = request.nextUrl.searchParams;
     const firstName = searchParams.get('firstName');
     const lastName = searchParams.get('lastName');
 

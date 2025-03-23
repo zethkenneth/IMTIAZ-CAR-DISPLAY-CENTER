@@ -6,12 +6,8 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  FormControl,
-  FormLabel,
-  Input,
-  VStack,
   Button,
-  SimpleGrid,
+  VStack,
   Box,
   Text,
   useToast
@@ -22,75 +18,15 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
 const CheckoutModal = ({ isOpen, onClose, orderDetails, paymentCode, onPaymentComplete, returnPath = '/' }) => {
-  const [customerInfo, setCustomerInfo] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: ''
-  });
   const [paymentMethod, setPaymentMethod] = useState("ONLINE");
   const [showCashModal, setShowCashModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const toast = useToast();
   const router = useRouter();
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setCustomerInfo(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
   const handleProceedPayment = async () => {
-    // Validate customer information
-    if (!customerInfo.firstName || !customerInfo.lastName || !customerInfo.email || !customerInfo.phone) {
-      toast({
-        title: "Error",
-        description: "Please fill in all required fields",
-        status: "error",
-        duration: 3000,
-        isClosable: true
-      });
-      return;
-    }
-
     setIsLoading(true);
     try {
-      // Check if customer exists by first name and last name
-      const checkCustomerResponse = await axios.get('/api/imtiaz/customers/check', {
-        params: {
-          firstName: customerInfo.firstName,
-          lastName: customerInfo.lastName
-        }
-      });
-
-      let customerId;
-      
-      if (checkCustomerResponse.data.status === 200) {
-        // Customer exists, use existing ID
-        customerId = checkCustomerResponse.data.customerId;
-      } else if (checkCustomerResponse.data.status === 404) {
-        // Customer not found, create new customer
-        const createCustomerResponse = await axios.post('/api/imtiaz/customers', customerInfo);
-        if (createCustomerResponse.data.status === 200) {
-          customerId = createCustomerResponse.data.customerId;
-        } else {
-          throw new Error("Failed to create new customer");
-        }
-      } else {
-        throw new Error("Failed to check customer existence");
-      }
-
-      if (!customerId) {
-        throw new Error("Failed to get or create customer ID");
-      }
-
-      // Update order with customer ID
-      await axios.put(`/api/imtiaz/orders/${orderDetails.orderID}`, {
-        customerId: customerId
-      });
-
       if (paymentMethod === "CASH") {
         setShowCashModal(true);
       } else {
@@ -130,7 +66,6 @@ const CheckoutModal = ({ isOpen, onClose, orderDetails, paymentCode, onPaymentCo
         isClosable: true
       });
 
-      // Navigate based on returnPath
       router.push(returnPath);
     } catch (error) {
       toast({
@@ -145,53 +80,14 @@ const CheckoutModal = ({ isOpen, onClose, orderDetails, paymentCode, onPaymentCo
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} size="xl">
+      <Modal isOpen={isOpen} onClose={onClose} size="md">
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Checkout Information</ModalHeader>
+          <ModalHeader>Payment Method</ModalHeader>
           <ModalBody>
             <VStack spacing={4}>
               <Box w="100%">
-                <Text mb={4} fontWeight="bold">Customer Information</Text>
-                <SimpleGrid columns={2} spacing={4}>
-                  <FormControl isRequired>
-                    <FormLabel>First Name</FormLabel>
-                    <Input
-                      name="firstName"
-                      value={customerInfo.firstName}
-                      onChange={handleInputChange}
-                    />
-                  </FormControl>
-                  <FormControl isRequired>
-                    <FormLabel>Last Name</FormLabel>
-                    <Input
-                      name="lastName"
-                      value={customerInfo.lastName}
-                      onChange={handleInputChange}
-                    />
-                  </FormControl>
-                </SimpleGrid>
-                <FormControl isRequired mt={4}>
-                  <FormLabel>Email</FormLabel>
-                  <Input
-                    name="email"
-                    type="email"
-                    value={customerInfo.email}
-                    onChange={handleInputChange}
-                  />
-                </FormControl>
-                <FormControl isRequired mt={4}>
-                  <FormLabel>Phone</FormLabel>
-                  <Input
-                    name="phone"
-                    value={customerInfo.phone}
-                    onChange={handleInputChange}
-                  />
-                </FormControl>
-              </Box>
-
-              <Box w="100%" mt={4}>
-                <Text mb={4} fontWeight="bold">Payment Method</Text>
+                <Text mb={4} fontWeight="bold">Total Amount: {orderDetails?.totalAmount}</Text>
                 <PaymentMethodSelect
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}

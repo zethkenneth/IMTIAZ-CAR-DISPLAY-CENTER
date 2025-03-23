@@ -35,7 +35,8 @@ const Payment = () => {
     checkoutURL,
     setCheckoutURL,
     getOrderDetails,
-    getPaymentDetails 
+    getPaymentDetails,
+    getPaymentUpdate
   } = usePaymentHook();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [loading, setLoading] = useState(true);
@@ -44,6 +45,28 @@ const Payment = () => {
   useEffect(() => {
     handleViewOrder();
   }, []);
+
+  useEffect(() => {
+    if (isOpen && checkoutURL) {
+      const checkPaymentStatus = () => {
+        const iframe = document.querySelector('iframe');
+        if (iframe) {
+          iframe.onload = () => {
+            try {
+              // Check if the URL indicates payment completion
+              if (iframe.contentWindow.location.href.includes('success')) {
+                handleClosePaymongoPayment();
+              }
+            } catch (e) {
+              // Cross-origin errors can be ignored
+            }
+          };
+        }
+      };
+      
+      checkPaymentStatus();
+    }
+  }, [isOpen, checkoutURL]);
 
   const handleClosePaymongoPayment = () => {
     getPaymentUpdate((status, feedback) => {
@@ -111,10 +134,6 @@ const Payment = () => {
     }
   };
 
-  const handleClosePayment = () => {
-    onClose();
-    router.push('/');
-  };
 
   if(orderDetails == null){
     return (
@@ -214,12 +233,12 @@ const Payment = () => {
       <ModalComponent 
         size="5xl" 
         isOpen={isOpen} 
-        onClose={onClose}
+        onClose={handleClosePaymongoPayment}
         footer={
           <Flex justifyContent="end">
             <ButtonComponent 
               label="Close"
-              onClick={handleClosePayment}
+              onClick={handleClosePaymongoPayment}
               variant="secondary"
             />
           </Flex>

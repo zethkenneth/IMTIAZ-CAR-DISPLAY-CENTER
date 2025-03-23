@@ -3,10 +3,17 @@ import db from "../../../../utils/sequelize.js";
 import { QueryTypes } from "sequelize";
 import axios from "axios";
 
-export async function GET(req) {
+export const dynamic = 'force-dynamic';
+
+export async function GET(request) {
     try {
-      const url = new URL(req.url); // Create a URL object from the request
-      const code = url.searchParams.get('code');
+      const code = request.nextUrl.searchParams.get('code');
+      if (!code) {
+        return NextResponse.json({
+          status: 400,
+          error: "Payment code is required"
+        });
+      }
       
     
       const config = {

@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import db from "../../../../../utils/sequelize.js";
 import { QueryTypes } from "sequelize";
 
-export async function GET( req ) {
+export async function GET(request) {
   try {
-    const url = new URL(req.url); // Create a URL object from the request
-    const code = url.searchParams.get('code');
+    const searchParams = request.nextUrl.searchParams;
+    const code = searchParams.get('code');
 
     const Orders = await db.query(
       `SELECT * FROM "Orders" WHERE "paymentCode" = :code ORDER BY "orderID" DESC`,

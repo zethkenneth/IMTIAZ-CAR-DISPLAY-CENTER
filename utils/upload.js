@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import fsPromises from 'fs/promises';
 import crypto from 'crypto';
+import { uploadToDropbox } from '../services/dropboxService';
 
 // Define upload directory path
 const UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads', 'products');
@@ -224,23 +225,30 @@ export async function processFiles(files) {
   const urls = [];
   
   for (const file of files) {
-    const fileBuffer = await file.arrayBuffer();
-    const hash = getFileHash(Buffer.from(fileBuffer));
-    const existingUrl = findExistingFile(hash);
-    
-    if (existingUrl) {
-      urls.push(existingUrl);
-    } else {
+    try {
+      // Generate unique filename
       const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
       const ext = path.extname(file.name);
       const filename = `product-${uniqueSuffix}${ext}`;
-      const filePath = path.join(UPLOAD_DIR, filename);
       
-      await fs.promises.writeFile(filePath, Buffer.from(fileBuffer));
-      saveFileHash(hash, filename);
+      console.log('Processing file:', filename);
       
-      urls.push(`/uploads/products/${filename}`);
+      // Upload to Dropbox
+      const directLink = await uploadToDropbox(file, filename);
+      if (!directLink) {
+        throw new Error('No URL returned from Dropbox upload');
+      }
+      
+      console.log('File uploaded successfully:', directLink);
+      urls.push(directLink);
+    } catch (error) {
+      console.error('Error processing file:', error);
+      throw new Error(`File upload failed for ${file.name}: ${error.message}`);
     }
+  }
+  
+  if (urls.length === 0 && files.length > 0) {
+    throw new Error('No files were successfully uploaded');
   }
   
   return urls;

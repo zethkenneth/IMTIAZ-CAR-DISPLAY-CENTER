@@ -45,7 +45,7 @@ export async function POST(req) {
       category: data.get('category'),
       price: parseFloat(data.get('price')),
       quantityOnHand: parseInt(data.get('quantityOnHand')),
-      reorderLevel: parseInt(data.get('reorderLevel')) || 0, // Optional with default
+      reorderLevel: parseInt(data.get('reorderLevel')) || 0,
     };
 
     // Parse description2
@@ -58,12 +58,16 @@ export async function POST(req) {
     }
     productData.description2 = description2;
 
-    // Handle file uploads
+    // Handle file uploads using Dropbox
     const attachments = data.getAll('attachments[]');
     if (attachments.length > 0) {
-      const imageUrls = await processFiles(attachments);
-      productData.imageUrl = imageUrls;
-      console.log('Processed image URLs:', imageUrls);
+      try {
+        const imageUrls = await processFiles(attachments);
+        productData.imageUrl = imageUrls;
+        console.log('Processed Dropbox image URLs:', imageUrls);
+      } catch (error) {
+        throw new Error(`File upload failed: ${error.message}`);
+      }
     }
 
     // Create new product

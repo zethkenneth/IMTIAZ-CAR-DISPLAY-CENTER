@@ -43,19 +43,19 @@ export async function PUT(req, { params }) {
     
     const product = await Products.findByPk(productId);
     if (!product) {
-      return NextResponse.json(
-        { error: "Product not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    // Parse description2
-    let description2 = data.get('description2');
-    try {
-      description2 = JSON.parse(description2);
-    } catch (e) {
-      console.error('Error parsing description2:', e);
-      description2 = {};
+    // Handle new file uploads
+    const attachments = data.getAll('attachments[]');
+    let newImageUrls = [];
+    
+    if (attachments.length > 0) {
+      try {
+        newImageUrls = await processFiles(attachments);
+      } catch (error) {
+        throw new Error(`File upload failed: ${error.message}`);
+      }
     }
 
     // Get existing images
@@ -66,21 +66,14 @@ export async function PUT(req, { params }) {
       console.error('Error parsing existing images:', e);
     }
 
-    // Process new files
-    const attachments = data.getAll('attachments[]');
-    let newImageUrls = [];
-    if (attachments.length > 0) {
-      newImageUrls = await processFiles(attachments);
-    }
+    // Combine existing and new image URLs
+    const imageUrl = [...existingImages, ...newImageUrls];
 
-    // Combine existing and new images
-    const combinedImageUrls = [...existingImages, ...newImageUrls];
-
-    // Update product with all fields
-    const updatedProduct = await product.update({
+    // Update product with new data including images
+    const updateData = {
       productName: data.get('productName'),
       description: data.get('description'),
-      description2: description2,
+      description2: data.get('description2'),
       model: data.get('model'),
       year: data.get('year'),
       brand: data.get('brand'),
@@ -89,18 +82,17 @@ export async function PUT(req, { params }) {
       price: data.get('price'),
       quantityOnHand: data.get('quantityOnHand'),
       reorderLevel: data.get('reorderLevel'),
-      imageUrl: combinedImageUrls,
-    });
+      imageUrl
+    };
+
+    const updatedProduct = await product.update(updateData);
 
     return NextResponse.json({
       message: "Product updated successfully",
-      updatedProduct: {
-        ...updatedProduct.toJSON(),
-        description2: description2
-      }
+      updatedProduct
     });
   } catch (error) {
-    console.error("Error in PUT /api/imtiaz/products/[productId]:", error);
+    console.error("Error updating product:", error);
     return NextResponse.json(
       {
         error: "Failed to update product",

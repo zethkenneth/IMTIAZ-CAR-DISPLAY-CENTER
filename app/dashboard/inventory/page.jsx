@@ -138,11 +138,26 @@ const Inventory = () => {
         .map(file => file.url);
       form.append('existingImages', JSON.stringify(existingImages));
 
-      // Handle new files
+      // Add file validation before upload
       const newFiles = files.filter(file => !file.isExisting);
-      newFiles.forEach((file) => {
-        form.append('attachments[]', file);
-      });
+      if (newFiles.length > 0) {
+        // Check file sizes and types
+        const MAX_FILE_SIZE = 150 * 1024 * 1024; // 150MB (Dropbox's default max file size)
+        const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
+        
+        for (const file of newFiles) {
+          if (file.size > MAX_FILE_SIZE) {
+            throw new Error(`File ${file.name} is too large. Maximum size is 150MB.`);
+          }
+          if (!ALLOWED_TYPES.includes(file.type)) {
+            throw new Error(`File ${file.name} is not a supported image type. Please use JPG, PNG, or GIF.`);
+          }
+        }
+        
+        newFiles.forEach((file) => {
+          form.append('attachments[]', file);
+        });
+      }
 
       let result;
       if (editingProductId) {
@@ -174,9 +189,9 @@ const Inventory = () => {
       console.error('Error saving product:', error);
       toast({
         title: "Error",
-        description: "Failed to save product",
+        description: error.message || "Failed to save product. Please check your file uploads and try again.",
         status: "error",
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
       });
     }

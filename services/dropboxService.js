@@ -1,14 +1,77 @@
 import { Dropbox } from 'dropbox';
-import fetch from 'cross-fetch'; // Use cross-fetch instead of node-fetch
+import fetch from 'cross-fetch';
 
-const dbx = new Dropbox({ 
-  accessToken: "sl.u.AFlEKjCiS9DXW2WtBRc66uNclkiybLx55z-X4B37OYh8OnVb7XxzjlOBmO-bAuQLNCKjVWXGtLR6sjj8X9gNhUDT0AI3ye1gs0tSeRotkwQAzCbzgfEaPHFD_G8iRtDoAalgnikMIy6CcBkFBuSJDtEIrcHjjB5yQz0itUdxUczKUu3vHdo7wIx-RbM5HAiMt8wd4zjvdXhwyp8M8g2tul9wAz4aAO0ZQLopFUXF57nJ-KGwcTckjUdxH6M3wsigOgciWsoHm9G0S116Aj5c_vIv3Ua3pfBxsjZkWkCHoIW1IxlA6ebCfpODnzRHzK4S-SSrIEP7Kjan9DpuHH8W2diiEqtssSZ0JkWQeah4u7phy6mopEodDHsQu_C6OG8SRieuBUuVEHwrH6a5-opKIPuqK29AEpPmZaaUn8dmtLfO3EryB7yFFbl3nF_xijnc4YtpR2XP-av-esb4Rns0ZuQkiim9oq9_Lhf4J9ApClQlM9cL5awRr4nSWN3ikBO87BX3x3IZlEyV7xmvOr_Kt1Pld6gBDxCSgJcTzE_odBLFJwjj1D6oIdWgb88uSVTnzWxd5yah3bW869TY1nrQ2B4HL4Pmgz74Sd4i2YiALBHMfu96x8QX1jr_00N_LInNCEynm_0ulRmYaL70vBlflIzuUw6bo1HULEJuhtfY3iAwiUCzyRFKU5hWJl5RkYeegHJtSNxHy_0WzPXW63j0s7FR3zZ9dr0Yb9Z_4o9nIYuegjebcsF5eTTpIRiUOA4Z4sDEU-EBAnY8_UdmQ83w0yteZaWvsi3u7dGuOitiaM6smePCZF6RxoiUHb1uSgay6kuAP5HKO2TmJTyQNVj1uqrEViX56_UH5_RVScE5RZg40LVE3fYXgT7Iax3M6p96kgRBAJRlBb9e05JCBzr_mry5sXB_KpI1G68b5beKNZtrca-KEQsbGIy79Xn4iN_cOGyULmqSDBMOgmNKtItxdb0a0EO7Q-F8pPayIj1KGUQhCI8fb1mW_zPdYd8qyMq0YtWXjOdGVdEWHqs-SmrAS-R-8HFHz-OicWm9KcOpOtdKK47JzVO28G61gGUKpgCjKlBTvSTjhXDIsbuIDo6i96ujKdYGDermFr_kIgvolcG0oQbvj23iAhgDnQ7bniiuKH0jNoEw77eX9071-hB_efQyhMGaVBxcLTkgtfDmiq6nbZuXEcOmh2xivWg8dOBu0xUGlTNRxZGICKWkdIbumVjX77_Ee0Cy4yrYvBdnwPhCIv2rXk36Yo5GsGZiL1KdstrAxQvxsjTE4iD81vMEdRQ7cWHYcnf8LNtv8qVC5zS_U4W8MIfWr0eP5VpweFzykEtUcrOqI71OFzpkqMzRPWdir7Sr76a4Gsnq09H04E6Np4tEMZ92ZMPfcxRidZYt0DYRVhAT7egA0jmXviyZAiEhFkOumLmwKth7gClZRqozs3stNLNVtqfcKi8vM4VbJTE",
-  fetch: fetch // Explicitly pass the fetch implementation
-});
+// Initial access token (your current working token)
+let currentAccessToken = 'sl.u.AFlQJHVT-Zv7i-Av4lEwSxUYGaaqaZdY3NPcBchHnVnuVIJcyGcgbvguOINRtgoLYQugva8bwdKs6XsWgVh_ARPfjZJkLMtLYgKMBrokqxQyosM7nclcGA6WsM2XhaHxeb4YVVG7Y2P5-sQhIvnDk_YMk42hhR76Llj2vrk3MkfcYeukSxJnhOcxf_yLP5VHY7lEyHaK0zN9KGGNMXwBGFwFDnFkDK0LZlzUy2UiaWbXCKCdF8ZkMq13mrUkTlswty5macF9FJHIYDGdl3jgNlivhHD_DYunh3ErKlPdfXr1FErEsT75HHbpR1CPMjojqcekFeNzDLMtQ6OweFhCtHwTMafPSuwSlziBVkk5GVBxbieL89oeEOWO-GOB5FjwRE-IJrtyewkeJnf6qCNOD23Pr430JViR1w0PTKTIgfctjf1tLzI9gej5F75FSBkHSO2Hqk5GsPAdyFUa6TaezWzEzZapoAtc9Spba5ptMlWd8I0Z0zQ7E3661Fba4qASnQhRGzsTh2E-mOdb3c9jKG50von2_A3lguhae8SrmSAKRemlQ90cvF_LYKITPCuhadbsk8DJ90g4oWIwuiRqlrvXmSs0nDPXJdJJ3hEetlmGopf7aqx80y-xulJNw4XAeRTM8W2FD3yoPPrwtt0VtbqTFFHt9NRYVLQY1H4kyk67gRMXVZvpmSrQ5R51gjrUGIHOz0KaiOGr6sdJBXjpKdT4F9qee79AFzQBnHH0nWBmL0YQUXmjdEYcKTHL1SyeI33KBov5y1Dfe26QxjWltrekMtB2jScseywv-12bprGqMVIuMv7tn4m_hGQCrCyAyXSP9HwP6dWVMoZcapx7oCOE4rfMjPOWvyrgiobj88MeN9kqDzT0F-vPb6QMbAZegY2b_Ugf5Y56DdDeg7--QqCn6lR-0EOhBEm19tgt-ToLqpAW2bBys1Ks25or3yJqOzkyYImEHKOZedXVKyYOz2liMkNw195mE_OV5TQxrVMDNmjWeIAesV_11wavL-T6YIQNZjoPQNRydhc4dhI6Mk3eT_AijZbd_P1SMSfjBAhaQh6SsczTdU6mfAKaxVjnLAtPi70oyZg3TOqELM9pNIoXGhlNsRkNrdg_S0B2VHI5cRKlW7ip_hR2B_LTfqPdEIhfO-gbj8Vp_M0qVMHnTHsRq8a1ynV_grMNZ-wrMVo9icJpDvRxC-jl5X9h0syHvZN3dwnqO0NVEhKjUYf44y2kvQ4du5h2bXP5nwb_2by-3c2ume2KIfh1OzSmAcwcAj8-bmF9eaBoC9xBtQtCLEmgBa2fF090mYjJvmobSV42Uq9ICE-wxtbbxCHCqOTJM1l45uWtfZRRk1Uv8PGwg54Bu1s8PZtJyosn-90XoIdIXzcqHf-lp4-PyeHwSMNaeB7Hv5lW85HLRyFd9QPkBAujDBpJzCEDOS0oHe0q8oO5SqNNobXepIYuHz_N8d2ji6M';
+let tokenExpirationTime = null;
+
+// Your app credentials (get these from Dropbox App Console once)
+const CLIENT_ID = 'oawons1on6kvvrc';
+const CLIENT_SECRET = 'ouo2y6ksm53s28l';
+const REFRESH_TOKEN = 'sl.u.AFlQJHVT-Zv7i-Av4lEwSxUYGaaqaZdY3NPcBchHnVnuVIJcyGcgbvguOINRtgoLYQugva8bwdKs6XsWgVh_ARPfjZJkLMtLYgKMBrokqxQyosM7nclcGA6WsM2XhaHxeb4YVVG7Y2P5-sQhIvnDk_YMk42hhR76Llj2vrk3MkfcYeukSxJnhOcxf_yLP5VHY7lEyHaK0zN9KGGNMXwBGFwFDnFkDK0LZlzUy2UiaWbXCKCdF8ZkMq13mrUkTlswty5macF9FJHIYDGdl3jgNlivhHD_DYunh3ErKlPdfXr1FErEsT75HHbpR1CPMjojqcekFeNzDLMtQ6OweFhCtHwTMafPSuwSlziBVkk5GVBxbieL89oeEOWO-GOB5FjwRE-IJrtyewkeJnf6qCNOD23Pr430JViR1w0PTKTIgfctjf1tLzI9gej5F75FSBkHSO2Hqk5GsPAdyFUa6TaezWzEzZapoAtc9Spba5ptMlWd8I0Z0zQ7E3661Fba4qASnQhRGzsTh2E-mOdb3c9jKG50von2_A3lguhae8SrmSAKRemlQ90cvF_LYKITPCuhadbsk8DJ90g4oWIwuiRqlrvXmSs0nDPXJdJJ3hEetlmGopf7aqx80y-xulJNw4XAeRTM8W2FD3yoPPrwtt0VtbqTFFHt9NRYVLQY1H4kyk67gRMXVZvpmSrQ5R51gjrUGIHOz0KaiOGr6sdJBXjpKdT4F9qee79AFzQBnHH0nWBmL0YQUXmjdEYcKTHL1SyeI33KBov5y1Dfe26QxjWltrekMtB2jScseywv-12bprGqMVIuMv7tn4m_hGQCrCyAyXSP9HwP6dWVMoZcapx7oCOE4rfMjPOWvyrgiobj88MeN9kqDzT0F-vPb6QMbAZegY2b_Ugf5Y56DdDeg7--QqCn6lR-0EOhBEm19tgt-ToLqpAW2bBys1Ks25or3yJqOzkyYImEHKOZedXVKyYOz2liMkNw195mE_OV5TQxrVMDNmjWeIAesV_11wavL-T6YIQNZjoPQNRydhc4dhI6Mk3eT_AijZbd_P1SMSfjBAhaQh6SsczTdU6mfAKaxVjnLAtPi70oyZg3TOqELM9pNIoXGhlNsRkNrdg_S0B2VHI5cRKlW7ip_hR2B_LTfqPdEIhfO-gbj8Vp_M0qVMHnTHsRq8a1ynV_grMNZ-wrMVo9icJpDvRxC-jl5X9h0syHvZN3dwnqO0NVEhKjUYf44y2kvQ4du5h2bXP5nwb_2by-3c2ume2KIfh1OzSmAcwcAj8-bmF9eaBoC9xBtQtCLEmgBa2fF090mYjJvmobSV42Uq9ICE-wxtbbxCHCqOTJM1l45uWtfZRRk1Uv8PGwg54Bu1s8PZtJyosn-90XoIdIXzcqHf-lp4-PyeHwSMNaeB7Hv5lW85HLRyFd9QPkBAujDBpJzCEDOS0oHe0q8oO5SqNNobXepIYuHz_N8d2ji6M';
+
+const refreshAccessToken = async () => {
+  try {
+    console.log('Refreshing Dropbox access token...');
+    const response = await fetch('https://api.dropbox.com/oauth2/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: REFRESH_TOKEN,
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+      }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(`Token refresh failed: ${data.error_description || data.error || response.statusText}`);
+    }
+
+    currentAccessToken = data.access_token;
+    // Set expiration time (typically 4 hours from now)
+    tokenExpirationTime = Date.now() + (data.expires_in * 1000);
+    console.log('Token refreshed successfully');
+    
+    return currentAccessToken;
+  } catch (error) {
+    console.error('Error refreshing token:', error);
+    // If refresh fails, continue with current token
+    return currentAccessToken;
+  }
+};
+
+const getDropboxClient = async () => {
+  try {
+    // Check if token is expired or will expire in next 5 minutes
+    const isExpiringSoon = !tokenExpirationTime || 
+      Date.now() > (tokenExpirationTime - 300000); // 5 minutes buffer
+
+    if (isExpiringSoon) {
+      await refreshAccessToken();
+    }
+
+    return new Dropbox({ 
+      accessToken: currentAccessToken,
+      fetch
+    });
+  } catch (error) {
+    console.error('Error getting Dropbox client:', error);
+    // Fallback to current token if refresh fails
+    return new Dropbox({ 
+      accessToken: currentAccessToken,
+      fetch
+    });
+  }
+};
 
 export const uploadToDropbox = async (file, filename) => {
   try {
-    // Convert file to buffer if needed
+    const dbx = await getDropboxClient();
+    
     let fileBuffer;
     if (file instanceof Buffer) {
       fileBuffer = file;
@@ -17,36 +80,67 @@ export const uploadToDropbox = async (file, filename) => {
       fileBuffer = Buffer.from(arrayBuffer);
     }
 
-    // Upload file to Dropbox
-    const uploadResponse = await dbx.filesUpload({
-      path: `/products/${filename}`,
-      contents: fileBuffer,
-      mode: 'overwrite'
-    });
+    // Try upload
+    try {
+      const uploadResponse = await dbx.filesUpload({
+        path: `/products/${filename}`,
+        contents: fileBuffer,
+        mode: 'overwrite'
+      });
 
-    // Create a shared link
-    const shareResponse = await dbx.sharingCreateSharedLink({
-      path: uploadResponse.result.path_display
-    });
+      const shareResponse = await dbx.sharingCreateSharedLink({
+        path: uploadResponse.result.path_display
+      });
 
-    // Convert to direct download link
-    let directLink = shareResponse.result.url;
-    if (directLink.includes('www.dropbox.com')) {
-      directLink = directLink.replace('www.dropbox.com', 'dl.dropboxusercontent.com');
-      if (!directLink.endsWith('?dl=1')) {
-        directLink += '?dl=1';
+      let directLink = shareResponse.result.url;
+      if (directLink.includes('www.dropbox.com')) {
+        directLink = directLink.replace('www.dropbox.com', 'dl.dropboxusercontent.com');
+        if (!directLink.endsWith('?dl=1')) {
+          directLink += '?dl=1';
+        }
       }
-    }
 
-    return directLink;
+      return directLink;
+    } catch (uploadError) {
+      // If error is due to expired token, refresh and retry once
+      if (uploadError.status === 401) {
+        console.log('Token expired during upload, refreshing and retrying...');
+        await refreshAccessToken();
+        const newDbx = await getDropboxClient();
+        
+        // Retry upload with new token
+        const uploadResponse = await newDbx.filesUpload({
+          path: `/products/${filename}`,
+          contents: fileBuffer,
+          mode: 'overwrite'
+        });
+
+        const shareResponse = await newDbx.sharingCreateSharedLink({
+          path: uploadResponse.result.path_display
+        });
+
+        let directLink = shareResponse.result.url;
+        if (directLink.includes('www.dropbox.com')) {
+          directLink = directLink.replace('www.dropbox.com', 'dl.dropboxusercontent.com');
+          if (!directLink.endsWith('?dl=1')) {
+            directLink += '?dl=1';
+          }
+        }
+
+        return directLink;
+      }
+      throw uploadError;
+    }
   } catch (error) {
     console.error('Dropbox upload error:', error);
     throw error;
   }
 };
 
-const testDropboxConnection = async () => {
+// Test connection and initial token refresh
+const testConnection = async () => {
   try {
+    const dbx = await getDropboxClient();
     const response = await dbx.usersGetCurrentAccount();
     console.log('Dropbox connection successful:', response.result.email);
     return true;
@@ -56,9 +150,5 @@ const testDropboxConnection = async () => {
   }
 };
 
-// Test connection on service initialization
-testDropboxConnection().then(isConnected => {
-  if (!isConnected) {
-    console.error('Warning: Dropbox service is not properly configured');
-  }
-}); 
+// Run initial test
+testConnection(); 

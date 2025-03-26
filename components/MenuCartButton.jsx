@@ -24,11 +24,13 @@ import AnimatedButton from "./AnimatedButton";
 import useInventorHooks from "@hooks/inventoryhooks";
 import { useState } from "react";
 import axios from "axios";
+import { AddIcon, MinusIcon, DeleteIcon } from '@chakra-ui/icons';
+import React from "react";
 
 const baseURL = "/api/imtiaz";
 
 const MenuCartButton = () => {
-  const { cart, placeOrder, resetCart } = useCartHook();
+  const { cart, placeOrder, resetCart, updateQuantity, removeProduct } = useCartHook();
   const { getInventory } = useInventorHooks();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -161,7 +163,26 @@ const MenuCartButton = () => {
   }
 
   const Item = (props) => {
+    const handleQuantityChange = (change) => {
+      const currentQuantity = props.quantity || 1;
+      const newQuantity = Math.max(1, currentQuantity + change);
+      if (newQuantity !== currentQuantity) {
+        updateQuantity(props.id, newQuantity);
+      }
+    };
+
+    const handleRemove = () => {
+      removeProduct(props.id);
+    };
     const CartItemDesign = (propsData) => {
+      // Get the first image from the array or fallback to no-image
+      const displayImage = Array.isArray(props.imageUrl) && props.imageUrl.length > 0
+        ? props.imageUrl[0]
+        : '/no-image.png';
+
+      // Memoize the image URL to prevent unnecessary re-renders
+      const memoizedImageUrl = React.useMemo(() => displayImage, [displayImage]);
+
       return (
         <Flex
           alignItems="center"
@@ -170,9 +191,15 @@ const MenuCartButton = () => {
           gap={2}
         >
           <Box w={propsData.w || "10rem"} h={propsData.h || "6rem"}>
-            <ProductImage imageUrl={props.imageUrl} h={propsData.h} />
+            <ProductImage 
+              imageUrl={memoizedImageUrl}
+              h={propsData.h}
+              fallbackSrc="/no-image.png"
+              loading="lazy"
+              cacheKey={props.id}
+            />
           </Box>
-          <Box>
+          <Box flex="1">
             <Heading size={propsData.size ? "md" : "xs"}>{props.name}</Heading>
             <Text
               mt={2}
@@ -186,6 +213,36 @@ const MenuCartButton = () => {
               {formatprice(props.price)}
             </Text>
           </Box>
+          
+          {/* Quantity Controls */}
+          <Flex direction="column" alignItems="center" gap={2}>
+            <Flex alignItems="center" gap={2}>
+              <IconButton
+                size="sm"
+                icon={<MinusIcon />}
+                onClick={() => handleQuantityChange(-1)}
+                isDisabled={props.quantity <= 1}
+                aria-label="Decrease quantity"
+              />
+              <Text fontWeight="bold">{props.quantity || 1}</Text>
+              <IconButton
+                size="sm"
+                icon={<AddIcon />}
+                onClick={() => handleQuantityChange(1)}
+                aria-label="Increase quantity"
+              />
+            </Flex>
+            <Text fontSize="sm" fontWeight="semibold">
+              Subtotal: {formatprice(props.price * (props.quantity || 1))}
+            </Text>
+            <IconButton
+              size="sm"
+              colorScheme="red"
+              icon={<DeleteIcon />}
+              onClick={handleRemove}
+              aria-label="Remove item"
+            />
+          </Flex>
         </Flex>
       );
     };
@@ -226,12 +283,24 @@ const MenuCartButton = () => {
         withCloseButton={true}
         size="4xl"
         footer={
-          <AnimatedButton
-            label="Place Order"
-            loadingLabel="Processing"
-            onClick={handlePlaceOrder}
-            isDisabled={isSubmitting || cart.products.length === 0}
-          />
+          <Flex width="100%" justifyContent="space-between" alignItems="center">
+            <ButtonComponent
+              label="Clear Cart"
+              variant="outline"
+              colorScheme="red"
+              onClick={()=> {
+                onClose();
+                resetCart();
+              }}
+              isDisabled={cart.products.length === 0}
+            />
+            <AnimatedButton
+              label="Place Order"
+              loadingLabel="Processing"
+              onClick={handlePlaceOrder}
+              isDisabled={isSubmitting || cart.products.length === 0}
+            />
+          </Flex>
         }
       >
         <Box>

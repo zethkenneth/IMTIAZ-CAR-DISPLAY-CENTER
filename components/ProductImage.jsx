@@ -1,28 +1,43 @@
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
 const { Box, Button, Flex } = require("@chakra-ui/react");
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/solid";
+import { Image } from "@chakra-ui/react";
 
-const ProductImage = ({imageUrl = [], isCarousel = false, h='10rem' }) => {
+const ProductImage = ({ imageUrl, h, fallbackSrc = "/no-image.png", cacheKey, contain }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [imgSrc, setImgSrc] = useState(imageUrl);
+    const [isLoading, setIsLoading] = useState(true);
 
     // If imageUrl is null or empty, use a default image
     const images = imageUrl?.length ? imageUrl : ['/assets/images/no-image.png'];
 
-    const handlePrev = () => {
+    useEffect(() => {
+        setImgSrc(imageUrl);
+    }, [imageUrl]);
+
+    const handlePrev = (e) => {
+        e.stopPropagation()
         setCurrentIndex((prevIndex) =>
         prevIndex === 0 ? images.length - 1 : prevIndex - 1
         );
     };
 
-    const handleNext = () => {
+    const handleNext = (e) => {
+        e.stopPropagation()
         setCurrentIndex((prevIndex) =>
         prevIndex === images.length - 1 ? 0 : prevIndex + 1
         );
     };
 
-    if(isCarousel){
+    const handleError = () => {
+        if (imgSrc !== fallbackSrc) {
+            setImgSrc(fallbackSrc);
+        }
+    };
+
+    if(Array.isArray(imageUrl) && imageUrl.length > 0) {
         return (
-            <Box position="relative" overflow="hidden" h="10rem">
+            <Box position="relative" overflow="hidden" h="160px" minH="160px">
                 <Box position="relative" h="100%" w="full">
                     <Box
                         display="flex"
@@ -35,10 +50,9 @@ const ProductImage = ({imageUrl = [], isCarousel = false, h='10rem' }) => {
                         <Box
                             key={index}
                             flexShrink="0"
-                            p="2"
                             h="100%"
                             w="full"
-                            bgSize="contain"
+                            bgSize={contain ? "contain": "cover"}
                             bgRepeat="no-repeat"
                             bgPos="center"
                             style={{
@@ -52,9 +66,9 @@ const ProductImage = ({imageUrl = [], isCarousel = false, h='10rem' }) => {
                     <Button
                         position="absolute"
                         top="50%"
-                        left="0"
+                        left="2"
                         transform="translateY(-50%)"
-                        onClick={handlePrev}
+                        onClick={(e)=>handlePrev(e)}
                         bg="#F4511E"
                         color="white"
                         _hover={{ 
@@ -74,9 +88,9 @@ const ProductImage = ({imageUrl = [], isCarousel = false, h='10rem' }) => {
                     <Button
                         position="absolute"
                         top="50%"
-                        right="0"
+                        right="2"
                         transform="translateY(-50%)"
-                        onClick={handleNext}
+                        onClick={(e)=>handleNext(e)}
                         bg="#F4511E"
                         color="white"
                         _hover={{ 
@@ -119,19 +133,21 @@ const ProductImage = ({imageUrl = [], isCarousel = false, h='10rem' }) => {
     }
 
     return (
-        <Box position="relative" overflow="hidden" h="10rem">
-            <Box
-                flexShrink="0"
-                p="2"
-                h={h}
-                bgSize="contain"
-                bgRepeat="no-repeat"
-                bgPos="center"
-                style={{
-                    backgroundImage: `url(${images[0]})`,
-                    mixBlendMode: "multiply",
-                }}
-            ></Box>
+        <Box h="160px" minH="160px" position="relative">
+            <Image
+                src={imgSrc}
+                alt="Product"
+                objectFit="cover"
+                w="100%"
+                h="100%"
+                loading="lazy"
+                onError={handleError}
+                opacity={isLoading ? 0.5 : 1}
+                transition="opacity 0.3s"
+                onLoad={() => setIsLoading(false)}
+                key={cacheKey}
+                fallbackSrc={fallbackSrc}
+            />
         </Box>
     );
 };

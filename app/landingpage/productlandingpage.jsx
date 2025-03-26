@@ -21,17 +21,41 @@ const ProductLandingPage = () => {
   };
 
   useEffect(() => {
+    const fetchProducts = async (cancelToken) => {
+      if (products.length === 0) {
+        await getInventory(cancelToken, (status, feedback) => {
+          if (status !== 200) {
+            console.error("Error fetching inventory:", feedback);
+          }
+        });
+      }
+    };
+
     const cancelToken = axios.CancelToken.source();
+    
+    // Fetch on mount
+    fetchProducts(cancelToken.token);
 
-    if (products.length === 0) {
-      getInventory(cancelToken.token, (status, feedback) => {
-        if (status !== 200) {
-          console.error("Error fetching inventory:", feedback);
-        }
-      });
-    }
+    // Add event listeners for page visibility and focus
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchProducts(cancelToken.token);
+      }
+    };
 
-    return () => cancelToken.cancel();
+    const handleFocus = () => {
+      fetchProducts(cancelToken.token);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    // Cleanup
+    return () => {
+      cancelToken.cancel();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [getInventory, products.length]);
 
   return (

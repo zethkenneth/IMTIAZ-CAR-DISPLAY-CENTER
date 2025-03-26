@@ -89,8 +89,33 @@ const Reports = () => {
   };
 
   useEffect(() => {
+    // Fetch on mount and when reportType changes
     fetchReportData();
-  }, [reportType]);
+
+    // Add event listeners for page visibility and focus
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchReportData();
+      }
+    };
+
+    const handleFocus = () => {
+      fetchReportData();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    // Optional: Set up periodic refresh (every 5 minutes)
+    const refreshInterval = setInterval(fetchReportData, 300000);
+
+    // Cleanup listeners and interval
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(refreshInterval);
+    };
+  }, [reportType]); // Dependencies include reportType
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-PH', {

@@ -45,23 +45,53 @@ const HomeDashboard = () => {
   ];
 
   useEffect(() => {
-    const cancelToken = axios.CancelToken.source();
-
-    if (analytic === null) {
+    const fetchAnalytics = () => {
+      const cancelToken = axios.CancelToken.source();
       getAnalytic(cancelToken.token, (status, feedback) => {
         switch (status) {
           case 200:
-            console.log(feedback);
+            console.log('Analytics updated:', feedback);
             break;
           default:
-            console.log(feedback);
+            console.error('Failed to update analytics:', feedback);
         }
       });
-    }
+      return cancelToken;
+    };
 
-    return () => cancelToken.cancel();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    // Initial fetch
+    let cancelToken = fetchAnalytics();
+
+    // Add event listeners for page visibility and focus
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        cancelToken.cancel(); // Cancel any pending request
+        cancelToken = fetchAnalytics(); // Fetch fresh data
+      }
+    };
+
+    const handleFocus = () => {
+      cancelToken.cancel(); // Cancel any pending request
+      cancelToken = fetchAnalytics(); // Fetch fresh data
+    };
+
+    // Set up periodic refresh (every 5 minutes)
+    const refreshInterval = setInterval(() => {
+      cancelToken.cancel(); // Cancel any pending request
+      cancelToken = fetchAnalytics(); // Fetch fresh data
+    }, 300000); // 5 minutes
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    // Cleanup
+    return () => {
+      cancelToken.cancel();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(refreshInterval);
+    };
+  }, [getAnalytic]);
 
   const CardStatistic = ({ label, value, icon }) => {
     return (

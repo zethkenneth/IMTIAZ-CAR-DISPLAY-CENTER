@@ -7,6 +7,7 @@ import {
   useDisclosure,
   useToast,
   VStack,
+  IconButton,
 } from "@chakra-ui/react";
 import ButtonComponent from "@components/button";
 import DeletePrompt from "@components/DeletePrompt";
@@ -17,6 +18,7 @@ import useCartHook from "@hooks/carthooks";
 import React, { useState } from "react";
 import axios from "axios";
 import useInventorHooks from "@hooks/inventoryhooks";
+
 const ProductCard = ({
   imageUrl,
   name,
@@ -36,6 +38,8 @@ const ProductCard = ({
   const { addToCart } = useCartHook();
   const { getInventory } = useInventorHooks();
   const toast = useToast();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [images, setImages] = useState([imageUrl]);
 
   function handleEdit() {
     edit(product);
@@ -126,7 +130,8 @@ const ProductCard = ({
   const ViewProduct = ({ children }) => {
     const { isOpen, onOpen, onClose } = useDisclosure();
 
-    function handleAddToCard() {
+    function handleAddToCard(e) {
+      e.stopPropagation()
       addToCart(product);
     }
 
@@ -144,7 +149,10 @@ const ProductCard = ({
           rounded="lg"
           overflow="hidden"
           cursor="pointer"
-          onClick={() => onOpen()}
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpen();
+          }}
         >
           {children}
         </Flex>
@@ -159,93 +167,72 @@ const ProductCard = ({
               <ButtonComponent
                 label="Add To Cart"
                 icon={<ShoppingCartIcon className="w-5 h-5" />}
-                onClick={handleAddToCard}
+                onClick={(e)=> handleAddToCard(e)}
                 style={{ color: "white" }}
               />
             </Box>
           }
         >
-          <ProductImage imageUrl={imageUrl} isCarousel={true} />
-          <Box mt={2}>
-            <Flex justifyContent="space-between" alignItems="center">
-              <Heading size="md">{name}</Heading>
-              <Flex gap={5} alignItems="center">
-                <Text fontSize={12} fontWeight={600}>
-                  <strong>Model:</strong> {`${model}-${year}`}
-                </Text>
-                <Text>
-                  <strong>Price:</strong> {formatPrice(price)}
-                </Text>
-              </Flex>
-            </Flex>
-            {description2 && (
-              <Box overflowY={"scroll"} height="35vh">
+          <Box maxH="80vh" overflow="auto">
+            <Box bg="white" p={4} rounded="lg">
+              <ProductImage imageUrl={imageUrl} isCarousel={true} />
+              <Box mt={2}>
+                <Flex justifyContent="space-between" alignItems="center">
+                  <Heading size="md">{name}</Heading>
+                  <Flex gap={5} alignItems="center">
+                    <Text fontSize={12} fontWeight={600}>
+                      <strong>Model:</strong> {`${model}-${year}`}
+                    </Text>
+                    <Text>
+                      <strong>Price:</strong> {formatPrice(price)}
+                    </Text>
+                  </Flex>
+                </Flex>
                 <Text mt={4} fontSize="13" fontWeight="bold">
-                  Overview:
-                </Text>
-                <Text mt={2} fontSize={12}>
-                  {description2?.overview}
-                </Text>
-                <Text mt={2} fontSize="13" fontWeight="bold">
-                  Key Features:
-                </Text>
-                <VStack align="start" mt={2} spacing={2} fontSize="12">
-                  <Text>
-                    <strong>Engine Options:</strong> The Civic offers a variety
-                    of engine choices, including a fuel-efficient four-cylinder
-                    engine and a turbocharged option for more power. Some models
-                    also offer a high-performance variant, such as the Civic Si
-                    or Type R.
+                      Overview:
+                    </Text>
+                    <Text mt={2} fontSize={12}>
+                      {description}
                   </Text>
-                  <Text>
-                    <strong>Transmission:</strong> The Civic typically comes
-                    with a choice of a continuously variable transmission (CVT)
-                    for smooth and efficient driving or a manual transmission in
-                    some sporty models.
-                  </Text>
-                  <Text>
-                    <strong>Fuel Efficiency:</strong> Known for its excellent
-                    fuel economy, the Civic is a cost-effective option for daily
-                    driving. The standard engine provides impressive miles per
-                    gallon (MPG), making it a great choice for those seeking to
-                    minimize fuel costs.
-                  </Text>
-                  <Text>
-                    <strong>Interior:</strong>
-                    {`The Civic's interior is spacious for a compact car, with high-quality materials and a user-friendly layout. Features often include a touchscreen infotainment system with Apple CarPlay and Android Auto, available leather upholstery, and a comfortable seating arrangement.`}
-                  </Text>
-                  <Text>
-                    <strong>Safety:</strong> Honda prioritizes safety in the
-                    Civic, equipping it with advanced safety features such as
-                    Honda Sensing, which includes adaptive cruise control, lane
-                    departure warning, automatic emergency braking, and
-                    collision mitigation braking.
-                  </Text>
-                  <Text>
-                    <strong>Comfort:</strong>
-                    {`The Civic offers a comfortable ride with supportive seats and a well-tuned suspension system. Available features might include dual-zone climate control, heated front seats, and a power-adjustable driver's seat.`}
-                  </Text>
-                  <Text>
-                    <strong>Design:</strong>
-                    {`The exterior design of the Civic is modern and sporty, with clean lines, a bold front grille, and available alloy wheels. The design is both functional and aesthetically pleasing, contributing to the Civic's overall appeal.`}
-                  </Text>
-                </VStack>
+                {description2 && (
+                  <Box overflowY="scroll" height="35vh">
+                    <Text mt={4} fontSize="13" fontWeight="bold">
+                      Key Features:
+                    </Text>
+                    <VStack align="start" mt={2} spacing={2} fontSize="12">
+                      <Text>
+                        <strong>Engine Options:</strong> {description2.engine_options}
+                      </Text>
+                      <Text>
+                        <strong>Transmission:</strong> {description2.transmissions}
+                      </Text>
+                      <Text>
+                        <strong>Fuel Efficiency:</strong> {description2.fuel_efficiency}
+                      </Text>
+                      <Text>
+                        <strong>Interior:</strong> {description2.interior}
+                      </Text>
+                      <Text>
+                        <strong>Safety:</strong> {description2.safety}
+                      </Text>
+                      <Text>
+                        <strong>Comfort:</strong> {description2.comfort}
+                      </Text>
+                      <Text>
+                        <strong>Design:</strong> {description2.design}
+                      </Text>
+                    </VStack>
 
-                <Text mt={2} fontSize="13" fontWeight="bold">
-                  Performance:
-                </Text>
-                <Text fontSize={12}>
-                  {`The Honda Civic delivers a dynamic driving experience with responsive handling and a choice of engines that cater to different driving styles. The ride quality is generally smooth, and the Civic's handling is agile, making it a fun car to drive while still being practical for everyday use.`}
-                </Text>
-
-                <Text mt={2} fontSize="13" fontWeight="bold">
-                  Summary:
-                </Text>
-                <Text fontSize={12}>
-                  {`The Honda Civic is a versatile and well-rounded compact car that excels in areas such as fuel efficiency, reliability, and driving dynamics. Its high-quality interior, advanced safety features, and engaging performance make it a strong contender in the compact car segment.`}
-                </Text>
+                    <Text mt={4} fontSize="13" fontWeight="bold">
+                      Performance:
+                    </Text>
+                    <Text fontSize={12}>
+                      {description2.performance}
+                    </Text>
+                  </Box>
+                )}
               </Box>
-            )}
+            </Box>
           </Box>
         </ModalComponent>
       </>
@@ -254,7 +241,9 @@ const ProductCard = ({
 
   return (
     <ViewProduct>
-      <ProductImage imageUrl={imageUrl} />
+      <Box h="160px" minH="160px">
+        <ProductImage imageUrl={imageUrl} />
+      </Box>
       <Flex
         flex="1"
         w="full"
@@ -262,49 +251,49 @@ const ProductCard = ({
         pt="2"
         flexDirection="column"
         justifyContent="space-between"
-        leading="normal"
+        minH="0"
       >
-        <Box mb="2">
+        <Box flex="1" overflow="hidden">
           <Heading as="h2" size="md" color="gray.900" fontWeight="bold" mb="2">
             {name}
           </Heading>
-          <Text fontSize={13}>
-            {description.length > 150
-              ? `${description.substring(0, 150)}...`
-              : description}
+          <Text fontSize={13} noOfLines={3}>
+            {description}
           </Text>
           <Text fontSize={13} mt={2}>
             <strong>{type}</strong>
           </Text>
         </Box>
-        <Box mb="2">
+        
+        <Box mt="auto" pt="2">
           <Text color="gray.900" fontSize="sm">
             <strong>Price:</strong> {formatPrice(price)}
           </Text>
           <Text color="gray.900" fontSize="sm" mt={1}>
             <strong>Quantity:</strong> {quantityOnHand || 0}
           </Text>
+          
+          {isInventoryDisplay ? (
+            <Flex gap={5} mt={2}>
+              <ButtonComponent label="Edit" onClick={handleEdit} />
+              <DeletePromptButton />
+            </Flex>
+          ) : (
+            <Button
+              w="full"
+              bg="orange"
+              mt="2"
+              color="white"
+              fontWeight="medium"
+              py="1"
+              px="2"
+              rounded="lg"
+              _hover={{ bg: "orange" }}
+            >
+              Add to Cart
+            </Button>
+          )}
         </Box>
-        {isInventoryDisplay ? (
-          <Flex gap={5}>
-            <ButtonComponent label="Edit" onClick={handleEdit} />
-            <DeletePromptButton />
-          </Flex>
-        ) : (
-          <Button
-            w="full"
-            bg="orange"
-            mt="2"
-            color="white"
-            fontWeight="medium"
-            py="1"
-            px="2"
-            rounded="lg"
-            _hover={{ bg: "orange" }}
-          >
-            Add to Cart
-          </Button>
-        )}
       </Flex>
     </ViewProduct>
   );

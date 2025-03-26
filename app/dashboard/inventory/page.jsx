@@ -83,13 +83,11 @@ const Inventory = () => {
   };
 
   useEffect(() => {
+    // Function to fetch inventory
     const fetchInventory = async () => {
       try {
         setIsLoading(true);
-        console.log('Starting fetch...');
         const result = await getInventory();
-        console.log('Fetch result:', result);
-        console.log('Current products:', products);
         if (result.status !== 200) {
           console.error(result.message);
         }
@@ -100,7 +98,28 @@ const Inventory = () => {
       }
     };
 
+    // Fetch on mount
     fetchInventory();
+
+    // Add event listeners for page visibility and focus
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchInventory();
+      }
+    };
+
+    const handleFocus = () => {
+      fetchInventory();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    // Cleanup listeners
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, [getInventory]);
 
   const handleSaveProduct = async () => {

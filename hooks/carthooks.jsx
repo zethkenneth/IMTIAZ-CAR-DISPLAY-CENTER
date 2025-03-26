@@ -159,6 +159,61 @@ const useCartHook = create((set, get) => ({
       callback(500, error.message);
     }
   },
+  updateQuantity: (productId, newQuantity) => {
+    set((state) => {
+      // Ensure products array exists
+      const currentProducts = state.cart?.products || [];
+      
+      // Update products array with new quantity
+      const updatedProducts = currentProducts.map(product => {
+        if (product.id === productId) {
+          return {
+            ...product,
+            quantity: newQuantity,
+            subtotal: product.price * newQuantity
+          };
+        }
+        return product;
+      });
+
+      // Calculate new totals
+      const totalQuantity = updatedProducts.reduce((sum, product) => sum + (product.quantity || 1), 0);
+      const totalAmount = updatedProducts.reduce((sum, product) => sum + (product.price * (product.quantity || 1)), 0);
+
+      // Return updated state
+      return {
+        cart: {
+          ...state.cart,
+          products: updatedProducts,
+          quantity: totalQuantity,
+          total_amount: totalAmount
+        }
+      };
+    });
+  },
+  removeProduct: (productId) => {
+    set((state) => {
+      // Ensure products array exists
+      const currentProducts = state.cart?.products || [];
+      
+      // Filter out the removed product
+      const updatedProducts = currentProducts.filter(product => product.id !== productId);
+
+      // Calculate new totals
+      const totalQuantity = updatedProducts.reduce((sum, product) => sum + (product.quantity || 1), 0);
+      const totalAmount = updatedProducts.reduce((sum, product) => sum + (product.price * (product.quantity || 1)), 0);
+
+      // Return updated state
+      return {
+        cart: {
+          ...state.cart,
+          products: updatedProducts,
+          quantity: totalQuantity,
+          total_amount: totalAmount
+        }
+      };
+    });
+  },
 }));
 
 export default useCartHook;

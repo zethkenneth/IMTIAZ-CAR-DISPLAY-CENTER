@@ -50,19 +50,3 @@ export const deleteFile = async (publicId) => {
     throw new Error(`File deletion failed: ${error.message}`);
   }
 };
-
-// Test connection and initial token refresh
-const testConnection = async () => {
-  try {
-    const dbx = await getDropboxClient();
-    const response = await dbx.usersGetCurrentAccount();
-    console.log('Dropbox connection successful:', response.result.email);
-    return true;
-  } catch (error) {
-    console.error('Dropbox connection test failed:', error);
-    return false;
-  }
-};
-
-// Run initial test
-testConnection(); 

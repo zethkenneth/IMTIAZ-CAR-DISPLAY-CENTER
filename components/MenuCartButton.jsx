@@ -191,13 +191,7 @@ const MenuCartButton = () => {
           gap={2}
         >
           <Box w={propsData.w || "10rem"} h={propsData.h || "6rem"}>
-            <ProductImage 
-              imageUrl={memoizedImageUrl}
-              h={propsData.h}
-              fallbackSrc="/no-image.png"
-              loading="lazy"
-              cacheKey={props.id}
-            />
+            <ProductImage contain imageUrl={memoizedImageUrl} h={propsData.h} fallbackSrc="/no-image.png" loading="lazy" cacheKey={props.id} />
           </Box>
           <Box flex="1">
             <Heading size={propsData.size ? "md" : "xs"}>{props.name}</Heading>
@@ -283,23 +277,29 @@ const MenuCartButton = () => {
         withCloseButton={true}
         size="4xl"
         footer={
-          <Flex width="100%" justifyContent="space-between" alignItems="center">
-            <ButtonComponent
-              label="Clear Cart"
-              variant="outline"
-              colorScheme="red"
-              onClick={()=> {
-                onClose();
-                resetCart();
-              }}
-              isDisabled={cart.products.length === 0}
-            />
-            <AnimatedButton
-              label="Place Order"
-              loadingLabel="Processing"
-              onClick={handlePlaceOrder}
-              isDisabled={isSubmitting || cart.products.length === 0}
-            />
+          <Flex width="100%" justifyContent="space-between" alignItems="center" gap={4}>
+            <Box flex="1" maxW="200px">
+              <ButtonComponent
+                label="Clear Cart"
+                variant="outline"
+                colorScheme="red"
+                onClick={()=> {
+                  onClose();
+                  resetCart();
+                }}
+                isDisabled={cart.products.length === 0}
+                w="full"
+              />
+            </Box>
+            <Box flex="1" maxW="200px">
+              <AnimatedButton
+                label="Place Order"
+                loadingLabel="Processing"
+                onClick={handlePlaceOrder}
+                isDisabled={isSubmitting || cart.products.length === 0}
+                w="full"
+              />
+            </Box>
           </Flex>
         }
       >

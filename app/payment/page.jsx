@@ -172,7 +172,7 @@ const Payment = () => {
         </Box>
       </Box>
       <Flex flex={2} justifyContent="center" alignItems="center" w="inherit">
-        <Box w="80%" h="51vh" bg="white" p={5} rounded={10} boxShadow="md">
+        <Box w="80%" h="53vh" bg="white" p={5} rounded={10} boxShadow="md">
           <Flex mb={10} gap={3} alignItems="center">
             <Image
               src="assets/images/logo.svg"

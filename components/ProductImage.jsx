@@ -7,10 +7,8 @@ const ProductImage = ({ imageUrl, h, fallbackSrc = "/no-image.png", cacheKey, co
     const [currentIndex, setCurrentIndex] = useState(0);
     const [imgSrc, setImgSrc] = useState(imageUrl);
     const [isLoading, setIsLoading] = useState(true);
-
     // If imageUrl is null or empty, use a default image
     const images = imageUrl?.length ? imageUrl : ['/assets/images/no-image.png'];
-
     useEffect(() => {
         setImgSrc(imageUrl);
     }, [imageUrl]);
@@ -137,7 +135,7 @@ const ProductImage = ({ imageUrl, h, fallbackSrc = "/no-image.png", cacheKey, co
             <Image
                 src={imgSrc}
                 alt="Product"
-                objectFit="cover"
+                objectFit={contain ? "contain": "cover"}
                 w="100%"
                 h="100%"
                 loading="lazy"

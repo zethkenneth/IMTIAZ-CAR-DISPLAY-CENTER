@@ -4,7 +4,13 @@ import { QueryTypes } from "sequelize";
 
 export async function GET() {
   try {
-    // Fetch orders with associated order details and product details as a subquery
+    // Add connection verification
+    await db.authenticate();
+    console.log('Database connection has been established successfully.');
+
+    // Add logging for query execution
+    console.log('Executing transaction query...');
+    
     const Orders = await db.query(
       `SELECT o.*, 
               o."paymentMethod",
@@ -42,8 +48,15 @@ export async function GET() {
        WHERE o."paymentStatus" = 'Completed'
        ORDER BY o."orderID" DESC, o."orderDate" DESC
        `,
-      { type: QueryTypes.SELECT }
+      { 
+        type: QueryTypes.SELECT,
+        logging: console.log // Enable query logging
+      }
     );
+
+    // Add logging for results
+    console.log('Query executed successfully');
+    console.log('Number of orders found:', Orders.length);
 
     return new NextResponse(JSON.stringify({
       status: 200,
@@ -60,11 +73,18 @@ export async function GET() {
       }
     });
   } catch (error) {
-    console.log("Error: ", error);
+    console.error("Detailed Error: ", {
+      message: error.message,
+      stack: error.stack,
+      code: error.code,
+      name: error.name
+    });
+    
     return NextResponse.json({
       status: 500,
       error: "Failed to fetch Orders",
-      details: error,
-    });
+      message: error.message,
+      timestamp: new Date().getTime()
+    }, { status: 500 });
   }
 }

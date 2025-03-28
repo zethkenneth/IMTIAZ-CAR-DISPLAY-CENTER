@@ -20,6 +20,8 @@ import {
   Divider,
   Badge,
   SimpleGrid,
+  Center,
+  Spinner,
 } from "@chakra-ui/react";
 import ModalComponent from "@components/ModalComponent";
 import useOrderHooks from "@hooks/orderhooks";
@@ -34,6 +36,7 @@ const Order = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const toast = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   // Calculate the indices for the current page
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -83,18 +86,54 @@ const Order = () => {
   }
 
   useEffect(() => {
-    const cancelToken = axios.CancelToken.source();
-
-    if (orders.length === 0) {
+    const fetchOrders = () => {
+      const cancelToken = axios.CancelToken.source();
+      setIsLoading(true);
+      
       getOrders(cancelToken.token, (status, feedback) => {
-        if(!(status >= 200 && status < 30)){
-          return console.log(feedback);
+        setIsLoading(false);
+        if (!(status >= 200 && status < 300)) {
+          console.error('Failed to fetch orders:', feedback);
         }
       });
-    }
+      
+      return cancelToken;
+    };
 
-    return () => cancelToken.cancel();
-  }, []);
+    // Initial fetch
+    let cancelToken = fetchOrders();
+
+    // Handle visibility change
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        cancelToken.cancel(); // Cancel any pending request
+        cancelToken = fetchOrders(); // Fetch fresh data
+      }
+    };
+
+    // Handle window focus
+    const handleFocus = () => {
+      cancelToken.cancel(); // Cancel any pending request
+      cancelToken = fetchOrders(); // Fetch fresh data
+    };
+
+    // Set up periodic refresh (every 5 minutes)
+    const refreshInterval = setInterval(() => {
+      cancelToken.cancel(); // Cancel any pending request
+      cancelToken = fetchOrders(); // Fetch fresh data
+    }, 300000);
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    // Cleanup
+    return () => {
+      cancelToken.cancel();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(refreshInterval);
+    };
+  }, []); // Empty dependency array since we want this to run only once on mount
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -136,56 +175,62 @@ const Order = () => {
         <Text fontSize="2xl" mb={4}>Order List</Text>
         
         {/* Main Orders Table */}
-        <Box overflowY="auto" flex="1">
-          <Table variant="striped" colorScheme="orange">
-            <Thead position="sticky" top={0} bg="white" zIndex={1}>
-              <Tr>
-                <Th textAlign="center">Order ID</Th>
-                <Th textAlign="center">Payment Code</Th>
-                <Th textAlign="center">Customer</Th>
-                <Th textAlign="center">Order Date</Th>
-                <Th textAlign="center">Total Amount</Th>
-                <Th textAlign="center">Status</Th>
-                <Th textAlign="center">Actions</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {currentItems.map((order) => (
-                <Tr
-                  key={order.orderID}
-                  _hover={{ cursor: "pointer", bg: "gray.50" }}
-                  onClick={() => handleSelectOrder(order)}
-                >
-                  <Td textAlign="center">{order.orderID}</Td>
-                  <Td textAlign="center">{order.paymentCode}</Td>
-                  <Td textAlign="center">{order.customerName || 'N/A'}</Td>
-                  <Td textAlign="center">{formatDate(order.orderDate)}</Td>
-                  <Td textAlign="center">{formatPrice(order.totalAmount)}</Td>
-                  <Td textAlign="center">
-                    <Badge colorScheme={getStatusColor(order.paymentStatus)}>
-                      {order.paymentStatus}
-                    </Badge>
-                  </Td>
-                  <Td textAlign="center">
-                    <Tooltip label="Cancel Order" hasArrow>
-                      <IconButton
-                        icon={<DeleteIcon />}
-                        size="sm"
-                        variant="ghost"
-                        colorScheme="red"
-                        isDisabled={order.paymentStatus === "Completed" || order.paymentStatus === "Cancelled"}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCancelOrder(order.orderID);
-                        }}
-                        aria-label="Cancel Order"
-                      />
-                    </Tooltip>
-                  </Td>
+        <Box overflowX="auto">
+          {isLoading ? (
+            <Center p={8}>
+              <Spinner size="xl" color="blue.500" />
+            </Center>
+          ) : (
+            <Table variant="striped" colorScheme="orange">
+              <Thead position="sticky" top={0} bg="white" zIndex={1}>
+                <Tr>
+                  <Th textAlign="center">Order ID</Th>
+                  <Th textAlign="center">Payment Code</Th>
+                  <Th textAlign="center">Customer</Th>
+                  <Th textAlign="center">Order Date</Th>
+                  <Th textAlign="center">Total Amount</Th>
+                  <Th textAlign="center">Status</Th>
+                  <Th textAlign="center">Actions</Th>
                 </Tr>
-              ))}
-            </Tbody>
-          </Table>
+              </Thead>
+              <Tbody>
+                {currentItems.map((order) => (
+                  <Tr
+                    key={order.orderID}
+                    _hover={{ cursor: "pointer", bg: "gray.50" }}
+                    onClick={() => handleSelectOrder(order)}
+                  >
+                    <Td textAlign="center">{order.orderID}</Td>
+                    <Td textAlign="center">{order.paymentCode}</Td>
+                    <Td textAlign="center">{order.customerName || 'N/A'}</Td>
+                    <Td textAlign="center">{formatDate(order.orderDate)}</Td>
+                    <Td textAlign="center">{formatPrice(order.totalAmount)}</Td>
+                    <Td textAlign="center">
+                      <Badge colorScheme={getStatusColor(order.paymentStatus)}>
+                        {order.paymentStatus}
+                      </Badge>
+                    </Td>
+                    <Td textAlign="center">
+                      <Tooltip label="Cancel Order" hasArrow>
+                        <IconButton
+                          icon={<DeleteIcon />}
+                          size="sm"
+                          variant="ghost"
+                          colorScheme="red"
+                          isDisabled={order.paymentStatus === "Completed" || order.paymentStatus === "Cancelled"}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCancelOrder(order.orderID);
+                          }}
+                          aria-label="Cancel Order"
+                        />
+                      </Tooltip>
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          )}
         </Box>
 
         {/* Pagination */}

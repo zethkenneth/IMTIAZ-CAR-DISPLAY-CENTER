@@ -13,6 +13,8 @@ import {
   Button,
   Flex,
   useDisclosure,
+  Center,
+  Spinner,
 } from "@chakra-ui/react";
 import ModalComponent from "@components/ModalComponent";
 import useOrderHooks from "@hooks/orderhooks";
@@ -26,6 +28,7 @@ const Transaction = () => {
   const [order, setOrder] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [isLoading, setIsLoading] = useState(false);
 
   // Calculate the indices for the current page
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -48,22 +51,54 @@ const Transaction = () => {
   }
 
   useEffect(() => {
-    const cancelToken = axios.CancelToken.source();
-
-    if (transactions.length === 0) {
+    const fetchTransactions = () => {
+      const cancelToken = axios.CancelToken.source();
+      setIsLoading(true);
+      
       getTransactions(cancelToken.token, (status, feedback) => {
-        switch (status) {
-          case 200:
-            console.log(feedback);
-            break;
-          default:
-            console.log(feedback);
+        setIsLoading(false);
+        if (!(status >= 200 && status < 300)) {
+          console.error('Failed to fetch transactions:', feedback);
         }
       });
-    }
+      
+      return cancelToken;
+    };
 
-    return () => cancelToken.cancel();
-  }, []);
+    // Initial fetch
+    let cancelToken = fetchTransactions();
+
+    // Handle visibility change
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        cancelToken.cancel(); // Cancel any pending request
+        cancelToken = fetchTransactions(); // Fetch fresh data
+      }
+    };
+
+    // Handle window focus
+    const handleFocus = () => {
+      cancelToken.cancel(); // Cancel any pending request
+      cancelToken = fetchTransactions(); // Fetch fresh data
+    };
+
+    // Set up periodic refresh (every 5 minutes)
+    const refreshInterval = setInterval(() => {
+      cancelToken.cancel(); // Cancel any pending request
+      cancelToken = fetchTransactions(); // Fetch fresh data
+    }, 300000);
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    // Cleanup
+    return () => {
+      cancelToken.cancel();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+      clearInterval(refreshInterval);
+    };
+  }, []); // Empty dependency array since we want this to run only once on mount
 
   return (
     <PageContainer>
@@ -81,49 +116,55 @@ const Transaction = () => {
           Transactions
         </Text>
         
-        <Box overflowY="auto" flex="1">
-          <Table variant="striped" colorScheme="orange">
-            <Thead position="sticky" top={0} bg="white" zIndex={1}>
-              <Tr>
-                <Th textAlign="center">Transaction ID</Th>
-                <Th textAlign="center">Payment Code</Th>
-                <Th textAlign="center">Payment Method</Th>
-                <Th textAlign="center">Payment Status</Th>
-                <Th textAlign="center">Customer</Th>
-                <Th textAlign="center">Order Date</Th>
-                <Th textAlign="center">Status</Th>
-                <Th textAlign="center">Total Amount</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {currentItems.map((order) => (
-                <Tr
-                  key={order.orderID}
-                  _hover={{ cursor: "pointer" }}
-                  onClick={() => handleSelectOrder(order)}
-                >
-                  <Td textAlign="center">{order.orderID}</Td>
-                  <Td textAlign="center">{order.paymentCode}</Td>
-                  <Td textAlign="center">{order.paymentMethod }</Td>
-                  <Td textAlign="center">{order.paymentStatus}</Td>
-                  <Td textAlign="center">{order.customerName}</Td>
-                  <Td textAlign="center">
-                    {order?.orderDate
-                      ? new Date(order.orderDate).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })
-                      : "NONE"}
-                  </Td>
-                  <Td textAlign="center">{order.status}</Td>
-                  <Td textAlign="center">
-                    {formatPrice(parseFloat(order.totalAmount).toFixed(2))}
-                  </Td>
+        <Box overflowX="auto">
+          {isLoading ? (
+            <Center p={8}>
+              <Spinner size="xl" color="blue.500" />
+            </Center>
+          ) : (
+            <Table variant="striped" colorScheme="orange">
+              <Thead position="sticky" top={0} bg="white" zIndex={1}>
+                <Tr>
+                  <Th textAlign="center">Transaction ID</Th>
+                  <Th textAlign="center">Payment Code</Th>
+                  <Th textAlign="center">Payment Method</Th>
+                  <Th textAlign="center">Payment Status</Th>
+                  <Th textAlign="center">Customer</Th>
+                  <Th textAlign="center">Order Date</Th>
+                  <Th textAlign="center">Status</Th>
+                  <Th textAlign="center">Total Amount</Th>
                 </Tr>
-              ))}
-            </Tbody>
-          </Table>
+              </Thead>
+              <Tbody>
+                {currentItems.map((order) => (
+                  <Tr
+                    key={order.orderID}
+                    _hover={{ cursor: "pointer" }}
+                    onClick={() => handleSelectOrder(order)}
+                  >
+                    <Td textAlign="center">{order.orderID}</Td>
+                    <Td textAlign="center">{order.paymentCode}</Td>
+                    <Td textAlign="center">{order.paymentMethod }</Td>
+                    <Td textAlign="center">{order.paymentStatus}</Td>
+                    <Td textAlign="center">{order.customerName}</Td>
+                    <Td textAlign="center">
+                      {order?.orderDate
+                        ? new Date(order.orderDate).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          })
+                        : "NONE"}
+                    </Td>
+                    <Td textAlign="center">{order.status}</Td>
+                    <Td textAlign="center">
+                      {formatPrice(parseFloat(order.totalAmount).toFixed(2))}
+                    </Td>
+                  </Tr>
+                ))}
+              </Tbody>
+            </Table>
+          )}
         </Box>
 
         <Flex justifyContent="end" alignItems="center" gap={10} mt={4} p={2}>

@@ -98,7 +98,7 @@ const Transaction = () => {
       window.removeEventListener('focus', handleFocus);
       clearInterval(refreshInterval);
     };
-  }, []); // Empty dependency array since we want this to run only once on mount
+  }, [getTransactions]); // Empty dependency array since we want this to run only once on mount
 
   return (
     <PageContainer>

@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import db from "../../../../utils/sequelize.js";
 import { QueryTypes } from "sequelize";
 
+// Add this export to mark the route as dynamic
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     // Add connection verification

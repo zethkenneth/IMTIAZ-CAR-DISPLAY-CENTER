@@ -45,9 +45,19 @@ export async function GET() {
       { type: QueryTypes.SELECT }
     );
 
-    return NextResponse.json({
+    return new NextResponse(JSON.stringify({
       status: 200,
       data: Orders,
+      timestamp: new Date().getTime(),
+    }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, private, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'ETag': null
+      }
     });
   } catch (error) {
     console.log("Error: ", error);

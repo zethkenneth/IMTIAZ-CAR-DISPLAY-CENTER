@@ -10,6 +10,7 @@ import {
   ChartBarIcon,
   ClipboardDocumentListIcon,
   BanknotesIcon,
+  UserGroupIcon,
 } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -44,6 +45,11 @@ const Sidebar = ({ isOpen, isMini }) => {
       icon: <BanknotesIcon className="h-5 w-5" />,
       label: "Transactions",
       to: "/transaction",
+    },
+    {
+      icon: <UserGroupIcon className="h-5 w-5" />,
+      label: "Customer",
+      to: "/customer",
     },
     {
       icon: <ChartBarIcon className="h-5 w-5" />,

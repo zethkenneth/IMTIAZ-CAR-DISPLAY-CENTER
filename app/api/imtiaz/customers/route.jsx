@@ -39,52 +39,60 @@ export async function POST(req) {
   }
 }
 
-export async function GET(req) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(req.url);
-    const firstName = searchParams.get('firstName');
-    const lastName = searchParams.get('lastName');
-
-    if (!firstName || !lastName) {
-      return NextResponse.json({
-        status: 400,
-        error: "First name and last name are required"
-      });
-    }
-
-    const customer = await db.query(
-      `SELECT "customerID" 
-       FROM "Customers" 
-       WHERE LOWER("firstName") = LOWER(:firstName) 
-       AND LOWER("lastName") = LOWER(:lastName)
-       LIMIT 1`,
-      {
-        replacements: { 
-          firstName, 
-          lastName 
-        },
-        type: QueryTypes.SELECT,
-      }
-    );
-
-    if (customer && customer.length > 0) {
-      return NextResponse.json({
-        status: 200,
-        customerId: customer[0].customerID,
-        message: "Customer found"
-      });
-    }
-
-    return NextResponse.json({
-      status: 404,
-      message: "Customer not found"
+    const customers = await db.query(`
+      WITH CustomerOrders AS (
+        SELECT 
+          c."customerID",
+          c."firstName",
+          c."lastName",
+          c."email",
+          c."phone",
+          COUNT(DISTINCT o."orderID") as total_orders,
+          COALESCE(SUM(CASE WHEN o."paymentStatus" = 'Completed' THEN o."totalAmount" ELSE 0 END), 0) as total_amount,
+          json_agg(
+            json_build_object(
+              'orderID', o."orderID",
+              'orderDate', o."orderDate",
+              'paymentStatus', o."paymentStatus",
+              'totalAmount', o."totalAmount",
+              'items', (
+                SELECT array_agg(p."productName")
+                FROM "OrderDetails" od
+                JOIN "Products" p ON p."productID" = od."productID"
+                WHERE od."orderID" = o."orderID"
+              )
+            )
+          ) FILTER (WHERE o."orderID" IS NOT NULL) as orders
+        FROM "Customers" c
+        LEFT JOIN "Orders" o ON c."customerID" = o."customerID"
+        GROUP BY c."customerID", c."firstName", c."lastName", c."email", c."phone"
+      )
+      SELECT 
+        "customerID",
+        "firstName",
+        "lastName",
+        "email",
+        "phone",
+        COALESCE(total_orders, 0) as "totalOrders",
+        COALESCE(total_amount, 0) as "totalAmount",
+        COALESCE(orders, '[]'::json) as orders
+      FROM CustomerOrders
+      ORDER BY total_orders DESC;
+    `, {
+      type: QueryTypes.SELECT
     });
 
+    return NextResponse.json({
+      status: 200,
+      data: customers
+    });
   } catch (error) {
-    console.error("Error checking customer:", error);
+    console.error("Error fetching customers:", error);
     return NextResponse.json({
       status: 500,
-      error: "Failed to check customer",
+      error: "Failed to fetch customers",
       details: error.message
     });
   }

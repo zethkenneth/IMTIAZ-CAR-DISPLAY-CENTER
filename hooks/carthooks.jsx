@@ -16,6 +16,7 @@ const useCartHook = create((set, get) => ({
     quantity: 0,
     total_amount: 0,
     products: [],
+    discount_percentage: 0,
   },
   orders: [],
   addToCart: async (product) => {
@@ -210,6 +211,20 @@ const useCartHook = create((set, get) => ({
           products: updatedProducts,
           quantity: totalQuantity,
           total_amount: totalAmount
+        }
+      };
+    });
+  },
+  setDiscount: (percentage) => {
+    set((state) => {
+      const subtotal = state.cart.total_amount;
+      const discountAmount = (subtotal * percentage) / 100;
+      
+      return {
+        cart: {
+          ...state.cart,
+          discount_percentage: percentage,
+          total_amount: subtotal - discountAmount
         }
       };
     });

@@ -12,6 +12,9 @@ import {
   FormControl,
   FormLabel,
   Input,
+  InputGroup,
+  InputRightAddon,
+  FormHelperText,
 } from "@chakra-ui/react";
 import { ShoppingCartIcon } from "@heroicons/react/24/outline";
 import formatprice from "@utils/formatprice";
@@ -30,7 +33,7 @@ import React from "react";
 const baseURL = "/api/imtiaz";
 
 const MenuCartButton = () => {
-  const { cart, placeOrder, resetCart, updateQuantity, removeProduct } = useCartHook();
+  const { cart, placeOrder, resetCart, updateQuantity, removeProduct, setDiscount } = useCartHook();
   const { getInventory } = useInventorHooks();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
@@ -41,6 +44,8 @@ const MenuCartButton = () => {
     phone: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDiscountInput, setShowDiscountInput] = useState(false);
+  const [discountPercentage, setDiscountPercentage] = useState(0);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -48,6 +53,22 @@ const MenuCartButton = () => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleDiscountApply = () => {
+    const discount = parseFloat(discountPercentage);
+    if (isNaN(discount) || discount < 0 || discount > 100) {
+      toast({
+        title: "Invalid Discount",
+        description: "Please enter a valid discount percentage between 0 and 100",
+        status: "error",
+        duration: 3000,
+        isClosable: true
+      });
+      return;
+    }
+    setDiscount(discount);
+    setShowDiscountInput(false);
   };
 
   async function handlePlaceOrder(e, stopLoading) {
@@ -357,6 +378,52 @@ const MenuCartButton = () => {
             <Item key={i} {...value} />
           ))}
           
+          {/* Add Discount Section */}
+          <Box mt={4} mb={4}>
+            {!showDiscountInput ? (
+              <ButtonComponent
+                label="Add Discount"
+                variant="outline"
+                colorScheme="blue"
+                onClick={() => setShowDiscountInput(true)}
+                w="200px"
+              />
+            ) : (
+              <Flex gap={2} alignItems="center">
+                <FormControl w="80px">
+                  <InputGroup size="sm">
+                    <Input
+                      type="number"
+                      value={discountPercentage}
+                      onChange={(e) => setDiscountPercentage(e.target.value)}
+                      placeholder="Enter"
+                      size="sm"
+                    />
+                    <InputRightAddon>%</InputRightAddon>
+                  </InputGroup>
+                </FormControl>
+                <ButtonComponent
+                  label="Apply"
+                  colorScheme="orange"
+                  onClick={handleDiscountApply}
+                  size="sm"
+                  h="32px"
+                  w="150px"
+                />
+                <ButtonComponent
+                  label="Cancel"
+                  variant="outline"
+                  colorScheme="gray"
+                  onClick={() => setShowDiscountInput(false)}
+                  size="sm"
+                  h="32px"
+                  w="150px"
+                />
+              </Flex>
+            )}
+          </Box>
+
+          {/* Update the total amount display to show discount */}
           <Flex gap={5} mt={5} justifyContent="space-between">
             <Flex gap={3}>
               <Text>Quantity : </Text>
@@ -364,11 +431,23 @@ const MenuCartButton = () => {
                 <strong>{cart?.quantity ?? 0}</strong>
               </Text>
             </Flex>
-            <Flex gap={3}>
-              <Text>Total Amount : </Text>
-              <Text>
-                <strong>{formatPrice(cart?.total_amount ?? 0)}</strong>
-              </Text>
+            <Flex direction="column" align="flex-end">
+              {cart.discount_percentage > 0 && (
+                <>
+                  <Text fontSize="sm">
+                    Subtotal: {formatPrice(cart?.total_amount / (1 - cart.discount_percentage/100))}
+                  </Text>
+                  <Text fontSize="sm" color="green.500">
+                    Discount: {cart.discount_percentage}%
+                  </Text>
+                </>
+              )}
+              <Flex gap={3}>
+                <Text>Total Amount : </Text>
+                <Text>
+                  <strong>{formatPrice(cart?.total_amount ?? 0)}</strong>
+                </Text>
+              </Flex>
             </Flex>
           </Flex>
         </Box>

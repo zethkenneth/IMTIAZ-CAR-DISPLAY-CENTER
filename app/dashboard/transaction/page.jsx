@@ -249,7 +249,7 @@ const Transaction = () => {
                 <Th textAlign="center">Model</Th>
                 <Th textAlign="center">Brand</Th>
                 <Th textAlign="center">Price</Th>
-                <Th textAlign="center">Quantity</Th>
+                <Th textAlign="center">Chasis</Th>
                 <Th textAlign="center">Total Price</Th>
               </Tr>
             </Thead>
@@ -261,7 +261,7 @@ const Transaction = () => {
                   <Td textAlign="center">{orderProduct.model}</Td>
                   <Td textAlign="center">{orderProduct.brand}</Td>
                   <Td textAlign="center">{orderProduct.price}</Td>
-                  <Td textAlign="center">{orderProduct.quantity}</Td>
+                  <Td textAlign="center">{orderProduct.chasis || "N/A"}</Td>
                   <Td textAlign="center">
                     {formatPrice(parseFloat(orderProduct.totalPrice).toFixed(2))}
                   </Td>

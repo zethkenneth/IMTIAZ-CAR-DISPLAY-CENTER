@@ -314,7 +314,7 @@ const Order = () => {
                 <Th>Model</Th>
                 <Th>Brand</Th>
                 <Th isNumeric>Price</Th>
-                <Th isNumeric>Quantity</Th>
+                <Th isNumeric>Chasis</Th>
                 <Th isNumeric>Total</Th>
               </Tr>
             </Thead>
@@ -325,7 +325,7 @@ const Order = () => {
                   <Td>{item.model}</Td>
                   <Td>{item.brand}</Td>
                   <Td isNumeric>{formatPrice(item.price)}</Td>
-                  <Td isNumeric>{item.quantity}</Td>
+                  <Td isNumeric>{item.chasis || "N/A"}</Td>
                   <Td isNumeric>{formatPrice(item.totalPrice)}</Td>
                 </Tr>
               ))}

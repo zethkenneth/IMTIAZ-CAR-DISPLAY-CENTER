@@ -46,6 +46,9 @@ const Product = db.define(
     imageUrl: {
       type: DataTypes.ARRAY(DataTypes.STRING),
     },
+    chasis: {
+      type: DataTypes.STRING,
+    },
   },
   {
     tableName: "Products",

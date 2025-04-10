@@ -63,6 +63,7 @@ const Inventory = () => {
     performance: '',
     brand: '',
     category: '',
+    chasis: ''
   });
 
   const handleInputChange = (e) => {
@@ -136,6 +137,7 @@ const Inventory = () => {
       form.append('category', formData.category || '');
       form.append('price', formData.price || '');
       form.append('quantityOnHand', formData.quantityOnHand || '');
+      form.append('chasis', formData.chasis || '');
 
       // Append description2 as JSON
       const description2 = {
@@ -232,7 +234,7 @@ const Inventory = () => {
       model: '',
       type: '',
       price: '',
-      quantityOnHand: '',
+      // quantityOnHand: '',
       overview: '',
       engine_options: '',
       transmissions: '',
@@ -245,6 +247,7 @@ const Inventory = () => {
       brand: '',
       category: '',
       reorderLevel: '',
+      chasis: ''
     });
     setFiles([]);
   }
@@ -289,6 +292,7 @@ const Inventory = () => {
         brand: product.brand || '',
         category: product.category || '',
         reorderLevel: product.reorderLevel?.toString() || '',
+        chasis: product.chasis || ''
       });
     } catch (error) {
       console.error('Error parsing description2:', error);
@@ -519,13 +523,25 @@ const Inventory = () => {
                     />
                   </FormControl>
 
-                  <FormControl>
+                  {/* <FormControl>
                     <FormLabel fontSize={12}>Quantity</FormLabel>
                     <Input
                       name="quantityOnHand"
                       value={formData.quantityOnHand}
                       onChange={handleInputChange}
                       type="number"
+                      fontSize={13}
+                      bg="white"
+                    />
+                  </FormControl> */}
+
+                  <FormControl>
+                    <FormLabel fontSize={12}>Chasis</FormLabel>
+                    <Input
+                      name="chasis"
+                      value={formData.chasis}
+                      onChange={handleInputChange}
+                      type="text"
                       fontSize={13}
                       bg="white"
                     />

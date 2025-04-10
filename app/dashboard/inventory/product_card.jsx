@@ -34,6 +34,7 @@ const ProductCard = ({
   productID,
   product,
   quantityOnHand,
+  chasis
 }) => {
   const { addToCart } = useCartHook();
   const { getInventory } = useInventorHooks();
@@ -269,8 +270,11 @@ const ProductCard = ({
           <Text color="gray.900" fontSize="sm">
             <strong>Price:</strong> {formatPrice(price)}
           </Text>
-          <Text color="gray.900" fontSize="sm" mt={1}>
+          {/* <Text color="gray.900" fontSize="sm" mt={1}>
             <strong>Quantity:</strong> {quantityOnHand || 0}
+          </Text> */}
+          <Text color="gray.900" fontSize="sm" mt={1}>
+            <strong>Chasis:</strong> {chasis}
           </Text>
           
           {isInventoryDisplay ? (

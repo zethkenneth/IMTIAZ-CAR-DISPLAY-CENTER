@@ -80,10 +80,13 @@ export async function PUT(req, { params }) {
       type: data.get('type'),
       category: data.get('category'),
       price: data.get('price'),
-      quantityOnHand: data.get('quantityOnHand'),
+      // quantityOnHand: data.get('quantityOnHand'),
       reorderLevel: data.get('reorderLevel'),
+      chasis: data.get('chasis'),
       imageUrl
     };
+
+    console.log(updateData)
 
     const updatedProduct = await product.update(updateData);
 

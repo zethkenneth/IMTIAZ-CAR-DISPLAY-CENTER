@@ -44,9 +44,11 @@ export async function POST(req) {
       type: data.get('type'),
       category: data.get('category'),
       price: parseFloat(data.get('price')),
-      quantityOnHand: parseInt(data.get('quantityOnHand')),
+      quantityOnHand: parseInt(data.get('quantityOnHand')) || 0,
       reorderLevel: parseInt(data.get('reorderLevel')) || 0,
+      chasis: data.get('chasis'),
     };
+
 
     // Parse description2
     let description2 = data.get('description2');

@@ -17,6 +17,8 @@ import {
   Input,
   Textarea,
   Spinner,
+  Button,
+  Heading,
 } from "@chakra-ui/react";
 import ButtonComponent from "@components/button";
 import { useEffect, useState } from "react";
@@ -32,6 +34,7 @@ import {
 } from "react-icons/fa";
 import PageContainer from "@components/PageContainer";
 import { useToast } from "@chakra-ui/react";
+import axios from "axios";
 
 const Inventory = () => {
   const { isOpen, onOpen, onClose: chakraOnClose } = useDisclosure();
@@ -359,6 +362,41 @@ const Inventory = () => {
 
   const toast = useToast();
 
+  const exportToPDF = async () => {
+    try {
+      const response = await axios.post('/api/imtiaz/inventory/export', {
+        data: products,
+        exportType: 'pdf'
+      }, {
+        responseType: 'arraybuffer',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      // Create blob from array buffer
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      
+      // Open PDF in new tab
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      
+      // Cleanup
+      setTimeout(() => {
+        window.URL.revokeObjectURL(url);
+      }, 100);
+    } catch (error) {
+      console.error('Export failed:', error);
+      toast({
+        title: "Error",
+        description: "Failed to export inventory to PDF",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
   return (
     <PageContainer>
       <>
@@ -371,6 +409,7 @@ const Inventory = () => {
           selectedBrandFilter={selectedBrandFilter}
           setSelectedBrandFilter={setSelectedBrandFilter}
           brands={brands}
+          products={products}
         />
         <main>
           {isLoading ? (

@@ -83,6 +83,7 @@ export async function PUT(req, { params }) {
       // quantityOnHand: data.get('quantityOnHand'),
       reorderLevel: data.get('reorderLevel'),
       chasis: data.get('chasis'),
+      engineNumber: data.get('engineNumber'),
       imageUrl
     };
 

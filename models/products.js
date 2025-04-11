@@ -49,6 +49,9 @@ const Product = db.define(
     chasis: {
       type: DataTypes.STRING,
     },
+    engineNumber: {
+      type: DataTypes.STRING,
+    },
   },
   {
     tableName: "Products",

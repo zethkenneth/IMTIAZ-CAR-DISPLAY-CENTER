@@ -42,6 +42,7 @@ const Inventory = () => {
   const [files, setFiles] = useState([]);
   const [editingProductId, setEditingProductId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedBrandFilter, setSelectedBrandFilter] = useState("All Brands");
   
   // Form state
   const [formData, setFormData] = useState({
@@ -63,7 +64,8 @@ const Inventory = () => {
     performance: '',
     brand: '',
     category: '',
-    chasis: ''
+    chasis: '',
+    engineNumber: ''
   });
 
   const handleInputChange = (e) => {
@@ -138,6 +140,7 @@ const Inventory = () => {
       form.append('price', formData.price || '');
       form.append('quantityOnHand', formData.quantityOnHand || '');
       form.append('chasis', formData.chasis || '');
+      form.append('engineNumber', formData.engineNumber || '');
 
       // Append description2 as JSON
       const description2 = {
@@ -247,7 +250,8 @@ const Inventory = () => {
       brand: '',
       category: '',
       reorderLevel: '',
-      chasis: ''
+      chasis: '',
+      engineNumber: ''
     });
     setFiles([]);
   }
@@ -292,7 +296,8 @@ const Inventory = () => {
         brand: product.brand || '',
         category: product.category || '',
         reorderLevel: product.reorderLevel?.toString() || '',
-        chasis: product.chasis || ''
+        chasis: product.chasis || '',
+        engineNumber: product.engineNumber || ''
       });
     } catch (error) {
       console.error('Error parsing description2:', error);
@@ -301,7 +306,7 @@ const Inventory = () => {
 
   const stockThreshold = 10;
 
-  const filterProducts = (data, filterCriteria, stockThreshold) => {
+  const filterProducts = (data, filterCriteria, stockThreshold, brand = "All Brands") => {
     if (!data || !Array.isArray(data)) return [];
     
     // If no filter criteria matches, return all products
@@ -310,22 +315,31 @@ const Inventory = () => {
     const criteria = filterCriteria.toLowerCase();
     
     return data.filter((value) => {
+      const brandMatch = brand === "All Brands" || value.brand?.toLowerCase() === brand.toLowerCase();
+
       if (criteria === "low stock") {
-        return parseInt(value.quantityOnHand) < stockThreshold;
+        return brandMatch && parseInt(value.quantityOnHand) < stockThreshold;
       } else if (criteria === "brand new" || criteria === "second hand") {
-        return value.type?.toLowerCase() === criteria;
+        return brandMatch && value.type?.toLowerCase() === criteria;
       } else if (criteria === "auto part") {
-        return value.category?.toLowerCase() === "auto part";
+        return brandMatch && value.category?.toLowerCase() === "auto part";
       }
-      return true; // Show all products if no filter matches
+      return brandMatch; // Show all products if no filter matches
     });
   };
 
   const filteredData = filterProducts(
     products,
     activeButton.toLowerCase(),
-    stockThreshold
+    stockThreshold,
+    selectedBrandFilter
   );
+
+  const brands = ["All Brands", ...new Set(
+    products
+      ?.map(product => product.brand?.trim()) 
+      .filter(brand => brand)                      
+  )];
 
   const handleFileChange = (event) => {
     const newFiles = Array.from(event.target.files);
@@ -354,6 +368,9 @@ const Inventory = () => {
           activeButton={activeButton}
           setActiveButton={setActiveButton}
           openModal={onOpen}
+          selectedBrandFilter={selectedBrandFilter}
+          setSelectedBrandFilter={setSelectedBrandFilter}
+          brands={brands}
         />
         <main>
           {isLoading ? (
@@ -540,6 +557,18 @@ const Inventory = () => {
                     <Input
                       name="chasis"
                       value={formData.chasis}
+                      onChange={handleInputChange}
+                      type="text"
+                      fontSize={13}
+                      bg="white"
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel fontSize={12}>Engine Number</FormLabel>
+                    <Input
+                      name="engineNumber"
+                      value={formData.engineNumber}
                       onChange={handleInputChange}
                       type="text"
                       fontSize={13}

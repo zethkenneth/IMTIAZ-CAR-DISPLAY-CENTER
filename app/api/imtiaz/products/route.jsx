@@ -47,6 +47,7 @@ export async function POST(req) {
       quantityOnHand: parseInt(data.get('quantityOnHand')) || 0,
       reorderLevel: parseInt(data.get('reorderLevel')) || 0,
       chasis: data.get('chasis'),
+      engineNumber: data.get('engineNumber'),
     };
 
 

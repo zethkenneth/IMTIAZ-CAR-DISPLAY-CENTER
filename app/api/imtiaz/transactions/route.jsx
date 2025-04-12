@@ -36,6 +36,8 @@ export async function GET() {
                          p."category", 
                          p."price", 
                          p."quantityOnHand", 
+                         p."chasis", 
+                         p."engineNumber", 
                          p."reorderLevel", 
                          p."imageUrl", 
                          od."quantity", 

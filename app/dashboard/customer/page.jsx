@@ -264,7 +264,7 @@ const Customer = () => {
                         day: "numeric",
                       })}
                     </Td>
-                    <Td textAlign="center">{order.items.join(", ")}</Td>
+                    <Td textAlign="center">{order?.items?.join(", ")}</Td>
                     <Td textAlign="center">
                       <Badge colorScheme={order.paymentStatus === "Completed" ? "green" : "yellow"}>
                         {order.paymentStatus}

@@ -28,6 +28,8 @@ export async function GET(req) {
                          p."type", 
                          p."category", 
                          p."price", 
+                         p."chasis",
+                         p."engineNumber",  
                          p."quantityOnHand", 
                          p."reorderLevel", 
                          p."imageUrl", 

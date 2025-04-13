@@ -57,11 +57,26 @@ export async function GET() {
               'orderDate', o."orderDate",
               'paymentStatus', o."paymentStatus",
               'totalAmount', o."totalAmount",
-              'items', (
-                SELECT array_agg(p."productName")
+              'productName', (
+                SELECT p."productName"
                 FROM "OrderDetails" od
                 JOIN "Products" p ON p."productID" = od."productID"
                 WHERE od."orderID" = o."orderID"
+                LIMIT 1
+              ),
+              'chasis', (
+                SELECT p."chasis"
+                FROM "OrderDetails" od
+                JOIN "Products" p ON p."productID" = od."productID"
+                WHERE od."orderID" = o."orderID"
+                LIMIT 1
+              ),
+              'engineNumber', (
+                SELECT p."engineNumber"
+                FROM "OrderDetails" od
+                JOIN "Products" p ON p."productID" = od."productID"
+                WHERE od."orderID" = o."orderID"
+                LIMIT 1
               )
             )
           ) FILTER (WHERE o."orderID" IS NOT NULL) as orders

@@ -13,11 +13,13 @@ const Products = () => {
   const { products, getInventory } = useInventorHooks();
   const [search, setSearch] = useState("");
   const [selectedBrandFilter, setSelectedBrandFilter] = useState("All Brands");
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("All Categories");
 
   const filter = products.filter((product) => {
     const matchesSearch = search === "" || product.productName.toLowerCase().includes(search.toLowerCase());
     const matchesBrand = selectedBrandFilter === "All Brands" || product.brand?.toLowerCase() === selectedBrandFilter.toLowerCase();
-    return matchesSearch && matchesBrand;
+    const matchesCategory = selectedCategoryFilter === "All Categories" || product.category?.toLowerCase() === selectedCategoryFilter.toLowerCase();
+    return matchesSearch && matchesBrand && matchesCategory;
   });
 
   useEffect(() => {
@@ -63,6 +65,12 @@ const Products = () => {
       .filter(brand => brand)                      
   )];
 
+  const categories = ["All Categories", ...new Set(
+    products
+      ?.map(product => product.category?.trim())
+      .filter(category => category)
+  )];
+
   return (
     <PageContainer>
       <>
@@ -104,6 +112,17 @@ const Products = () => {
               {brands?.map((brand) => (
                 <option key={brand} value={`${brand}`}>
                   {brand}
+                </option>
+              ))}
+            </Select>
+            <Select
+              value={selectedCategoryFilter}
+              onChange={(e) => setSelectedCategoryFilter(e.target.value)}
+              w="200px"
+            >
+              {categories?.map((category) => (
+                <option key={category} value={`${category}`}>
+                  {category}
                 </option>
               ))}
             </Select>

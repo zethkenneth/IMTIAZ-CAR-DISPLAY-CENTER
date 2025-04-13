@@ -248,7 +248,9 @@ const Customer = () => {
                 <Tr>
                   <Th textAlign="center">Order ID</Th>
                   <Th textAlign="center">Date</Th>
-                  <Th textAlign="center">Items</Th>
+                  <Th textAlign="center">Product</Th>
+                  <Th textAlign="center">Chasis</Th>
+                  <Th textAlign="center">Engine Number</Th>
                   <Th textAlign="center">Payment Status</Th>
                   <Th textAlign="center">Amount</Th>
                 </Tr>
@@ -264,7 +266,9 @@ const Customer = () => {
                         day: "numeric",
                       })}
                     </Td>
-                    <Td textAlign="center">{order?.items?.join(", ")}</Td>
+                    <Td textAlign="center">{order?.productName || 'N/A'}</Td>
+                    <Td textAlign="center">{order?.chasis || 'N/A'}</Td>
+                    <Td textAlign="center">{order?.engineNumber || 'N/A'}</Td>
                     <Td textAlign="center">
                       <Badge colorScheme={order.paymentStatus === "Completed" ? "green" : "yellow"}>
                         {order.paymentStatus}

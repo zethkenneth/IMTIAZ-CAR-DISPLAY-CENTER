@@ -5,7 +5,11 @@ import path from "path";
 
 export async function GET() {
   try {
-    const products = await Products.findAll();
+    const products = await Products.findAll({
+      where: {
+        status: 'Available'
+      }
+    });
     
     const productsArray = products.map(product => {
       const productJSON = product.toJSON();
@@ -48,8 +52,8 @@ export async function POST(req) {
       reorderLevel: parseInt(data.get('reorderLevel')) || 0,
       chasis: data.get('chasis'),
       engineNumber: data.get('engineNumber'),
+      status: 'Available', // Set initial status
     };
-
 
     // Parse description2
     let description2 = data.get('description2');

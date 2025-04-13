@@ -52,6 +52,10 @@ const Product = db.define(
     engineNumber: {
       type: DataTypes.STRING,
     },
+    status: {
+      type: DataTypes.ENUM('Available', 'Reserved', 'Sold'),
+      defaultValue: 'Available',
+    },
   },
   {
     tableName: "Products",

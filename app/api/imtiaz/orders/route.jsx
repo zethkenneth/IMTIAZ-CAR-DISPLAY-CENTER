@@ -86,17 +86,29 @@ export async function GET(req) {
 
 async function registerOrderDetails(orderID, orderProducts) {
   try {
-
     const orderDetails = orderProducts.map((product) => ({
-      orderID, // Use the provided orderID for all products
+      orderID,
       productID: product.productID,
       quantity: product.quantity,
       unitPrice: product.unitPrice,
-      totalPrice: product.quantity * product.unitPrice, // Calculate total price
+      totalPrice: product.quantity * product.unitPrice,
     }));
 
     // Use bulkCreate for optimized batch insertion
     const registeredOrderDetails = await OrderDetail.bulkCreate(orderDetails);
+
+    // Update product status to 'Reserved'
+    for (const product of orderProducts) {
+      await db.query(
+        `UPDATE "Products"
+         SET status = 'Reserved'
+         WHERE "productID" = :productID`,
+        {
+          replacements: { productID: product.productID },
+          type: QueryTypes.UPDATE,
+        }
+      );
+    }
 
     return registeredOrderDetails;
   } catch (error) {

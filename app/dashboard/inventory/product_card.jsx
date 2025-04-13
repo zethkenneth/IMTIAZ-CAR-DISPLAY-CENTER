@@ -35,7 +35,8 @@ const ProductCard = ({
   product,
   quantityOnHand,
   chasis,
-  engineNumber
+  engineNumber,
+  status
 }) => {
   const { addToCart } = useCartHook();
   const { getInventory } = useInventorHooks();
@@ -256,9 +257,22 @@ const ProductCard = ({
         minH="0"
       >
         <Box flex="1" overflow="hidden">
-          <Heading as="h2" size="md" color="gray.900" fontWeight="bold" mb="2">
-            {name}
-          </Heading>
+          <Flex justifyContent="space-between" alignItems="center" mb="2">
+            <Heading as="h2" size="md" color="gray.900" fontWeight="bold">
+              {name}
+            </Heading>
+            <Text
+              fontSize="sm"
+              px={2}
+              py={1}
+              rounded="md"
+              bg={status === 'Available' ? 'green.100' : 'yellow.100'}
+              color={status === 'Available' ? 'green.700' : 'yellow.700'}
+              fontWeight="medium"
+            >
+              {status || 'Available'}
+            </Text>
+          </Flex>
           <Text fontSize={13} noOfLines={3}>
             {description}
           </Text>
@@ -271,9 +285,6 @@ const ProductCard = ({
           <Text color="gray.900" fontSize="sm">
             <strong>Price:</strong> {formatPrice(price)}
           </Text>
-          {/* <Text color="gray.900" fontSize="sm" mt={1}>
-            <strong>Quantity:</strong> {quantityOnHand || 0}
-          </Text> */}
           <Text color="gray.900" fontSize="sm" mt={1}>
             <strong>Chasis:</strong> {chasis}
           </Text>
@@ -297,6 +308,7 @@ const ProductCard = ({
               px="2"
               rounded="lg"
               _hover={{ bg: "orange" }}
+              isDisabled={status !== 'Available'}
             >
               Add to Cart
             </Button>

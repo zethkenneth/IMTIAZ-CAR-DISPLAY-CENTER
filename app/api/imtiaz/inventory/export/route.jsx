@@ -30,6 +30,7 @@ export async function POST(req) {
           const doc = new PDFDocument({
             margin: 30,
             size: 'A4',
+            layout: 'landscape',
             autoFirstPage: true,
             bufferPages: true,
             font: null
@@ -53,13 +54,15 @@ export async function POST(req) {
              .text(`Generated Date: ${new Date().toLocaleDateString()}`)
              .moveDown();
 
-          // Table setup
+          // Table setup with adjusted column widths
           const tableTop = doc.y;
           const productNameCol = 50;
-          const brandCol = 200;
-          const modelCol = 300;
-          const yearCol = 400;
-          const priceCol = 450;
+          const brandCol = 180;
+          const modelCol = 280;
+          const yearCol = 350;
+          const chasisCol = 400;
+          const engineCol = 500;
+          const priceCol = 600;
 
           // Headers
           doc.fontSize(10)
@@ -67,6 +70,8 @@ export async function POST(req) {
              .text('Brand', brandCol, tableTop)
              .text('Model', modelCol, tableTop)
              .text('Year', yearCol, tableTop)
+             .text('Chassis No.', chasisCol, tableTop)
+             .text('Engine No.', engineCol, tableTop)
              .text('Price', priceCol, tableTop);
 
           // Separator line
@@ -83,21 +88,49 @@ export async function POST(req) {
           );
 
           sortedProducts.forEach((product, index) => {
-            if (yPos > 700) {
-              doc.addPage();
+            if (yPos > 500) { // Adjusted for landscape
+              doc.addPage({ layout: 'landscape' });
               yPos = 50;
               doc.font('CustomFont');
+
+              // Add headers to new page
+              doc.fontSize(10)
+                 .text('Product Name', productNameCol, yPos - 20)
+                 .text('Brand', brandCol, yPos - 20)
+                 .text('Model', modelCol, yPos - 20)
+                 .text('Year', yearCol, yPos - 20)
+                 .text('Chassis No.', chasisCol, yPos - 20)
+                 .text('Engine No.', engineCol, yPos - 20)
+                 .text('Price', priceCol, yPos - 20);
+
+              // Separator line
+              doc.moveTo(productNameCol, yPos - 5)
+                 .lineTo(priceCol + 100, yPos - 5)
+                 .stroke();
             }
 
+            // Truncate long text
+            const truncateText = (text, maxLength) => {
+              if (!text) return 'N/A';
+              return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+            };
+
             doc.fontSize(10)
-               .text(product.productName || 'N/A', productNameCol, yPos)
-               .text(product.brand || 'N/A', brandCol, yPos)
-               .text(product.model || 'N/A', modelCol, yPos)
+               .text(truncateText(product.productName, 20), productNameCol, yPos)
+               .text(truncateText(product.brand, 15), brandCol, yPos)
+               .text(truncateText(product.model, 12), modelCol, yPos)
                .text(product.year || 'N/A', yearCol, yPos)
+               .text(product.chasis || 'N/A', chasisCol, yPos)
+               .text(product.engineNumber || 'N/A', engineCol, yPos)
                .text(formatCurrency(product.price), priceCol, yPos);
 
             yPos += 20;
           });
+
+          // Add total count
+          doc.moveDown(2)
+             .fontSize(12)
+             .text(`Total Products: ${sortedProducts.length}`, productNameCol);
 
           // Finalize PDF
           doc.end();
